@@ -389,6 +389,10 @@ table.conj td.es { font-weight: 700; }
 .goalrow .ring { width: 64px; height: 64px; }
 .goalrow select { font: inherit; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 8px; border-radius: 999px; }
 .heart { color: var(--pink-5); }
+#footcredit:not(:empty)::before { content: "·"; margin: 0 7px; opacity: .5; }
+/* the dedication under the Home hero: only in the installed app, where there is no footer to read */
+.dedication { display: none; margin-top: 14px; font-size: .85rem; color: var(--ink-3); }
+html.standalone .dedication { display: block; }
 
 /* path */
 .path-wrap { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1px; background: var(--line); border-bottom: 1px solid var(--line); }
@@ -1330,8 +1334,14 @@ img, svg { max-width: 100%; }
 @media (min-width: 761px) { .updtoast { left: auto; right: 18px; bottom: 18px; max-width: 420px; } }
 #netpill { position: fixed; top: calc(8px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; padding: 6px 12px; border-radius: 999px; background: var(--ink); color: var(--inverse-ink); font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
 #netpill[hidden] { display: none; }
-/* installed: no browser chrome, so lose the web footer and give the bar a little more top room */
-html.standalone .foot { display: none; }
+/* installed: no browser chrome, so the footer's web links go — but the credit line stays, centred
+   and quiet, above the home-screen safe area. It is the one thing worth keeping down there. */
+html.standalone .foot { padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px)); flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+html.standalone .foot > span:first-child, html.standalone .foot #footStat { display: none; }
+html.standalone .foot > span:nth-child(2) { display: flex; flex-direction: column-reverse; align-items: center; gap: 3px; }
+html.standalone .foot #footv { opacity: .5; }
+html.standalone .foot #footcredit { text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: .82rem; color: var(--ink-2); }
+html.standalone .foot #footcredit::before { content: none; margin: 0; }
 html.standalone .topbar { padding-top: max(env(safe-area-inset-top, 0px), 6px); }
 
 /* =========================== v12: accounts =========================== */
@@ -1727,6 +1737,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 const BRAND = {
   id: 'vamos',
   name: 'Vamos',
+  longName: 'Vamos — Learn Spanish',
   a: 'Va', b: 'mos',
   tagline: 'Spanish from the very first word to real fluency, one small step a day.',
   why: '“Vamos” means “let\'s go”.',
@@ -6035,7 +6046,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v17', date: '4 September 2026' };
+const BUILD = { v: 'v17.1', date: '4 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -6624,12 +6635,13 @@ function renderHome() {
     <div class="copy">
       <span class="label" style="color:var(--pink-5)">Español · Level ${lv.id} · ${esc(lv.name)}</span>
       <h1>${esc(BRAND.a)}<span class="mos">${esc(BRAND.b)}</span></h1>
-      <p class="tag">Spanish from the very first word to real fluency, one small step a day.</p>
+      <p class="tag">${esc(BRAND.tagline)}</p>
       <div class="btn-row">
         <a class="btn primary" href="${curIdx >= 0 ? items[curIdx].href : '#grammar'}">${curIdx >= 0 ? 'Continue: ' + esc(items[curIdx].kind) : 'Level ' + lv.id + ' complete'} <span class="arr">→</span></a>
         <a class="btn" href="#games">Play a game <span class="arr">→</span></a>
       </div>
       <p class="why">${BRAND.why ? BRAND.why + ' ' : ''}<a href="#about">About the app and its cast →</a>${(S.xp || 0) < 40 && !S.placed ? ' · <a href="#placement">Not a beginner? Take the placement test →</a>' : ''}</p>
+      ${creditLine()}
     </div>
     <div class="stage">
       <span class="blob"></span>
@@ -8326,6 +8338,15 @@ function ownerGate() {
   $('#pw').focus();
 }
 
+/* the dedication. On the web it lives in the footer; installed, the footer's links are gone and the
+   phone never shows a browser bar, so it also sits under the Home hero where it is actually seen. */
+function creditHTML() {
+  if (BRAND.credit) return BRAND.credit.replace(/♥/g, '<span class="heart">♥</span>');
+  if (BRAND.owner) return 'made by <b>' + esc(BRAND.owner) + '</b>';
+  return '';
+}
+function creditLine() { const c = creditHTML(); return c ? `<p class="dedication">${c}</p>` : ''; }
+
 function applyAnim() { document.documentElement.classList.toggle('noanim', S.anim === false); }
 
 /* ----- boot ----- */
@@ -8336,6 +8357,6 @@ startClock();
 render();
 setTimeout(askAccount, 1200);
 { const fv = $('#footv'); if (fv) fv.textContent = BUILD.v; }
-{ const fc = $('#footcredit'); if (fc) fc.innerHTML = BRAND.credit ? BRAND.credit.replace(/♥/g, '<span class="heart">♥</span>') : BRAND.owner ? 'made by <b>' + esc(BRAND.owner) + '</b>' : ''; }
+{ const fc = $('#footcredit'); if (fc) fc.innerHTML = creditHTML(); }
 </script>
 </html>
