@@ -1,7 +1,7 @@
 /* Vamos service worker — makes the app installable and fully usable offline.
    The whole app is one HTML file, so "offline" mostly means: keep index.html, the icons and the fonts.
    The version below is stamped by build.sh from BUILD.v in part4-app.js; a new build = a new cache. */
-const VERSION = 'v18';
+const VERSION = 'v17.3';
 const SHELL = 'vamos-shell-' + VERSION;
 const FONTS = 'vamos-fonts';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];

@@ -5,10 +5,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Vamos">
-<!-- the colour the browser tints its own chrome with: the installed app's status bar and title bar.
-     Filled by build.sh from the brand's palette, so a teal or indigo build is not framed in rosa. -->
-<meta name="theme-color" content="#FBF7EF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1A18" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FEFAE0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1519" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -136,8 +134,13 @@ button:focus-visible, a:focus-visible, .cell:focus-visible, [tabindex]:focus-vis
 .ring .fill { stroke: var(--pink-5); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .4s; }
 .streak { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
 .streak b { color: var(--pink-5); font-weight: 500; }
-.topbar .theme button { border: 0; background: none; cursor: pointer; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; padding: 0; color: var(--ink-2); }
-.topbar .theme button:hover { color: var(--ink); }
+.topbar .theme { padding: 0 10px; }
+.topbar .theme button { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; padding: 6px 8px; border-radius: 999px; color: var(--ink-2); }
+.topbar .theme button:hover { color: var(--ink); background: var(--pink-1); }
+.topbar .theme .ic { flex: none; }
+.topbar .theme .ic-sun { display: none; }
+.topbar .theme button.isdark .ic-sun { display: block; }
+.topbar .theme button.isdark .ic-moon { display: none; }
 .topbar .cta { padding: 0; }
 .topbar .cta .btn { height: 100%; border: 0; border-radius: 0; padding: 0 18px; background: var(--pink-4); color: #3A2230; }
 .topbar .cta .btn:hover { background: var(--pink-5); }
@@ -1229,9 +1232,13 @@ img, svg { max-width: 100%; }
   .cw { font-size: 1.9rem; }
 
   /* --- top bar: wordmark · streak · coins · settings. Nothing else. --- */
-  .topbar { grid-template-columns: 1fr auto auto auto !important; min-height: 60px; padding-top: env(safe-area-inset-top, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); align-items: center; }
+  .topbar { grid-template-columns: 1fr auto auto auto auto !important; min-height: 60px; padding-top: env(safe-area-inset-top, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); align-items: center; }
   .topbar > * { border-right: 0 !important; padding: 0 6px; }
-  .topbar .lvl, .topbar .crumb, .topbar .theme, .topbar .cta { display: none !important; }
+  .topbar .lvl, .topbar .crumb, .topbar .cta { display: none !important; }
+  .topbar .theme { display: flex !important; padding: 0; margin-left: 2px; }
+  .topbar .theme button { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; color: var(--ink-2); }
+  .topbar .theme button:active { background: var(--pink-1); }
+  .topbar .theme .tlabel { display: none; }
   .topbar .wordmark { font-size: 1.5rem; padding: 0 16px; min-height: 60px; }
   .topbar .goal { display: flex !important; justify-content: center; gap: 6px; padding: 6px 12px 6px 8px; margin: 0 4px; border-radius: 999px; background: var(--pink-1); min-height: 40px; }
   .topbar .goal .ring { width: 26px; height: 26px; }
@@ -1297,9 +1304,11 @@ img, svg { max-width: 100%; }
   .setcard .seg.wide button { padding: 8px 2px; font-size: .82rem; min-width: 0; }
   .setcard .seg.wide button small { font-size: .6rem; }
   .levelrow.big button { padding: 8px 2px; min-height: 54px; }
-  .topbar .wordmark { font-size: 1.3rem; padding: 0 12px; }
-  .topbar .goal, .topbar .coins { padding: 5px 9px; margin: 0 2px; font-size: .9rem; }
-  .topbar .gear { margin-right: 4px; }
+  /* five things in a 320px bar: let the wordmark give way rather than run under the pills */
+  .topbar .wordmark { font-size: 1.15rem; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .goal, .topbar .coins { padding: 5px 8px; margin: 0 1px; font-size: .86rem; }
+  .topbar .gear { margin-right: 2px; width: 40px; height: 40px; }
+  .topbar .theme button { width: 40px; height: 40px; }
   .mobnav a { font-size: .68rem; }
   .mobnav a .mi { width: 44px; }
 }
@@ -1657,9 +1666,6 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --pink-1: #1B2E29; --pink-2: #23413A; --pink-3: #2F5A50; --pink-4: #5FBAA3; --pink-5: #7ED3BB; --pink-ink: #DFEFEA;
   --ink: #E6F2EE; --ink-2: #B3CCC5; --ink-3: #85A099; --line: #3D6B60; --line-soft: #24403A; --dot: #4F8577;
   --shape: #2F5A50; --tile-3: #23413A; --inverse: #DFEFEA; --inverse-ink: #14231F; --inverse-ink-2: #3D6B60;
-  /* the line drawn around a companion so it stays readable on a dark ground. Without this the
-     palette falls back to the default dark theme's rosa mauve and every companion gets a pink edge. */
-  --mascot-outline: #3D6B60;
   --sage: #3E5B3A; --sage-soft: #25361F; --tan: #9C7A54; --tan-deep: #C9A27A; --tan-soft: #33291D;
   --ok: #7ED3BB; --ok-soft: #1E3A30; --bad: #E39176; --bad-soft: #43241B;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
@@ -1669,7 +1675,6 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --pink-1: #231F36; --pink-2: #302A4A; --pink-3: #413A63; --pink-4: #9B8BE0; --pink-5: #B4A6F0; --pink-ink: #E7E4F7;
   --ink: #EDEAF8; --ink-2: #C3BCE0; --ink-3: #948CB4; --line: #4A4270; --line-soft: #2B2640; --dot: #5E558C;
   --shape: #413A63; --tile-3: #302A4A; --inverse: #E7E4F7; --inverse-ink: #1A1729; --inverse-ink-2: #4A4270;
-  --mascot-outline: #4A4270;
   --sage: #3F5347; --sage-soft: #253026; --tan: #97795E; --tan-deep: #C0A184; --tan-soft: #302720;
   --ok: #7BD1A6; --ok-soft: #1E3A2C; --bad: #E08C88; --bad-soft: #3E2322;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
@@ -1713,7 +1718,11 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
     <span class="streak" id="streakTxt"></span><span class="streakm" id="streakM"></span>
   </a>
   <a class="coins" id="coinWidget" href="#casita" aria-label="Your quetzalitos and companion"><span class="coin" aria-hidden="true">◕</span><b id="coinTxt">0</b></a>
-  <div class="theme"><button id="themeBtn" type="button" aria-label="Toggle light or dark theme">Dark</button></div>
+  <div class="theme"><button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch to the dark theme" title="Light or dark">
+    <svg class="ic ic-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+    <svg class="ic ic-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    <span class="tlabel">Dark</span>
+  </button></div>
   <div class="cta"><a class="btn" href="#games">Play <span class="arr">→</span></a></div>
   <a class="gear" id="gearBtn" href="#settings" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></a>
 </header>
@@ -1737,7 +1746,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 </footer>
 <script>
 /* =========================== BRAND ===========================
-   Generated by mkbrand.sh from brands/vamos-live.brand — do not edit here, edit the brand file.
+   Generated by mkbrand.sh from brands/vamos.brand — do not edit here, edit the brand file.
    Everything that makes this copy *this* app: wordmark, title, home-screen name, storage keys,
    About page, footer, palette and cloud project. */
 const BRAND = {
@@ -1756,11 +1765,10 @@ const BRAND = {
   sample: 'Ana',
   palette: 'teal',
   table: 'learner_progress',
-  cast: 'neutral',
   /* SHA-256 of the owner passcode. Set it and that passcode is the only way into the Owner page,
      on every device, with no database involved. Empty: the first device to claim it wins. */
   ownerPass: '',
-  cloud: { url: 'https://tmexeztpuhiiqcoikyip.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZXhlenRwdWhpaXFjb2lreWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMDk1MzgsImV4cCI6MjEwMzc4NTUzOH0.76b7IY4gr333VgWjljunKUW38EWWDGUcMbDd-sWwF5w' },
+  cloud: { url: '', key: '' },
 };
 /* the localStorage prefix for everything this copy saves. It comes from BRAND.id, and it is defined
    here rather than in part4 because the cloud and PWA parts load first and build their keys from it. */
@@ -3538,8 +3546,8 @@ Object.assign(FORMS, {
 
 /* =========================== MASCOTS (original kawaii characters, inline SVG) =========================== */
 /* Palette pulled from the app tokens so they sit on any surface. Faces use the "kawaii" grammar: big head, dot eyes, blush, tiny mouth. */
-const MASCOT_NAMES_CUTE = { lola: 'Lola the axolotl', nopalito: 'Nopalito', mota: 'Mota the kitten', nube: 'Nube the sheep' };
-const MASCOTS_CUTE = {
+const MASCOT_NAMES = { lola: 'Lola the axolotl', nopalito: 'Nopalito', mota: 'Mota the kitten', nube: 'Nube the sheep' };
+const MASCOTS = {
   /* Lola — a pink axolotl who moved to Lake Atitlán. Waving. */
   lola: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lola the axolotl waving">
     <g fill="#FB6F92">
@@ -3602,84 +3610,6 @@ const MASCOTS_CUTE = {
     <g transform="translate(128 70)"><g fill="#FF8FAB"><ellipse cx="0" cy="-9" rx="5" ry="8"/><ellipse cx="8" cy="-3" rx="8" ry="5"/><ellipse cx="5" cy="7" rx="5" ry="8" transform="rotate(20 5 7)"/><ellipse cx="-5" cy="7" rx="5" ry="8" transform="rotate(-20 -5 7)"/><ellipse cx="-8" cy="-3" rx="8" ry="5"/></g><circle r="4" fill="#FEFAE0"/></g>
   </svg>`,
 };
-
-/* =========================== THE NEUTRAL CAST =========================== */
-/* A second set of four, for copies of this app that are not made for one person. Same drawing
-   grammar — flat shapes, dot eyes, a small mouth — but nothing coded as a girl's or a boy's:
-   no bows, no lashes, no pink, and blurbs that never say "she" or "he". Same four ids as the cute
-   set on purpose: every cosmetic anchor, saved outfit, game and room decoration keeps working, and
-   a learner who switches builds does not lose a companion.
-   Guatemalan through and through: the jaguar of the cloud forest, the quetzal, maize, and a volcano. */
-const MASCOT_NAMES_NEUTRAL = { lola: 'Balam the jaguar', nopalito: 'Ixim the maize', mota: 'Tuk the quetzal', nube: 'Fuego the volcano' };
-const MASCOTS_NEUTRAL = {
-  /* Balam — a jaguar cub of the cloud forest. Amber, with open rosettes. */
-  lola: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Balam the jaguar cub">
-    <ellipse cx="100" cy="184" rx="46" ry="9" fill="#E6DCC8"/>
-    <path d="M146 154c20 4 29 19 22 33-8-5-17-1-21 7-5-14-7-30-1-40z" fill="#C79155" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <ellipse cx="100" cy="152" rx="43" ry="31" fill="#D9A566" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <ellipse cx="100" cy="160" rx="25" ry="21" fill="#F2DDBE"/>
-    <ellipse cx="76" cy="179" rx="14" ry="8" fill="#C79155"/><ellipse cx="124" cy="179" rx="14" ry="8" fill="#C79155"/>
-    <path d="M60 76l-8-40 34 20z" fill="#D9A566" stroke="var(--mascot-outline)" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M140 76l8-40-34 20z" fill="#D9A566" stroke="var(--mascot-outline)" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M64 70l-4-22 19 11z" fill="#B5754A"/><path d="M136 70l4-22-19 11z" fill="#B5754A"/>
-    <ellipse cx="100" cy="104" rx="54" ry="48" fill="#D9A566" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <ellipse cx="100" cy="126" rx="27" ry="18" fill="#F2DDBE"/>
-    <g fill="none" stroke="#8A5A31" stroke-width="3" opacity=".85"><circle cx="68" cy="86" r="7"/><circle cx="132" cy="86" r="7"/><circle cx="57" cy="112" r="6"/><circle cx="143" cy="112" r="6"/><circle cx="100" cy="70" r="5"/></g>
-    <circle cx="82" cy="104" r="7" fill="#22302C"/><circle cx="118" cy="104" r="7" fill="#22302C"/>
-    <circle cx="84.6" cy="101.4" r="2.4" fill="#fff"/><circle cx="120.6" cy="101.4" r="2.4" fill="#fff"/>
-    <path d="M93 117h14l-7 7z" fill="#8A5A31"/>
-    <path d="M100 124q-6 7-13 3M100 124q6 7 13 3" stroke="#22302C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <g stroke="#F2DDBE" stroke-width="2" stroke-linecap="round" opacity=".8"><path d="M58 122h-14M60 131l-13 5M142 122h14M140 131l13 5"/></g>
-  </svg>`,
-  /* Ixim — a young maize plant. Maize is the whole point of the valley. */
-  nopalito: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ixim the maize plant">
-    <ellipse cx="100" cy="184" rx="46" ry="9" fill="#E6EDD3"/>
-    <path d="M60 118c-26-8-42 4-40 21 3 12 19 17 32 10" fill="#A8BF75"/>
-    <path d="M140 118c26-8 42 4 40 21-3 12-19 17-32 10" fill="#A8BF75"/>
-    <path d="M100 178c-27 0-41-27-39-66 2-35 20-52 39-52s37 17 39 52c2 39-12 66-39 66z" fill="#F0C674" stroke="#D6A64E" stroke-width="3"/>
-    <g fill="#E0B457" opacity=".75"><circle cx="76" cy="86" r="5"/><circle cx="100" cy="80" r="5"/><circle cx="124" cy="86" r="5"/><circle cx="68" cy="134" r="5"/><circle cx="132" cy="134" r="5"/><circle cx="84" cy="152" r="5"/><circle cx="116" cy="152" r="5"/><circle cx="100" cy="166" r="5"/></g>
-    <path d="M64 148q36 17 72 0-5 27-36 30-31-3-36-30z" fill="#CBD8AE" stroke="#A8BF75" stroke-width="2.5"/>
-    <path d="M100 64q-5-21 6-27M100 64q5-21-6-27" stroke="#8FA85F" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <circle cx="84" cy="106" r="6.5" fill="#3A3222"/><circle cx="116" cy="106" r="6.5" fill="#3A3222"/>
-    <circle cx="86.4" cy="103.6" r="2.3" fill="#fff"/><circle cx="118.4" cy="103.6" r="2.3" fill="#fff"/>
-    <path d="M92 122q8 7 16 0" stroke="#3A3222" stroke-width="3" fill="none" stroke-linecap="round"/>
-  </svg>`,
-  /* Tuk — a quetzal chick. Green above, red below, and a crest it has not grown into yet. */
-  mota: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tuk the quetzal">
-    <ellipse cx="100" cy="186" rx="40" ry="8" fill="#DFEFEA"/>
-    <path d="M130 156c17 7 25 22 20 36-8-7-19-6-25 1-5-13-2-28 5-37z" fill="#2F8C77" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <ellipse cx="100" cy="134" rx="46" ry="42" fill="#4FA893" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <ellipse cx="100" cy="150" rx="26" ry="23" fill="#C4453A"/>
-    <path d="M58 124c-14 7-19 24-12 37 8-7 18-7 24 1z" fill="#2F8C77"/>
-    <path d="M142 124c14 7 19 24 12 37-8-7-18-7-24 1z" fill="#2F8C77"/>
-    <circle cx="100" cy="90" r="40" fill="#4FA893" stroke="var(--mascot-outline)" stroke-width="3"/>
-    <g fill="#8FCBBC"><path d="M92 54q-3-20 8-26 11 6 8 26z"/><path d="M78 60q-7-15 0-21 8 2 11 17z"/><path d="M122 60q7-15 0-21-8 2-11 17z"/></g>
-    <circle cx="86" cy="88" r="6.5" fill="#12352E"/><circle cx="114" cy="88" r="6.5" fill="#12352E"/>
-    <circle cx="88.4" cy="85.6" r="2.3" fill="#fff"/><circle cx="116.4" cy="85.6" r="2.3" fill="#fff"/>
-    <path d="M93 100h14l-7 10z" fill="#F0C674" stroke="#D6A64E" stroke-width="1.5" stroke-linejoin="round"/>
-    <g stroke="#F0C674" stroke-width="5" stroke-linecap="round"><path d="M86 174v9M114 174v9"/></g>
-  </svg>`,
-  /* Fuego — a small volcano, calm most days. */
-  nube: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fuego the little volcano">
-    <ellipse cx="100" cy="184" rx="54" ry="9" fill="#EEE0CD"/>
-    <path d="M100 56c14 0 26 17 40 60 8 24 12 39 12 44H48c0-5 4-20 12-44 14-43 26-60 40-60z" fill="#8A7C6E" stroke="var(--mascot-outline)" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M100 56c-14 0-26 17-40 60-8 24-12 39-12 44h52z" fill="#9C8C7C" opacity=".55"/>
-    <path d="M62 140q38 14 76 0-4 12-6 20H68q-2-8-6-20z" fill="#7A6C5E" opacity=".5"/>
-    <ellipse cx="100" cy="60" rx="23" ry="8" fill="#6E6154"/>
-    <ellipse cx="100" cy="60" rx="15" ry="5" fill="#E0762F"/>
-    <g fill="#F0A83C"><circle cx="85" cy="38" r="4"/><circle cx="100" cy="27" r="5.5"/><circle cx="116" cy="40" r="4"/></g>
-    <circle cx="83" cy="120" r="7" fill="#2B241E"/><circle cx="117" cy="120" r="7" fill="#2B241E"/>
-    <circle cx="85.5" cy="117.4" r="2.4" fill="#fff"/><circle cx="119.5" cy="117.4" r="2.4" fill="#fff"/>
-    <path d="M91 136q9 8 18 0" stroke="#2B241E" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <ellipse cx="68" cy="134" rx="8" ry="5" fill="#E0762F" opacity=".35"/><ellipse cx="132" cy="134" rx="8" ry="5" fill="#E0762F" opacity=".35"/>
-  </svg>`,
-};
-
-/* Which set this build uses. Set by BRAND.cast in the brand file — everything else reads MASCOTS. */
-const NEUTRAL_CAST = BRAND.cast === 'neutral';
-const MASCOTS = NEUTRAL_CAST ? MASCOTS_NEUTRAL : MASCOTS_CUTE;
-const MASCOT_NAMES = NEUTRAL_CAST ? MASCOT_NAMES_NEUTRAL : MASCOT_NAMES_CUTE;
-
 function mascot(name, size, cls) { return `<span class="mascot ${cls || ''}" style="width:${size}px;height:${size}px">${MASCOTS[name] || ''}</span>`; }
 
 /* =========================== REWARDS: companions, evolution, cosmetics, coins =========================== */
@@ -3689,8 +3619,8 @@ function mascot(name, size, cls) { return `<span class="mascot ${cls || ''}" sty
 const COIN = '<span class="coin" aria-hidden="true">◕</span>';
 const COIN_NAME = 'quetzalitos';
 
-/* ----- the four companions (the cute set) ----- */
-const CHARS_CUTE = [
+/* ----- the four companions ----- */
+const CHARS = [
   { id: 'lola', name: 'Lola', kind: 'axolotl', unlock: 0,
     blurb: 'A pink axolotl from Lake Atitlán. She does the talking.',
     stages: ['Renacuaja', 'Pequeña', 'Curiosa', 'Valiente', 'Leyenda del Lago'],
@@ -3708,33 +3638,7 @@ const CHARS_CUTE = [
     stages: ['Nubecita', 'Algodón', 'Soñadora', 'Tormenta Suave', 'Leyenda del Cielo'],
     anchor: { head: [100, 44, 1.05], face: [100, 110, 1], neck: [100, 152, 1], held: [166, 146, 1] } },
 ];
-/* ----- the four companions (the neutral set) -----
-   Same ids, so outfits, room decorations and saved progress carry straight over. Nothing here says
-   "she" or "he", and no stage name is a gendered person — they are all things: a footprint, a stalk,
-   a first flight. */
-const CHARS_NEUTRAL = [
-  { id: 'lola', name: 'Balam', kind: 'jaguar', unlock: 0,
-    blurb: 'A jaguar cub from the cloud forest. Curious about every new word.',
-    stages: ['Huella', 'Salto', 'Rastro', 'Trueno', 'Balam del Bosque'],
-    anchor: { head: [100, 58, 1], face: [100, 106, 1], neck: [100, 144, .95], held: [160, 148, 1] } },
-  { id: 'mota', name: 'Tuk', kind: 'quetzal', unlock: 300,
-    blurb: 'A quetzal chick. Quick, loud, and better at listening than it looks.',
-    stages: ['Pluma', 'Brinco', 'Vuelo', 'Cola Larga', 'Tuk del Cielo'],
-    anchor: { head: [100, 54, 1], face: [100, 90, 1], neck: [100, 124, .9], held: [156, 150, 1] } },
-  { id: 'nopalito', name: 'Ixim', kind: 'maize', unlock: 800,
-    blurb: 'A young maize plant. Slow, steady, and impossible to rush — like grammar.',
-    stages: ['Semilla', 'Brote', 'Tallo', 'Mazorca', 'Ixim del Valle'],
-    anchor: { head: [100, 50, .92], face: [100, 106, 1], neck: [100, 154, .88], held: [156, 140, 1] } },
-  { id: 'nube', name: 'Fuego', kind: 'volcano', unlock: 1600,
-    blurb: 'A small volcano. Quiet for weeks, then remembers everything at once.',
-    stages: ['Cerro', 'Vapor', 'Humo', 'Chispa', 'Fuego del Valle'],
-    anchor: { head: [100, 52, .9], face: [100, 120, 1], neck: [100, 160, .9], held: [158, 150, 1] } },
-];
-const CHARS = NEUTRAL_CAST ? CHARS_NEUTRAL : CHARS_CUTE;
 const CHAR_BY_ID = Object.fromEntries(CHARS.map(c => [c.id, c]));
-/* the companion every build leans on for its own copy: the one you start with */
-const CAST_LEAD = CHARS[0].id;
-const leadName = () => CHARS[0].name;
 /* care XP needed to reach each stage (index = stage - 1) */
 const STAGE_AT = [0, 120, 400, 900, 1800];
 const STAGE_SCALE = [0.66, 0.8, 0.9, 1, 1.1];   /* v14: babies are small, legends are tall */
@@ -3882,7 +3786,7 @@ const itemPrice = (it) => RARITY[it.r].p;
 /* ----- the casita: a room the companions live in ----- */
 const ROOM_BGS = [
   { id: 'casita', es: 'Casita', en: 'Simple room', price: 0,
-    svg: `<rect width="600" height="300" fill="#FEFAE0"/><rect y="210" width="600" height="90" fill="#FAEDCD"/><path d="M0 210h600" stroke="#E4D8C0" stroke-width="3"/>` },
+    svg: `<rect width="600" height="300" fill="#FEFAE0"/><rect y="210" width="600" height="90" fill="#FAEDCD"/><path d="M0 210h600" stroke="#EBD3DA" stroke-width="3"/>` },
   { id: 'lago', es: 'Lago de Atitlán', en: 'Lake view', price: 200,
     svg: `<rect width="600" height="300" fill="#DCEBF5"/><path d="M0 150h600v60H0z" fill="#A7CDE3"/><path d="M60 150l70-90 70 90zM240 150l90-110 90 110z" fill="#9FB27A"/><path d="M240 150l90-110 90 110z" fill="#8AA06A" opacity=".6"/><circle cx="500" cy="60" r="26" fill="#FAEDCD"/><rect y="210" width="600" height="90" fill="#FAEDCD"/>` },
   { id: 'atardecer', es: 'Atardecer', en: 'Sunset', price: 200,
@@ -4068,7 +3972,7 @@ function stageProgress(id) {
   const from = STAGE_AT[st - 1], to = STAGE_AT[st];
   return { pct: Math.round((care - from) / (to - from) * 100), have: care - from, need: to - from, max: false };
 }
-const buddy = () => CHAR_BY_ID[charUnlocked(S.buddy) ? S.buddy : CHARS[0].id];
+const buddy = () => CHAR_BY_ID[charUnlocked(S.buddy) ? S.buddy : 'lola'];
 const ownedItems = () => ITEMS.filter(i => S.items[i.id]);
 const itemsFor = (slot) => ITEMS.filter(i => i.slot === slot);
 
@@ -4122,7 +4026,7 @@ const nopalPad = (side, sc, flower) => `<g transform="translate(${side < 0 ? 62 
 const nubeFluff = (r, extra) => `<g fill="#FEFAE0" stroke="#EBD3DA" stroke-width="2">${[[40, 116], [160, 116], [58, 62], [142, 62], [100, 46], [52, 158], [148, 158]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}${extra || ''}</g>`;
 const babyCurl = (x, y, c) => `<path d="M${x} ${y}q-8-14 4-16q8-1 6 8" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>`;
 const bigEyes = (pts, r) => `<g fill="#fff">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
-const GROWTH_CUTE = {
+const GROWTH = {
   lola: {
     1: { tf: 'translate(100 176) scale(1.08 .9) translate(-100 -176)', front: babyCurl(100, 66, '#FB6F92') + bigEyes([[83, 105], [123, 105]], 3.2) },
     2: { tf: 'translate(100 176) scale(1.03 .96) translate(-100 -176)' },
@@ -4152,88 +4056,38 @@ const GROWTH_CUTE = {
     5: { tf: 'translate(100 188) scale(.98 1.06) translate(-100 -188)', back: `<g fill="none" stroke-width="7" stroke-linecap="round" opacity=".5"><path d="M18 150a82 82 0 0 1 164 0" stroke="#FF8FAB"/><path d="M28 150a72 72 0 0 1 144 0" stroke="#F0C674"/><path d="M38 150a62 62 0 0 1 124 0" stroke="#9FD0EA"/></g>` + nubeFluff(32, `<circle cx="30" cy="150" r="20"/><circle cx="170" cy="150" r="20"/>`) },
   },
 };
-/* the neutral cast grows the same way: small and round at stage 1, a little more of itself at each
-   step, standing tall at stage 5. Coordinates are the mascot's own 200x200. */
-const balamTail = (sc, extra) => `<g transform="translate(148 156) scale(${sc}) translate(-148 -156)"><path d="M146 154c20 4 29 19 22 33-8-5-17-1-21 7-5-14-7-30-1-40z" fill="#C79155" stroke="var(--mascot-outline)" stroke-width="3"/>${extra || ''}</g>`;
-const balamSpots = (r, o) => `<g fill="none" stroke="#8A5A31" stroke-width="3" opacity="${o}"><circle cx="52" cy="146" r="${r}"/><circle cx="148" cy="146" r="${r}"/><circle cx="100" cy="140" r="${r}"/></g>`;
-const tukTail = (len, w) => `<g fill="#2F8C77" stroke="var(--mascot-outline)" stroke-width="3" stroke-linejoin="round"><path d="M126 158c${w} ${len * .3} ${w * 1.4} ${len * .7} ${w} ${len}-10-6-22-3-28 4-4-14-2-30 2-38z"/></g>`;
-const iximLeaf = (side, sc) => `<g transform="translate(${side < 0 ? 60 : 140} 120) scale(${sc}) translate(${side < 0 ? -60 : -140} -120)"><path d="${side < 0 ? 'M60 118c-26-8-42 4-40 21 3 12 19 17 32 10' : 'M140 118c26-8 42 4 40 21-3 12-19 17-32 10'}" fill="#A8BF75"/></g>`;
-const fuegoSmoke = (r, o) => `<g fill="#D9CFC2" opacity="${o}"><circle cx="86" cy="34" r="${r}"/><circle cx="104" cy="20" r="${r * 1.3}"/><circle cx="120" cy="34" r="${r * .85}"/></g>`;
-const GROWTH_NEUTRAL = {
-  lola: {
-    1: { tf: 'translate(100 176) scale(1.08 .9) translate(-100 -176)', front: babyCurl(100, 60, '#C79155') + bigEyes([[82, 101], [118, 101]], 3.2) },
-    2: { tf: 'translate(100 176) scale(1.03 .96) translate(-100 -176)', back: balamTail(1.05) },
-    3: { back: balamTail(1.2) + balamSpots(6, '.5') },
-    4: { back: `<ellipse cx="100" cy="184" rx="52" ry="9" fill="#D9CBB0" opacity=".8"/>` + balamTail(1.35) + balamSpots(7, '.7') },
-    5: { tf: 'translate(100 176) scale(.98 1.06) translate(-100 -176)', back: `<ellipse cx="100" cy="184" rx="58" ry="10" fill="#D9CBB0" opacity=".8"/>` + balamTail(1.5, `<circle cx="170" cy="190" r="7" fill="#F2DDBE"/>`) + balamSpots(8, '.85'), front: `<g fill="none" stroke="#8A5A31" stroke-width="2.5" opacity=".7"><circle cx="100" cy="70" r="6"/><circle cx="76" cy="72" r="4.5"/><circle cx="124" cy="72" r="4.5"/></g>` },
-  },
-  mota: {
-    1: { tf: 'translate(100 186) scale(1.1 .88) translate(-100 -186)', front: babyCurl(100, 56, '#8FCBBC') + bigEyes([[86, 85], [114, 85]], 3.6) },
-    2: { tf: 'translate(100 186) scale(1.04 .96) translate(-100 -186)' },
-    3: { back: tukTail(30, 6) },
-    4: { back: tukTail(46, 8), front: `<path d="M58 124c-16 4-24 20-19 34" fill="none" stroke="#2F8C77" stroke-width="3" opacity=".6"/><path d="M142 124c16 4 24 20 19 34" fill="none" stroke="#2F8C77" stroke-width="3" opacity=".6"/>` },
-    5: { tf: 'translate(100 186) scale(.98 1.06) translate(-100 -186)', back: tukTail(64, 10) + `<g fill="#8FCBBC" opacity=".5"><ellipse cx="150" cy="196" rx="10" ry="5"/></g>`, front: `<g fill="#8FCBBC"><path d="M90 44q-4-24 10-32 14 8 10 32z"/></g>` },
-  },
-  nopalito: {
-    1: { tf: 'translate(100 180) scale(1.12 .86) translate(-100 -180)', front: `<path d="M100 62q-5-18 6-23M100 62q5-18-6-23" stroke="#8FA85F" stroke-width="4" fill="none" stroke-linecap="round"/>` + bigEyes([[86, 103], [114, 103]], 3.2) },
-    2: { tf: 'translate(100 180) scale(1.05 .95) translate(-100 -180)', back: iximLeaf(-1, .8) },
-    3: { back: iximLeaf(-1, 1) + iximLeaf(1, 1) },
-    4: { back: iximLeaf(-1, 1.18) + iximLeaf(1, 1.18), front: `<g fill="#E0B457" opacity=".8"><circle cx="76" cy="118" r="5"/><circle cx="124" cy="118" r="5"/></g>` },
-    5: { tf: 'translate(100 180) scale(.98 1.07) translate(-100 -180)', back: iximLeaf(-1, 1.35) + iximLeaf(1, 1.35) + `<ellipse cx="100" cy="186" rx="54" ry="9" fill="#D6E0BF" opacity=".8"/>`, front: `<g fill="#E0B457" opacity=".85"><circle cx="76" cy="118" r="5"/><circle cx="124" cy="118" r="5"/><circle cx="100" cy="132" r="5"/></g><g transform="translate(100 40)"><path d="M0 16q-14-16-4-26 8-6 4 26z" fill="#D6A64E"/><path d="M0 16q14-16 4-26-8-6-4 26z" fill="#E0B457"/></g>` },
-  },
-  nube: {
-    1: { tf: 'translate(100 176) scale(1.1 .88) translate(-100 -176)', front: bigEyes([[83, 117], [117, 117]], 3.4) },
-    2: { tf: 'translate(100 176) scale(1.04 .96) translate(-100 -176)', back: fuegoSmoke(7, '.35') },
-    3: { back: fuegoSmoke(10, '.45') },
-    4: { back: fuegoSmoke(13, '.5'), front: `<path d="M88 66q6 18 0 30M112 66q-6 18 0 30" stroke="#E0762F" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>` },
-    5: { tf: 'translate(100 176) scale(.98 1.06) translate(-100 -176)', back: fuegoSmoke(16, '.55') + `<g fill="none" stroke-width="6" stroke-linecap="round" opacity=".45"><path d="M26 150a74 74 0 0 1 148 0" stroke="#E0762F"/><path d="M38 150a62 62 0 0 1 124 0" stroke="#F0A83C"/></g>`, front: `<path d="M84 64q7 22 0 36M116 64q-7 22 0 36M100 62q0 24 0 40" stroke="#E0762F" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>` },
-  },
-};
-const GROWTH = NEUTRAL_CAST ? GROWTH_NEUTRAL : GROWTH_CUTE;
-function growth(id, stage) { const g = (GROWTH[id] || GROWTH[CHARS[0].id])[Math.max(1, Math.min(5, stage))] || {}; return { back: g.back || '', front: g.front || '', tf: g.tf || '' }; }
+function growth(id, stage) { const g = (GROWTH[id] || GROWTH.lola)[Math.max(1, Math.min(5, stage))] || {}; return { back: g.back || '', front: g.front || '', tf: g.tf || '' }; }
 
 /* ----- evolution (v13): every stage is a visibly different look, not just a bigger one -----
    Each companion has its own motif that gathers around the head as it grows: one at stage 2, two at 3,
    three at 4 (with a soft ring), and at stage 5 the motifs turn gold with a double ring and a little crown of
    light. The learner can wear any look already reached (S.chars[id].look). */
-const EVO_CUTE = {
+const EVO = {
   lola:     { motif: 'bubble', c: '#9FD0EA', c2: '#DCEBF5' },
   mota:     { motif: 'star',   c: '#F0C674', c2: '#FBE7B0' },
   nopalito: { motif: 'flower', c: '#FF8FAB', c2: '#FEFAE0' },
   nube:     { motif: 'heart',  c: '#FFB3C6', c2: '#FB6F92' },
 };
-/* the neutral cast's motifs. `anim` names an existing keyframe so no new CSS is needed. */
-const EVO_NEUTRAL = {
-  lola:     { motif: 'star',   c: '#E0B457', c2: '#F7E6C4', anim: 'star' },
-  mota:     { motif: 'bubble', c: '#8FCBBC', c2: '#DFEFEA', anim: 'bubble' },
-  nopalito: { motif: 'leaf',   c: '#A8BF75', c2: '#E6EDD3', anim: 'flower' },
-  nube:     { motif: 'spark',  c: '#E0762F', c2: '#F0C674', anim: 'star' },
-};
-const EVO = NEUTRAL_CAST ? EVO_NEUTRAL : EVO_CUTE;
 function motifSVG(kind, c, c2) {
   if (kind === 'bubble') return `<circle r="9" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="-3" cy="-3" r="2.2" fill="${c2}"/>`;
   if (kind === 'star') return `<path d="M0-11l3.2 6.9 7.6.9-5.6 5.3 1.4 7.5L0 6.1l-6.6 3.5 1.4-7.5-5.6-5.3 7.6-.9z" fill="${c}" stroke="${c2}" stroke-width="1"/>`;
   if (kind === 'heart') return `<path transform="scale(.7)" d="M0 10C-14 0-18-10-11-15-6-19 0-14 0-9c0-5 6-10 11-6 7 5 3 15-11 25z" fill="${c}" stroke="${c2}" stroke-width="1.5"/>`;
-  if (kind === 'leaf') return `<path d="M0-11c9 4 11 12 5 18-6 5-13 3-16-3-2-5 2-12 11-15z" fill="${c}" stroke="${c2}" stroke-width="1.2"/><path d="M-2 6q2-9 7-14" stroke="${c2}" stroke-width="1.4" fill="none"/>`;
-  if (kind === 'spark') return `<path d="M0-12l3 8 8 4-8 4-3 8-3-8-8-4 8-4z" fill="${c}" stroke="${c2}" stroke-width="1"/>`;
   return `<g fill="${c}"><circle cy="-6" r="4.5"/><circle cx="5.5" cy="-1.5" r="4.5"/><circle cx="3.5" cy="5.5" r="4.5"/><circle cx="-3.5" cy="5.5" r="4.5"/><circle cx="-5.5" cy="-1.5" r="4.5"/></g><circle r="3" fill="${c2}"/>`;
 }
 /* rings sit outside the scaled body; the motifs travel with the head (drawn inside the scaled group) */
-/* the halo colour belongs to the cast: pink for the cute four, a soft jade for the neutral four */
-const RING_C = NEUTRAL_CAST ? '#8FCBBC' : '#FFB3C6';
 function stageRing(stage) {
   /* a ring, not a filled disc — a disc turns muddy on the dark theme */
-  if (stage >= 5) return `<circle cx="100" cy="108" r="88" fill="none" stroke="#F0C674" stroke-width="2.5" opacity=".55"/><circle cx="100" cy="108" r="80" fill="none" stroke="${RING_C}" stroke-width="7" opacity=".35"/>`;
-  if (stage === 4) return `<circle cx="100" cy="110" r="84" fill="none" stroke="${RING_C}" stroke-width="6" opacity=".3"/>`;
+  if (stage >= 5) return `<circle cx="100" cy="108" r="88" fill="none" stroke="#F0C674" stroke-width="2.5" opacity=".55"/><circle cx="100" cy="108" r="80" fill="none" stroke="#FFB3C6" stroke-width="7" opacity=".35"/>`;
+  if (stage === 4) return `<circle cx="100" cy="110" r="84" fill="none" stroke="#FFB3C6" stroke-width="6" opacity=".3"/>`;
   return '';
 }
 function stageMarks(stage, c) {
   if (stage < 2) return '';
-  const e = EVO[c.id] || EVO[CHARS[0].id]; const [hx, hy] = c.anchor.head;
+  const e = EVO[c.id] || EVO.lola; const [hx, hy] = c.anchor.head;
   const gold = stage >= 5;
   const spots = [[hx + 50, hy + 10, 1], [hx - 50, hy + 4, .85], [hx + 34, hy - 34, .75], [hx - 32, hy - 36, .7]];
   const n = Math.min(spots.length, stage - 1);
-  const marks = spots.slice(0, n).map(([x, y, sc], i) => `<g transform="translate(${x} ${y}) scale(${sc})"><g class="mo mo-${e.anim || e.motif}" style="animation-delay:${-i * 0.9}s">${motifSVG(e.motif, gold ? '#F0C674' : e.c, gold ? '#FEFAE0' : e.c2)}</g></g>`).join('');
+  const marks = spots.slice(0, n).map(([x, y, sc], i) => `<g transform="translate(${x} ${y}) scale(${sc})"><g class="mo mo-${e.motif}" style="animation-delay:${-i * 0.9}s">${motifSVG(e.motif, gold ? '#F0C674' : e.c, gold ? '#FEFAE0' : e.c2)}</g></g>`).join('');
   const crown = gold ? `<g fill="#F0C674" opacity=".9">${[[-18, -2, .45], [0, -10, .6], [18, -2, .45]].map(([dx, dy, sc]) => `<path transform="translate(${hx + dx} ${hy - 22 + dy}) scale(${sc})" d="M0-12l3.5 7.6 8.3 1-6 5.8 1.5 8.2L0 6.7-7.3 10.6l1.5-8.2-6-5.8 8.3-1z"/>`).join('')}</g>` : '';
   return marks + crown;
 }
@@ -4779,15 +4633,8 @@ async function claimOwner(hash) {
   } catch (e) {}
   return await ownerClaim(true);        /* read back: whoever got there first is the owner */
 }
-/* What this device remembers about the owner is the HASH, never the passcode. The passcode itself is
-   held only for as long as it takes to hash it, and is never written anywhere.
-   OWNER_KEY is the old plain-text slot from builds before the lock existed: it is read once so an
-   existing owner is migrated into a claim, and erased the moment that is done. */
-const OWNER_HASH_KEY = OWNER_KEY + '.h';
-function ownerStoredHash() { try { return localStorage.getItem(OWNER_HASH_KEY) || ''; } catch (e) { return ''; } }
-function setOwnerStoredHash(h) { try { h ? localStorage.setItem(OWNER_HASH_KEY, h) : localStorage.removeItem(OWNER_HASH_KEY); localStorage.removeItem(OWNER_KEY); } catch (e) {} }
-function legacyOwnerPass() { try { return localStorage.getItem(OWNER_KEY) || ''; } catch (e) { return ''; } }
-function forgetLegacyOwnerPass() { try { localStorage.removeItem(OWNER_KEY); } catch (e) {} }
+function ownerPass() { try { return localStorage.getItem(OWNER_KEY) || ''; } catch (e) { return ''; } }
+function setOwnerPass(p) { try { p ? localStorage.setItem(OWNER_KEY, p) : localStorage.removeItem(OWNER_KEY); } catch (e) {} }
 function ownerUnlocked() { try { return sessionStorage.getItem(OWNER_KEY + '.ok') === '1'; } catch (e) { return false; } }
 function setOwnerUnlocked(v) { try { v ? sessionStorage.setItem(OWNER_KEY + '.ok', '1') : sessionStorage.removeItem(OWNER_KEY + '.ok'); } catch (e) {} }
 
@@ -5322,7 +5169,7 @@ function installHTML(compact) {
   if (!PWA.canRegister()) return compact ? '' : (BRAND.site ? `<div class="installbox"><b>Install from the web address</b><p class="small muted">Open <a href="${BRAND.site}">${esc(BRAND.site.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a> in Safari or Chrome on the phone — that copy can be added to the home screen and works offline. This one can't.</p></div>` : `<div class="installbox"><b>Install from a web address</b><p class="small muted">Put ${esc(BRAND.name)} on an https address and that copy can be added to the home screen and works offline. This one can't.</p></div>`);
   if (PWA.isIOS()) {
     return `<div class="installbox ${compact ? 'compact' : ''}" id="${compact ? 'installBanner' : 'installCard'}">
-      ${compact ? mascot(CAST_LEAD, 56) : ''}
+      ${compact ? mascot('lola', 56) : ''}
       <div><b>Put ${esc(BRAND.name)} on your home screen</b>
       <ol class="small"><li>Tap <b>Share</b> <span class="ic" aria-hidden="true">⎋</span> at the bottom of Safari</li><li>Scroll and tap <b>Add to Home Screen</b></li><li>Tap <b>Add</b></li></ol>
       <p class="small muted">Opens full screen, works with no signal, and the microphone keeps working.</p></div>
@@ -5331,7 +5178,7 @@ function installHTML(compact) {
   }
   const can = PWA.installable();
   return `<div class="installbox ${compact ? 'compact' : ''}" id="${compact ? 'installBanner' : 'installCard'}">
-    ${compact ? mascot(CAST_LEAD, 56) : ''}
+    ${compact ? mascot('lola', 56) : ''}
     <div><b>Install ${esc(BRAND.name)}</b><p class="small muted">${can ? 'One tap. Opens like a real app, works offline.' : 'Open the browser menu and choose <b>Install app</b> or <b>Add to Home screen</b>.'}</p>
     ${can ? '<button type="button" class="btn sm rose" id="installGo">Install</button>' : ''}</div>
     ${compact ? '<button type="button" class="x" id="installNo" aria-label="Not now">×</button>' : ''}
@@ -5349,106 +5196,6 @@ function paintInstallUI() {
 function installBannerHTML() {
   if (!PWA.canRegister() || PWA.standalone() || PWA.bannerDismissed()) return '';
   return `<section class="hsec"><div class="hbody">${installHTML(true)}</div></section>`;
-}
-
-/* =========================== THE INSTALL GUIDE (#install) =========================== */
-/* The banner and the Settings card are the nudge; this is the page you land on when you actually
-   want to do it. Every platform is here, but the one you are holding is opened for you — a person
-   on an iPhone should not have to read the Android steps to find theirs. */
-const IS_ANDROID = /android/i.test(navigator.userAgent);
-function platformNow() { return PWA.isIOS() ? 'ios' : IS_ANDROID ? 'android' : 'desktop'; }
-function siteLabel() { return BRAND.site ? BRAND.site.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'the web address'; }
-
-function stepsFor(kind) {
-  if (kind === 'ios') return {
-    t: 'iPhone and iPad',
-    sub: 'Safari only — Chrome and Firefox on iOS are not allowed to add anything to the home screen.',
-    steps: [
-      `Open <b>${esc(siteLabel())}</b> in <b>Safari</b>`,
-      'Tap <b>Share</b> <span class="ic" aria-hidden="true">⎋</span> — the square with an arrow out of it, at the bottom',
-      'Scroll down the list and tap <b>Add to Home Screen</b>',
-      'Tap <b>Add</b>, top right',
-    ],
-  };
-  if (kind === 'android') return {
-    t: 'Android',
-    sub: 'Chrome, Edge or Samsung Internet — any of them will do.',
-    steps: [
-      `Open <b>${esc(siteLabel())}</b> in <b>Chrome</b>`,
-      'Tap the <b>⋮</b> menu, top right',
-      'Choose <b>Install app</b> — or <b>Add to Home screen</b> if that is what it says',
-      'Confirm with <b>Install</b>',
-    ],
-  };
-  return {
-    t: 'Mac and Windows',
-    sub: 'Chrome or Edge. Safari on the Mac puts it in the Dock instead.',
-    steps: [
-      `Open <b>${esc(siteLabel())}</b> in <b>Chrome</b> or <b>Edge</b>`,
-      'Look for the <b>install</b> icon at the right-hand end of the address bar',
-      'Or open the <b>⋮</b> menu and choose <b>Cast, save and share → Install page as app</b>',
-      'Confirm with <b>Install</b>',
-    ],
-  };
-}
-function stepCard(kind, open) {
-  const s = stepsFor(kind);
-  return `<details class="setcard" ${open ? 'open' : ''}>
-    <summary><b>${esc(s.t)}</b></summary>
-    <p class="small muted">${s.sub}</p>
-    <ol class="steps">${s.steps.map(x => `<li>${x}</li>`).join('')}</ol>
-  </details>`;
-}
-
-function renderInstall() {
-  crumb([{ t: 'Install' }]);
-  const here = platformNow();
-  const others = ['ios', 'android', 'desktop'].filter(k => k !== here);
-  const can = PWA.installable();
-
-  const head = PWA.standalone()
-    ? `<div class="installbox done"><b>Installed ✓</b><p class="small muted">You are running ${esc(BRAND.name)} as an app on this device. Updates arrive on their own — a "Refresh" note appears at the bottom when one is ready.</p></div>`
-    : !PWA.canRegister()
-      ? `<div class="installbox"><b>This copy cannot be installed</b><p class="small muted">${BRAND.site
-          ? `Open <a href="${BRAND.site}">${esc(siteLabel())}</a> on the device you want it on. Only that copy can go on a home screen.`
-          : `${esc(BRAND.name)} has to be on an https web address before it can be installed. A file opened from a folder cannot be.`}</p></div>`
-      : can
-        ? `<div class="installbox"><b>Install ${esc(BRAND.name)} here</b><p class="small muted">One tap on this device. The steps below are for every other one.</p><button type="button" class="btn sm rose" id="installGo">Install</button></div>`
-        : '';
-
-  app.innerHTML = `
-  <section class="pagehead">
-    <div class="title"><span class="label">Install</span><h1>Put ${esc(BRAND.name)} on your device</h1>
-      <p>About twenty seconds, and it is the difference between an app you open and a tab you lose.</p></div>
-  </section>
-  <div class="settings">
-    ${head}
-    ${stepCard(here, true)}
-    ${others.map(k => stepCard(k, false)).join('')}
-    <section class="setcard">
-      <span class="label">What you get</span>
-      <ul class="small" style="margin:0;padding-left:18px;display:grid;gap:6px">
-        <li><b>It works with no signal.</b> The whole course sits on the device after the first visit — a bus, a basement, a plane.</li>
-        <li><b>It opens full screen.</b> Its own icon, no address bar, nothing to lose it among.</li>
-        <li><b>The microphone works.</b> Speaking practice needs it, and browsers only allow it on a real web address.</li>
-        <li><b>Updates arrive by themselves.</b> A "Refresh" note appears when a newer version is ready; nothing to download.</li>
-      </ul>
-    </section>
-    <details class="tipsbox">
-      <summary>If something goes wrong</summary>
-      <ul>
-        <li><b>No "Add to Home Screen" on the iPhone.</b> You are not in Safari. Chrome and Firefox on iOS cannot install anything — open the address in Safari instead.</li>
-        <li><b>Private browsing.</b> Nothing can be installed from a private window, and progress is not kept there either.</li>
-        <li><b>Progress missing after installing on an iPhone.</b> iOS treats the installed app and Safari as two separate browsers with separate storage. Sign in with the same name and PIN in both and everything comes across — or pick one and stay in it.</li>
-        <li><b>It opened but looks out of date.</b> Refresh once; the newer version installs quietly in the background and offers itself next time.</li>
-      </ul>
-    </details>
-    <section class="setcard links">
-      <a href="#settings">Settings <span class="arr">→</span></a>
-      <a href="#about">About ${esc(BRAND.name)} <span class="arr">→</span></a>
-    </section>
-  </div>`;
-  wireInstall(app);
 }
 
 /* =========================== OWNER TEST MODE =========================== */
@@ -6363,7 +6110,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v18', date: '4 September 2026' };
+const BUILD = { v: 'v17.3', date: '4 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -6424,25 +6171,39 @@ function applyPalette() {
   document.querySelectorAll('meta[name="theme-color"]').forEach((m, i) => { m.setAttribute('content', tc[i] || tc[0]); });
 }
 function setPalette(p) { S.palette = p; save(); applyPalette(); }
+/* the header toggle: a moon while the app is light (tap for dark), a sun while it is dark */
+function paintThemeBtn() {
+  const b = $('#themeBtn'); if (!b) return;
+  const dark = isDark();
+  b.classList.toggle('isdark', dark);
+  b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  b.setAttribute('aria-label', dark ? 'Switch to the light theme' : 'Switch to the dark theme');
+  const t = b.querySelector('.tlabel'); if (t) t.textContent = dark ? 'Light' : 'Dark';
+}
 function applyTheme(t) {
   const root = document.documentElement;
   if (t === 'dark' || t === 'light') { root.dataset.theme = t; root.style.colorScheme = t; }
-  $('#themeBtn').textContent = isDark() ? 'Light' : 'Dark';
+  paintThemeBtn();
 }
 (function initTheme() {
   let t = null; try { t = localStorage.getItem(KEY + '.theme'); } catch (e) {}
   applyPalette();
   applyTheme(t);
-  try { new MutationObserver(() => { $('#themeBtn').textContent = isDark() ? 'Light' : 'Dark'; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
+  try { new MutationObserver(paintThemeBtn).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyTheme(null)); } catch (e) {}
 })();
 function setTheme(t) {
   try { if (t === 'system') localStorage.removeItem(KEY + '.theme'); else localStorage.setItem(KEY + '.theme', t); } catch (e) {}
-  if (t === 'system') { const root = document.documentElement; delete root.dataset.theme; root.style.colorScheme = ''; $('#themeBtn').textContent = isDark() ? 'Light' : 'Dark'; }
+  if (t === 'system') { const root = document.documentElement; delete root.dataset.theme; root.style.colorScheme = ''; paintThemeBtn(); }
   else applyTheme(t);
 }
 function themePref() { try { return localStorage.getItem(KEY + '.theme') || 'system'; } catch (e) { return 'system'; } }
-$('#themeBtn').addEventListener('click', () => setTheme(isDark() ? 'light' : 'dark'));
+$('#themeBtn').addEventListener('click', () => {
+  setTheme(isDark() ? 'light' : 'dark');
+  paintThemeBtn();
+  /* if the Settings page is open, its Appearance row has to agree with the header */
+  if ((location.hash || '').replace(/^#/, '').split('/')[0] === 'settings') renderSettings();
+});
 
 /* ----- voices: prefer a female Latin-American Spanish voice (es-MX is the closest engine to Guatemalan Spanish) ----- */
 const FEMALE = /paulina|sabina|dalia|renata|larissa|angelica|angélica|ximena|camila|lupe|marina|mónica|monica|elvira|lucia|lucía|laura|helena|esperanza|isabela|francisca|carmen|sofia|sofía|valentina|female|mujer|\(f\)/i;
@@ -6524,7 +6285,7 @@ function voicePickHTML() {
   const note = VOICE ? (/es-mx|es-us|es-419/i.test(VOICE.lang) ? 'Latin American Spanish — the closest engine to Guatemalan Spanish (there is no dedicated Guatemalan voice yet)' : 'Closest Spanish voice on this device') : 'Voices load when the page is ready';
   const hq = EN_VOICE && /premium|enhanced|natural|neural|online/i.test(EN_VOICE.name);
   const enNote = EN_VOICE ? ((/en-us/i.test(EN_VOICE.lang) ? 'American English' : 'Closest English voice on this device') + (hq ? ' — a high-quality (★) voice' : ' — a basic voice. For a more human one on a Mac, download “Ava (Premium)”, “Zoe (Premium)” or “Samantha (Enhanced)” in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices, then reload; on Windows, Edge offers “Microsoft Aria/Jenny Online (Natural)”')) : 'Loads when the page is ready';
-  return `<div class="voicepick"><span class="label">Spanish voice · ${esc(leadName())}</span><select class="select" data-es aria-label="Choose the Spanish voice"></select><span class="small">${esc(note)}. On a Mac, "Paulina" (Spanish – Mexico) is the closest female voice to Guatemalan Spanish — add it in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices if it is missing.</span>
+  return `<div class="voicepick"><span class="label">Spanish voice · Lola</span><select class="select" data-es aria-label="Choose the Spanish voice"></select><span class="small">${esc(note)}. On a Mac, "Paulina" (Spanish – Mexico) is the closest female voice to Guatemalan Spanish — add it in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices if it is missing.</span>
   <span class="label" style="margin-top:6px">English voice · translations</span><select class="select" data-en aria-label="Choose the English voice"></select><span class="small">${esc(enNote)}.</span></div>`;
 }
 function wireVoicePicks(root) {
@@ -6903,14 +6664,13 @@ function render() {
   else if (page === 'collection') renderCollection();
   else if (page === 'owner') renderOwner(id);
   else if (page === 'about') renderAbout();
-  else if (page === 'install') renderInstall();
   else renderHome();
   window.scrollTo({ top: 0, behavior: 'instant' });
   paintMobNav(page);
   foldSides();
 }
 function paintMobNav(page) {
-  const map = { home: 'home', learn: 'learn', grammar: 'learn', speaking: 'learn', reading: 'learn', hunt: 'hunt', games: 'hunt', review: 'review', casita: 'casita', shop: 'casita', checkout: 'casita', collection: 'casita', checkpoint: 'review', placement: 'home', owner: 'home', about: 'home', install: 'home', settings: 'home' };
+  const map = { home: 'home', learn: 'learn', grammar: 'learn', speaking: 'learn', reading: 'learn', hunt: 'hunt', games: 'hunt', review: 'review', casita: 'casita', shop: 'casita', checkout: 'casita', collection: 'casita', checkpoint: 'review', placement: 'home', owner: 'home', about: 'home', settings: 'home' };
   document.querySelectorAll('.mobnav a').forEach(a => a.classList.toggle('on', a.dataset.sec === (map[page] || 'home')));
 }
 /* on a phone the page intro + side panel fill the first screen — fold them so the lesson starts at the top */
@@ -6963,9 +6723,9 @@ function renderHome() {
     </div>
     <div class="stage">
       <span class="blob"></span>
-      ${mascot(CAST_LEAD, 240, 'float')}
+      ${mascot('lola', 240, 'float')}
       <span class="say">${greet}</span>
-      <span class="cap">${esc(MASCOT_NAMES[CAST_LEAD] || leadName())}</span>
+      <span class="cap">Lola the axolotl</span>
     </div>
   </section>
 
@@ -7109,7 +6869,6 @@ function renderSettings() {
       ${installHTML(false)}
     </section>
     <section class="setcard links">
-      <a href="#install">Install it on your phone <span class="arr">→</span></a>
       <a href="#about">About ${esc(BRAND.name)} and the cast <span class="arr">→</span></a>
       <a href="#placement">Placement test <span class="arr">→</span></a>
       <a href="#collection">Collection <span class="arr">→</span></a>
@@ -7191,7 +6950,7 @@ function askAccount() {
   S.who.asked = true; save();
   const el = document.createElement('div');
   el.className = 'bigtoast in namebox acctbox';
-    el.innerHTML = `<div class="pic">${companion(CAST_LEAD, 92)}</div><div>${accountHTML({ title: '¡Hola! Save your progress', blurb: 'A name and a PIN. Same two on any device and your streak, coins and outfits follow you.', later: true, hint: '' })}</div>`;
+  el.innerHTML = `<div class="pic">${companion('lola', 92)}</div><div>${accountHTML({ title: '¡Hola! Save your progress', blurb: 'A name and a PIN. Same two on any device and your streak, coins and outfits follow you.', later: true, hint: '' })}</div>`;
   document.body.appendChild(el); stackToasts();
   wireAccount(el, () => { el.remove(); stackToasts(); render(); });
 }
@@ -7206,14 +6965,17 @@ function renderAbout() {
   app.innerHTML = `
   <section class="pagehead">
     <div class="title"><span class="label">About</span><h1>${esc(BRAND.name)}</h1><p>${BRAND.about}</p></div>
-    <div class="side pink" style="align-items:center">${mascot(CAST_LEAD, 120)}</div>
+    <div class="side pink" style="align-items:center">${mascot('lola', 120)}</div>
   </section>
   <div class="about">
     <div>
       <h2>The cast</h2>
       <p>Four original characters keep you company. They're drawn for this app — no borrowed cartoons.</p>
       <div class="cast">
-        ${CHARS.map(c => `<div>${mascot(c.id, 64)}<div><b>${esc(c.name)}</b><span>${esc(c.blurb)}</span></div></div>`).join('')}
+        <div>${mascot('lola', 64)}<div><b>Lola</b><span>A pink axolotl who moved to Lake Atitlán. She says hello and does the talking.</span></div></div>
+        <div>${mascot('nopalito', 64)}<div><b>Nopalito</b><span>A little cactus from Guatemala's dry Motagua valley, with a flower. Patient, like grammar.</span></div></div>
+        <div>${mascot('mota', 64)}<div><b>Mota</b><span>A kitten with a pink bow. Hunts for words.</span></div></div>
+        <div>${mascot('nube', 64)}<div><b>Nube</b><span>A cloud-sheep. Reads slowly and remembers everything.</span></div></div>
       </div>
     </div>
     <div>
@@ -7345,7 +7107,7 @@ function renderLesson(l) {
   const sayText = (e) => e[0].replace(/→.*$/, '').replace(/\s*\/\s*/g, '. ');
   box.innerHTML = `
     <div><span class="label">${esc(l.id.toUpperCase())}</span><h2 style="margin-top:6px">${esc(l.title)}</h2><p class="lede" style="margin-top:10px">${esc(l.lede)}</p></div>
-    <div class="playbar"><div><span class="label">Read aloud, slowly</span><p class="small muted" id="playHint">${leadName()} reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.</p></div>${playerHTML('lessonPlayer', true)}</div>
+    <div class="playbar"><div><span class="label">Read aloud, slowly</span><p class="small muted" id="playHint">Lola reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.</p></div>${playerHTML('lessonPlayer', true)}</div>
     ${(l.rules || []).map((r, gi) => `<div class="rule" data-group="${gi}"><div class="r">${esc(r.r)}</div><div class="boxbar"><span class="label">Box ${gi + 1} · ${r.ex.length} example${r.ex.length === 1 ? '' : 's'}</span><div class="btn-row"><button type="button" class="btn sm rose boxplay" data-group="${gi}" aria-label="Play or pause this box">▶ Play box ${gi + 1}</button><button type="button" class="btn sm boxen" data-group="${gi}" aria-label="Read the English of this box">EN · Read English</button></div></div><div class="exs">${r.ex.map(e => `<div class="ex" data-ex="${esc(sayText(e))}" data-en="${esc(e[1])}"><span><span class="es">${esc(e[0])}</span><button class="say" type="button" aria-label="Listen in Spanish" title="Spanish, slowly">◉</button><button class="sayen" type="button" aria-label="Read the English" title="English">EN</button></span><span class="en">${esc(e[1])}</span></div>`).join('')}</div></div>`).join('')}
     ${l.table ? `<div class="tablewrap"><table class="conj"><thead><tr>${l.table.h.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${l.table.rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'es' : ''}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
     ${l.callout ? `<div class="callout">${l.callout}</div>` : ''}
@@ -7370,7 +7132,7 @@ function renderLesson(l) {
   wirePlayer($('#lessonPlayer'), items, { slow: true, sayEnglish: false, stopAfterGroup: true, gapMs: 700, onpaint: (P) => {
     box.querySelectorAll('.rule').forEach(r => r.classList.toggle('waiting', P.state === 'paused' && P.waitingGroup !== null && Number(r.dataset.group) === P.waitingGroup));
     paintBoxes(P);
-    const h = $('#playHint'); if (h) h.textContent = P.state === 'paused' && P.waitingGroup !== null ? `Box ${P.waitingGroup} done. Press ▶ (or the box button) to hear box ${P.waitingGroup + 1}. EN reads the English.` : P.state === 'done' ? 'All boxes read. Press ▶ to start again.' : '${leadName()} reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.';
+    const h = $('#playHint'); if (h) h.textContent = P.state === 'paused' && P.waitingGroup !== null ? `Box ${P.waitingGroup} done. Press ▶ (or the box button) to hear box ${P.waitingGroup + 1}. EN reads the English.` : P.state === 'done' ? 'All boxes read. Press ▶ to start again.' : 'Lola reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.';
   } });
   exEls.forEach(el => { el.querySelector('.say').addEventListener('click', () => speak(el.dataset.ex, true)); el.querySelector('.sayen').addEventListener('click', () => speakEn(el.dataset.en)); });
   box.querySelectorAll('.boxplay').forEach(b => b.addEventListener('click', () => {
@@ -7423,7 +7185,7 @@ function renderSpeaking(id, sub) {
   const phrases = SPEAKING[lv.id] || [], dlgs = DIALOGUES[lv.id] || [];
   app.innerHTML = `
   <section class="pagehead">
-    <div class="title"><span class="label">02 · Speaking · Level ${lv.id} ${esc(lv.name)}</span><h1>Speaking</h1><p>${tab === 'phrases' ? 'Listen, then repeat into the microphone. Each word you said is checked against the phrase — green is clear, red needs work — and you can play back your own recording next to your companion\'s.' : tab === 'dialogues' ? 'Real-life conversations. The app voices one side in Latin American Spanish; you say the other. Play the whole thing first, then take your lines.' : tab === 'listen' ? 'A phrase plays with no text. Type what you hear, accents optional. A close match counts.' : 'The eight things that make Spanish sound Spanish. Hear each one in the app\'s voice, normal and slow.'}</p></div>
+    <div class="title"><span class="label">02 · Speaking · Level ${lv.id} ${esc(lv.name)}</span><h1>Speaking</h1><p>${tab === 'phrases' ? 'Listen, then repeat into the microphone. Each word you said is checked against the phrase — green is clear, red needs work — and you can play back your own recording next to Lola\'s.' : tab === 'dialogues' ? 'Real-life conversations. The app voices one side in Latin American Spanish; you say the other. Play the whole thing first, then take your lines.' : tab === 'listen' ? 'A phrase plays with no text. Type what you hear, accents optional. A close match counts.' : 'The eight things that make Spanish sound Spanish. Hear each one in Lola\'s voice, normal and slow.'}</p></div>
     <div class="side pink">${voicePickHTML()}${tab === 'guide' ? '' : micPanelHTML()}</div>
   </section>
   ${speakingTabs(tab)}
@@ -8644,16 +8406,11 @@ async function ownerEntry() {
   if (!canHash()) return ownerNoHash();
   let claim = await ownerClaim();
   /* this device already had a passcode from before the lock existed: it becomes the owner's, once */
-  const legacy = legacyOwnerPass();
-  if (claim === null && !bakedOwnerPass() && legacy && Cloud.on() && !Cloud.blocked()) {
-    const h = await ownerHash(legacy);
-    if (h) { claim = await claimOwner(h); if (claim === h) setOwnerStoredHash(h); }
+  if (claim === null && !bakedOwnerPass() && ownerPass() && Cloud.on() && !Cloud.blocked()) {
+    const h = await ownerHash(ownerPass());
+    if (h) claim = await claimOwner(h);
   }
-  forgetLegacyOwnerPass();   /* whatever happened above, the plain copy does not stay on disk */
   if (claim === undefined) return ownerOffline();
-  /* no database to claim in and nothing baked: the hash this browser already holds is the lock, so
-     setting a passcode once is not undone by simply reloading the page. */
-  if (!claim && (!Cloud.on() || Cloud.blocked())) { const local = ownerStoredHash(); if (local) return ownerGate(local); }
   if (!claim) return ownerSetPass();
   return ownerGate(claim);
 }
@@ -8681,7 +8438,7 @@ function ownerSetPass() {
       const got = await claimOwner(h);
       if (got && got !== h) { $('#pwMsg').textContent = 'Someone has already claimed this app. Enter their passcode instead.'; setTimeout(ownerEntry, 1500); return; }
     }
-    setOwnerStoredHash(h); setOwnerUnlocked(true); renderOwner();
+    setOwnerPass(a); setOwnerUnlocked(true); renderOwner();
   });
 }
 function ownerGate(claim) {
@@ -8689,7 +8446,7 @@ function ownerGate(claim) {
   <div class="setupform narrow"><label><span class="label">Passcode</span><input type="password" id="pw" autocomplete="current-password"></label><div class="btn-row"><button type="button" class="btn rose" id="pwGo">Open</button><a class="btn ghost" href="#home">Back</a></div><p class="small muted" id="pwMsg"></p></div>`;
   const go = async () => {
     const h = await ownerHash($('#pw').value);
-    if (h && h === claim) { setOwnerStoredHash(h); setOwnerUnlocked(true); renderOwner(); }
+    if (h && h === claim) { setOwnerPass($('#pw').value); setOwnerUnlocked(true); renderOwner(); }
     else $('#pwMsg').textContent = 'Not that one.';
   };
   $('#pwGo').addEventListener('click', go);
@@ -8712,8 +8469,8 @@ function ownerLockHTML() {
 }
 async function wireOwnerLock() {
   const pre = $('#lockLine'); if (!pre) return;
-  const h = ownerStoredHash();
-  pre.textContent = h ? `BRAND_OWNER_PASS="${h}"` : 'Sign in with the owner passcode on this device to see the line.';
+  const h = await ownerHash(ownerPass());
+  pre.textContent = h ? `BRAND_OWNER_PASS="${h}"` : 'Open the app from its web address to see this.';
   const btn = $('#lockCopy');
   if (btn) btn.addEventListener('click', () => { navigator.clipboard.writeText(pre.textContent).then(() => toast('Line copied.'), () => toast('Select it and copy by hand.')); });
 }
