@@ -22,6 +22,23 @@
      Filled by build.sh from the brand's palette, so a teal or indigo build is not framed in rosa. -->
 <meta name="theme-color" content="#FBF7EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F1A18" media="(prefers-color-scheme: dark)">
+<!-- the card a shared link unfurls into: the app's own icon and its own words, in the
+     brand's colours, rather than a bare URL. og:image has to be absolute, so it is built
+     from BRAND_SITE. -->
+<meta name="description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vamos">
+<meta property="og:title" content="Vamos — Learn Spanish">
+<meta property="og:description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta property="og:url" content="https://thepastor.github.io/vamos/">
+<meta property="og:image" content="https://thepastor.github.io/vamos/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Vamos">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vamos — Learn Spanish">
+<meta name="twitter:description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta name="twitter:image" content="https://thepastor.github.io/vamos/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -384,6 +401,17 @@ table.conj td.es { font-weight: 700; }
 .foot .madeby, .dedication .madeby { margin-right: 8px; }
 #footcredit { display: inline-flex; align-items: center; margin-left: 10px; }
 .dedication { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+/* the rights page: a chip row that jumps to a section, then the sections themselves */
+.rightschips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rightschips .chip { text-decoration: none; }
+.rightsec { scroll-margin-top: 80px; }
+.rightsec h2 { font-size: 1.15rem; margin-bottom: 2px; }
+.rightsec p { color: var(--ink-2); line-height: 1.6; margin: 0 0 10px; max-width: 68ch; }
+.rightsec p:last-child { margin-bottom: 0; }
+.rightsec ul { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 7px; color: var(--ink-2); line-height: 1.55; max-width: 68ch; }
+.rightsec b { color: var(--ink); }
+.foot a.cright { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.foot a.cright:hover { color: var(--ink); }
 .foot { padding: 22px 28px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .roadmap { padding: 24px 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .roadmap .item { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
@@ -1775,7 +1803,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 </nav>
 
 <footer class="foot page">
-  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a> · <span class="cright">© 2026 JohnsonXCorp</span></span>
+  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a> · <a class="cright" href="#rights">© 2026 JohnsonXCorp · All rights reserved</a></span>
   <span><span id="footv">v2</span><span id="footcredit"></span></span>
   <span id="footStat"></span>
 </footer>
@@ -6459,6 +6487,164 @@ function makerMark() {
   const m = BRAND_MARKS[BRAND.mark];
   return m ? `<span class="jxc">${m}</span>` : '';
 }
+/* part18-rights.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
+
+/* =========================== RIGHTS (#rights) ===========================
+   The footer's "All rights reserved" is a link, and this is where it goes. A page inside the app,
+   not a file on GitHub that a reader has no reason to open: the people who need to read this are
+   using the app, not browsing the repository.
+   Everything here is brand-driven, so a rebranded copy states ITS owner's rights, not ours. */
+
+const RIGHTS = [
+  { id: 'copyright', t: 'Copyright', body: `
+    <p>Copyright in ${'${NAME}'} existed the moment each line of it was written. In Canada it is automatic:
+    no registration, no fee, no notice required. The © in the footer is a courtesy to readers, not the
+    thing that creates the right.</p>
+    <p>It covers considerably more than the code:</p>
+    <ul>
+      <li><b>The code</b> — a literary work under the Copyright Act, the same category as a novel.</li>
+      <li><b>The words on screen</b> — every lesson, tip, definition, dialogue and button label. Also a
+        literary work, and the easiest kind of copying to prove: identical wording is not a coincidence,
+        and two people describing <i>ser</i> versus <i>estar</i> independently do not choose the same
+        sentence.</li>
+      <li><b>The drawings</b> — the companions and all five of their stages, the cosmetics, the room and
+        its decorations, the wordmark and the icons. Artistic works.</li>
+      <li><b>The arrangement</b> — the six levels, the order lessons unlock in, which words belong to
+        which theme, how the review schedule is shaped. A compilation is protected in its own right even
+        where individual facts inside it are not.</li>
+    </ul>` },
+  { id: 'moral', t: 'Moral rights', body: `
+    <p>Canadian law gives an author <b>moral rights</b>, and they are separate from copyright. They cannot
+    be sold or transferred — only waived, in writing. They survive even if the copyright itself is
+    assigned to someone else.</p>
+    <p>They are the right of <b>attribution</b> — to be associated with the work — and the right of
+    <b>integrity</b> — that the work not be distorted or modified in a way that harms the author's
+    honour or reputation, and not be used to promote a product or cause.</p>
+    <p>In practice that means stripping the attribution mark, the copyright line or the build stamp out
+    of a copy engages moral rights, and so does rebranding this app to advertise something else. That is
+    a distinct claim from copying, and it stands even where a copyright argument might be harder.</p>` },
+  { id: 'permission', t: 'What you are permitted to do', body: `
+    <p>Freely, without asking:</p>
+    <ul>
+      <li>Use ${'${NAME}'} to learn, to teach, or to decide whether you like it.</li>
+      <li>Install it on as many of your own devices as you want, and use it offline.</li>
+      <li>Read the source. Your browser has to download all of it to run it, so of course you can.</li>
+      <li>Quote a short passage to review, criticise, teach from or report on, with attribution — fair
+        dealing under the Copyright Act, fair use under 17 U.S.C. § 107.</li>
+      <li>Keep everything the app makes out of your own material: your progress, your notes, your
+        answers. That is yours and was never claimed.</li>
+    </ul>` },
+  { id: 'replication', t: 'Replication and redistribution', body: `
+    <p>These need written permission. Each is refused by default and granted readily to people who ask
+    with a reason:</p>
+    <ul>
+      <li>Republishing, mirroring or hosting ${'${NAME}'} at any other address.</li>
+      <li>Modifying it, translating it, or making a derivative work from it.</li>
+      <li>Rebranding it — new name, new colours, same app.</li>
+      <li>Selling it, licensing it, bundling it, or offering it as a service.</li>
+      <li>Lifting its course content, characters or illustrations into another product.</li>
+      <li>Removing or altering the copyright notice, the licence banner, or the attribution in the
+        interface.</li>
+      <li>Training a machine-learning model on it.</li>
+    </ul>
+    <p>"In substantial part" does the work here. Copying is measured by <b>quality, not quantity</b>: take
+    the distinctive core and it is infringement even if it is a small fraction of the whole.</p>` },
+  { id: 'forking', t: 'Forking on GitHub', body: `
+    <p>The repository is public, and GitHub's Terms of Service give every GitHub user the right to view
+    and to fork any public repository. Nothing in this licence overrides that, and it would be dishonest
+    to pretend otherwise.</p>
+    <p>What matters is how narrow that permission is. It comes from GitHub, not from the copyright
+    holder. It lets a copy exist <b>inside GitHub</b>. It grants no right whatsoever to run, publish,
+    host, modify, redistribute or build on this software anywhere else, and it transfers no ownership.</p>
+    <p>Plainly: forking is allowed because GitHub allows it. Doing anything with the fork is not.</p>` },
+  { id: 'mark', t: 'The name and the mark', body: `
+    <p>Trade mark rights in Canada arise from <b>use</b>, not only from registration. Using a name in
+    commerce builds rights in it, and an unregistered mark is still a mark.</p>
+    <p>Separately from copyright, the tort of <b>passing off</b> is actionable: presenting your product in
+    a way that leads people to think it is this one, or comes from the same source, is wrong on its own
+    terms even if not one line of code was copied.</p>
+    <p>So the name, the wordmark and the maker's mark are not free to reuse, and a copy that changes the
+    code but keeps the look and the name has more to answer for, not less.</p>` },
+  { id: 'notsecret', t: 'What this is not', body: `
+    <p>This is the section most likely to be misunderstood, so it is stated directly.</p>
+    <p><b>This is not a trade secret, and it is not confidential.</b> The entire application is delivered
+    to every visitor's browser — that is the only way a web app can work. Nothing here is hidden, and no
+    claim of secrecy is made or could be.</p>
+    <p>The protection is <b>copyright</b>, and copyright does not care whether a work is public. It cares
+    who made it. A novel in a bookshop is not a secret either, and it is not yours to reprint. Being able
+    to read something has never been the same as being allowed to copy it.</p>
+    <p>So "I could see the source" is not a defence, and neither is "it was on the internet".</p>` },
+  { id: 'thirdparty', t: "Other people's code", body: `
+    <p>${'${NAME}'} bundles no third-party code. No framework, no library. What runs in your browser was
+    written for this app.</p>
+    <p>The typefaces are the exception: three families under the SIL Open Font License 1.1, which permits
+    exactly this use. They belong to their authors, not to us, and this licence claims nothing over them.
+    The full notice ships with the app.</p>` },
+  { id: 'yours', t: 'Your material and your privacy', body: `
+    <p>What you produce using ${'${NAME}'} is yours. Your progress, your answers, your mistakes, the room
+    you decorate. No ownership is claimed over any of it, and it is not used for anything.</p>
+    <p>Almost all of it never leaves your device. There are exactly four points at which anything is sent
+    anywhere, and they are set out in the terms of use — the one worth knowing about is that speaking
+    practice uses your browser's own speech recognition, and in some browsers that means your voice is
+    sent to the browser maker to be transcribed.</p>` },
+  { id: 'warranty', t: 'No warranty', body: `
+    <p>${'${NAME}'} is provided as is, without warranty of any kind, express or implied. It is a learning
+    aid made carefully by one person; it is not a qualification and not a substitute for a teacher where
+    one is needed.</p>
+    <p>Nothing here excludes liability that cannot lawfully be excluded — consumer protection legislation
+    in your province may give you rights that no notice can remove. Subject to that, the publisher is not
+    liable for loss arising from use of the app, including lost progress. Progress lives in a browser and
+    browsers get cleared; cloud sync exists so that this is recoverable.</p>` },
+  { id: 'law', t: 'Governing law', body: `
+    <p>These terms are governed by the laws of British Columbia and the federal laws of Canada applicable
+    there. Copyright in Canada is governed by the Copyright Act, R.S.C. 1985, c. C-42.</p>
+    <p>Canada is party to the Berne Convention, so this copyright is recognised in over 180 countries
+    without any registration in any of them.</p>` },
+  { id: 'asking', t: 'Asking, and reporting a copy', body: `
+    <p>Permission for anything above is available and is usually granted. Teachers, schools and community
+    programmes in particular: ask, and expect a yes.</p>
+    <p>If you have found a copy of this app running somewhere it should not be, that is worth knowing
+    about — please say where.</p>
+    <p>Either way: <a href="mailto:${'${MAIL}'}">${'${MAIL}'}</a></p>` },
+];
+
+function renderRights(section) {
+  crumb([{ t: 'Rights' }]);
+  const NAME = esc(BRAND.name);
+  const MAIL = 'johnsonandy242@gmail.com';
+  const owner = esc(BRAND.owner || BRAND.name);
+  const fill = (s) => s.split('${NAME}').join(NAME).split('${MAIL}').join(MAIL);
+  app.innerHTML = `
+  <section class="pagehead">
+    <div class="title"><span class="label">Rights</span><h1>Copyright and permissions</h1>
+      <p>${NAME} is free to use and not free to take. This page says exactly what that means, in the order
+      the questions usually come up.</p></div>
+  </section>
+  <div class="settings">
+    <div class="rightschips">${RIGHTS.map(s => `<a class="chip" href="#rights/${s.id}">${esc(s.t)}</a>`).join('')}</div>
+    ${RIGHTS.map(s => `<section class="setcard rightsec" id="r-${s.id}"><h2>${esc(s.t)}</h2>${fill(s.body)}</section>`).join('')}
+    <section class="setcard">
+      <p class="small muted">© 2026 ${owner}. All rights reserved. This page is a plain-language summary
+      written to be read, not a substitute for the full licence, and it is not legal advice.</p>
+      <p class="small muted">Build ${esc(BUILD.v)} · ${esc(BUILD.date)}</p>
+    </section>
+    <section class="setcard links">
+      <a href="#about">About ${NAME} <span class="arr">→</span></a>
+      <a href="#settings">Settings <span class="arr">→</span></a>
+    </section>
+  </div>`;
+  /* The chips and a deep link both land on the same anchors, and the address stays #rights/<id>.
+     Deferred by a frame on purpose: the router scrolls every page back to the top after it renders,
+     so scrolling here synchronously would be undone a moment later. */
+  if (section) {
+    requestAnimationFrame(() => {
+      const el = $('#r-' + section);
+      if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
+}
 /* part4-app.js
    Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
    Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
@@ -6471,7 +6657,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v18.3', date: '4 September 2026' };
+const BUILD = { v: 'v19', date: '4 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -7026,13 +7212,14 @@ function render() {
   else if (page === 'owner') renderOwner(id);
   else if (page === 'about') renderAbout();
   else if (page === 'install') renderInstall();
+  else if (page === 'rights') renderRights(id);
   else renderHome();
   window.scrollTo({ top: 0, behavior: 'instant' });
   paintMobNav(page);
   foldSides();
 }
 function paintMobNav(page) {
-  const map = { home: 'home', learn: 'learn', grammar: 'learn', speaking: 'learn', reading: 'learn', hunt: 'hunt', games: 'hunt', review: 'review', casita: 'casita', shop: 'casita', checkout: 'casita', collection: 'casita', checkpoint: 'review', placement: 'home', owner: 'home', about: 'home', install: 'home', settings: 'home' };
+  const map = { home: 'home', learn: 'learn', grammar: 'learn', speaking: 'learn', reading: 'learn', hunt: 'hunt', games: 'hunt', review: 'review', casita: 'casita', shop: 'casita', checkout: 'casita', collection: 'casita', checkpoint: 'review', placement: 'home', owner: 'home', about: 'home', install: 'home', rights: 'home', settings: 'home' };
   document.querySelectorAll('.mobnav a').forEach(a => a.classList.toggle('on', a.dataset.sec === (map[page] || 'home')));
 }
 /* on a phone the page intro + side panel fill the first screen — fold them so the lesson starts at the top */
