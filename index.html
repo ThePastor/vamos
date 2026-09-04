@@ -1,4 +1,17 @@
 <!doctype html><html lang="en"><meta charset="utf-8">
+<!--
+  Vamos — Learn Spanish
+  Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+
+  PROPRIETARY. This file is served so that a browser can run it, which is why you can
+  read it. That is not permission to take it. Copying, republishing, hosting,
+  modifying, rebranding or building on this software is not licensed, in whole or in
+  substantial part. Forking on GitHub is permitted by GitHub's terms and by nothing
+  else; it grants no right to run or publish the result anywhere.
+
+  Full terms: LICENSE and TERMS.md in the repository.
+  Licences for other uses are available — ask: johnsonandy242@gmail.com
+-->
 <title>Vamos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1628,6 +1641,9 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 .cwclues li { font-size: .85rem; line-height: 1.4; }
 @media (max-width: 760px) { .gsarena { height: 190px; } .gstile b { font-size: 1.3rem; } .lotcell .pic { font-size: 1.6rem; } .cwclues { grid-template-columns: 1fr; gap: 8px; } }
 @media (max-width: 400px) { .lotboard { gap: 4px; } .lotcell .es { font-size: .52rem; } .gszone .zbig { font-size: 1.3rem; min-height: 56px; } .cwgrid { max-width: 280px; } .cwcell input { font-size: 1.2rem; } }
+/* palettes.css
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 /* =========================== PALETTES ===========================
    The app is built on a small set of colour tokens. `--pink-1…5` is simply the accent ramp, lightest to
    strongest — it keeps that name for historical reasons, not because a palette has to be pink.
@@ -1721,6 +1737,9 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   }
 }
 </style>
+<!-- part2-shell.html
+     Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+     Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. -->
 
 <header class="topbar">
   <a class="wordmark" href="#home">Va<span class="mos">mos</span></a>
@@ -1756,7 +1775,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 </nav>
 
 <footer class="foot page">
-  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a></span>
+  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a> · <span class="cright">© 2026 JohnsonXCorp</span></span>
   <span><span id="footv">v2</span><span id="footcredit"></span></span>
   <span id="footStat"></span>
 </footer>
@@ -1791,6 +1810,9 @@ const BRAND = {
 /* the localStorage prefix for everything this copy saves. It comes from BRAND.id, and it is defined
    here rather than in part4 because the cloud and PWA parts load first and build their keys from it. */
 const KEY = BRAND.id + '.v1';
+/* part3-data.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== DATA =========================== */
 const LEVELS = [
@@ -2459,6 +2481,9 @@ const BLANK_EX = {
   'g3-2': [ { s:'Mientras ___ el autobús, tomamos un café.', a:'esperábamos', o:['esperamos','esperábamos','esperaremos'], why:'Ongoing background action: imperfect.' } ],
   'g4-1': [ { s:'Mañana ___ tiempo.', a:'tendré', o:['tengo','tendré','tenía'], why:'Future of tener: tendré.' } ],
 };
+/* part6-more-content.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== MORE CONTENT (v3): deeper lessons, tips, culture, phrases, dialogues, passages, hunts, words =========================== */
 
@@ -2977,6 +3002,9 @@ Object.assign(FORMS, {
   'tantito': { en:'a little bit (Mexico)', pos:'adverb', def:'Diminutive of tanto. "Espérame tantito" = wait a sec.' }, 'queda': { en:'(one) stays', pos:'verb (quedarse)', def:'"Se queda" = stays.' }, 'sabe': { en:'(one) knows', pos:'verb (saber)', def:'Saber = to know facts; conocer = to know people/places.' },
   'pierde': { en:'(one) loses', pos:'verb (perder)', def:'"Se pierde" = is lost.' }, 'irse': { en:'to leave', pos:'verb (reflexive)', def:'"Me voy" = I\'m leaving.' }, 'recupera': { en:'(one) recovers', pos:'verb (recuperar)', def:'"No se recupera" = is not recovered.' },
 });
+/* part7-content3.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== MORE LESSONS (v4): two grammar lessons, a dialogue, a passage and a hunt per level =========================== */
 
@@ -3353,6 +3381,9 @@ Object.assign(FORMS, {
   'termina': { en:'(he/she) finishes', pos:'verb (terminar)', def:'Third person.' }, 'frase': { en:'phrase / sentence', pos:'noun (f)', def:'Plural: frases.' }, 'sonríe': { en:'(he/she) smiles', pos:'verb (sonreír)', def:'Stem change e → i.' }, 'vocabulario': { en:'vocabulary', pos:'noun (m)', def:'Cognate.' },
   'callar': { en:'to be quiet', pos:'verb (-ar)', def:'"¡Cállate!" = shut up (rude).' }, 'dejar': { en:'to let / to leave', pos:'verb (-ar)', def:'"Dejar que" + subjunctive = to let something happen.' }, 'hable': { en:'(it) speaks (subjunctive)', pos:'verb (hablar, subj.)', def:'"Dejar que hable" = let it speak.' },
 });
+/* part8-guatemala.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== GUATEMALA (v5): the cultural theme, facts and places move from Mexico to Guatemala =========================== */
 (function guatemala() {
@@ -3561,6 +3592,9 @@ Object.assign(FORMS, {
   'detrás': { en:'behind', pos:'adverb', def:'"Detrás de" = behind (something).' },
   'poco': { en:'a little / few', pos:'adverb / adjective', def:'"Un poco" = a bit; "poco a poco" = little by little.' },
 });
+/* part5-mascots.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== MASCOTS (original kawaii characters, inline SVG) =========================== */
 /* Palette pulled from the app tokens so they sit on any surface. Faces use the "kawaii" grammar: big head, dot eyes, blush, tiny mouth. */
@@ -3707,6 +3741,9 @@ const MASCOTS = NEUTRAL_CAST ? MASCOTS_NEUTRAL : MASCOTS_CUTE;
 const MASCOT_NAMES = NEUTRAL_CAST ? MASCOT_NAMES_NEUTRAL : MASCOT_NAMES_CUTE;
 
 function mascot(name, size, cls) { return `<span class="mascot ${cls || ''}" style="width:${size}px;height:${size}px">${MASCOTS[name] || ''}</span>`; }
+/* part9-rewards.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== REWARDS: companions, evolution, cosmetics, coins =========================== */
 /* Currency: "quetzalitos" — 1 per XP earned, plus chests. Every XP also feeds the active companion's care,
@@ -4334,6 +4371,9 @@ function roomSVG(opts) {
   }).join('');
   return `<svg viewBox="0 0 600 300" class="roomsvg live" role="img" aria-label="${esc(S.room.name || 'Your casita')}">${bg.svg}${props}${folk}</svg>`;
 }
+/* part14-casita.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== CASITA UI (v13): wardrobe, evolution, decorating =========================== */
 /* Helpers only — renderCasita in part4 assembles them. Transient UI choices (which wardrobe slot or room
@@ -4468,6 +4508,9 @@ function wireDecorate() {
   });
   const nm = $('#roomName'); if (nm) nm.addEventListener('change', () => { S.room.name = nm.value.trim().slice(0, 28); save(); const h = app.querySelector('.pagehead h1'); if (h) h.textContent = S.room.name || 'Your casita'; });
 }
+/* part10-cloud.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== LEARNER PROFILE, ACTIVITY LOG, CLOUD SYNC =========================== */
 /* Sync is a plain REST call to a Supabase table — no SDK, no external script.
@@ -4816,6 +4859,9 @@ function legacyOwnerPass() { try { return localStorage.getItem(OWNER_KEY) || '';
 function forgetLegacyOwnerPass() { try { localStorage.removeItem(OWNER_KEY); } catch (e) {} }
 function ownerUnlocked() { try { return sessionStorage.getItem(OWNER_KEY + '.ok') === '1'; } catch (e) { return false; } }
 function setOwnerUnlocked(v) { try { v ? sessionStorage.setItem(OWNER_KEY + '.ok', '1') : sessionStorage.removeItem(OWNER_KEY + '.ok'); } catch (e) {} }
+/* part11-teach.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== TEACHING ENGINE =========================== */
 /* Verb conjugation, error diagnosis, grammar concept cards, translation bank,
@@ -5272,6 +5318,9 @@ function buildPlacement() {
 function initChecks() { if (!S.checks) S.checks = {}; }
 const levelPassed = (lv) => !!(S.checks && S.checks[lv] && S.checks[lv].passed);
 const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) >= lv;
+/* part12-pwa.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== PWA: install, offline, updates =========================== */
 /* Only the hosted https copy has a service worker (sw.js sits next to index.html on GitHub Pages).
@@ -5476,6 +5525,9 @@ function renderInstall() {
   </div>`;
   wireInstall(app);
 }
+/* part13-tester.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== OWNER TEST MODE =========================== */
 /* Behind the Owner passcode. Turns THIS device into a test copy with everything unlocked — every level,
@@ -5597,6 +5649,9 @@ function wireTester(root) {
   const ch = root.querySelector('#testChests'); if (ch) ch.addEventListener('click', () => { Test.chestsReady(); toast('Daily and weekly chests are ready in the Casita.'); render(); });
   const rs = root.querySelector('#testReset'); if (rs) rs.addEventListener('click', () => { Test.reset(); toast('Fresh test copy.'); render(); });
 }
+/* part15-games.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== GAMES (v15): the Play hub, Mercado, Escucha y escribe =========================== */
 /* Each game is one screen, phone-first: a status row, one big play area, big tap targets, and an end card
@@ -5918,6 +5973,9 @@ function renderGames(id) {
     <div class="gamecard soon"><span class="gemoji" aria-hidden="true">🎲</span><div><span class="label">Coming soon</span><h3>More games</h3><p>The conjugation runner, karaoke lines and a duel for two are next on the list.</p></div></div>
   </section>`;
 }
+/* part16-games2.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== GAMES II (v16): Lotería, ¡El o la!, streak rescue, crucigrama ===========================
    Same shape as part15: one card per screen, big targets, XP paid through addXP(). */
@@ -6380,6 +6438,9 @@ function cwCheck(inputs) {
   if (xp) addXP(xp, 'Crucigrama');
   bigToast('¡Completo!', `${CW.p.words.length} words${first ? ` · <b>+${xp} XP</b>` : ''}. A new grid tomorrow.`, buddy().id);
 }
+/* part17-brandmark.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== THE MAKER'S MARK =========================== */
 /* JohnsonXCorp's logo, the same vector used in UNI Made EZ and Read Fast, so the footer of every
@@ -6398,6 +6459,9 @@ function makerMark() {
   const m = BRAND_MARKS[BRAND.mark];
   return m ? `<span class="jxc">${m}</span>` : '';
 }
+/* part4-app.js
+   Copyright (c) 2026 Anndy Johnson, operating as JohnsonXCorp. All rights reserved.
+   Proprietary — see LICENSE. Not licensed for copying, hosting or derivative works. */
 
 /* =========================== APP =========================== */
 const $ = (s, el = document) => el.querySelector(s);
@@ -6407,7 +6471,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v18.1', date: '4 September 2026' };
+const BUILD = { v: 'v18.2', date: '4 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
