@@ -1655,6 +1655,9 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --pink-1: #1B2E29; --pink-2: #23413A; --pink-3: #2F5A50; --pink-4: #5FBAA3; --pink-5: #7ED3BB; --pink-ink: #DFEFEA;
   --ink: #E6F2EE; --ink-2: #B3CCC5; --ink-3: #85A099; --line: #3D6B60; --line-soft: #24403A; --dot: #4F8577;
   --shape: #2F5A50; --tile-3: #23413A; --inverse: #DFEFEA; --inverse-ink: #14231F; --inverse-ink-2: #3D6B60;
+  /* the line drawn around a companion so it stays readable on a dark ground. Without this the
+     palette falls back to the default dark theme's rosa mauve and every companion gets a pink edge. */
+  --mascot-outline: #3D6B60;
   --sage: #3E5B3A; --sage-soft: #25361F; --tan: #9C7A54; --tan-deep: #C9A27A; --tan-soft: #33291D;
   --ok: #7ED3BB; --ok-soft: #1E3A30; --bad: #E39176; --bad-soft: #43241B;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
@@ -1664,6 +1667,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --pink-1: #231F36; --pink-2: #302A4A; --pink-3: #413A63; --pink-4: #9B8BE0; --pink-5: #B4A6F0; --pink-ink: #E7E4F7;
   --ink: #EDEAF8; --ink-2: #C3BCE0; --ink-3: #948CB4; --line: #4A4270; --line-soft: #2B2640; --dot: #5E558C;
   --shape: #413A63; --tile-3: #302A4A; --inverse: #E7E4F7; --inverse-ink: #1A1729; --inverse-ink-2: #4A4270;
+  --mascot-outline: #4A4270;
   --sage: #3F5347; --sage-soft: #253026; --tan: #97795E; --tan-deep: #C0A184; --tan-soft: #302720;
   --ok: #7BD1A6; --ok-soft: #1E3A2C; --bad: #E08C88; --bad-soft: #3E2322;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
@@ -3876,7 +3880,7 @@ const itemPrice = (it) => RARITY[it.r].p;
 /* ----- the casita: a room the companions live in ----- */
 const ROOM_BGS = [
   { id: 'casita', es: 'Casita', en: 'Simple room', price: 0,
-    svg: `<rect width="600" height="300" fill="#FEFAE0"/><rect y="210" width="600" height="90" fill="#FAEDCD"/><path d="M0 210h600" stroke="#EBD3DA" stroke-width="3"/>` },
+    svg: `<rect width="600" height="300" fill="#FEFAE0"/><rect y="210" width="600" height="90" fill="#FAEDCD"/><path d="M0 210h600" stroke="#E4D8C0" stroke-width="3"/>` },
   { id: 'lago', es: 'Lago de Atitlán', en: 'Lake view', price: 200,
     svg: `<rect width="600" height="300" fill="#DCEBF5"/><path d="M0 150h600v60H0z" fill="#A7CDE3"/><path d="M60 150l70-90 70 90zM240 150l90-110 90 110z" fill="#9FB27A"/><path d="M240 150l90-110 90 110z" fill="#8AA06A" opacity=".6"/><circle cx="500" cy="60" r="26" fill="#FAEDCD"/><rect y="210" width="600" height="90" fill="#FAEDCD"/>` },
   { id: 'atardecer', es: 'Atardecer', en: 'Sunset', price: 200,
