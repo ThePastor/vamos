@@ -4773,8 +4773,15 @@ async function claimOwner(hash) {
   } catch (e) {}
   return await ownerClaim(true);        /* read back: whoever got there first is the owner */
 }
-function ownerPass() { try { return localStorage.getItem(OWNER_KEY) || ''; } catch (e) { return ''; } }
-function setOwnerPass(p) { try { p ? localStorage.setItem(OWNER_KEY, p) : localStorage.removeItem(OWNER_KEY); } catch (e) {} }
+/* What this device remembers about the owner is the HASH, never the passcode. The passcode itself is
+   held only for as long as it takes to hash it, and is never written anywhere.
+   OWNER_KEY is the old plain-text slot from builds before the lock existed: it is read once so an
+   existing owner is migrated into a claim, and erased the moment that is done. */
+const OWNER_HASH_KEY = OWNER_KEY + '.h';
+function ownerStoredHash() { try { return localStorage.getItem(OWNER_HASH_KEY) || ''; } catch (e) { return ''; } }
+function setOwnerStoredHash(h) { try { h ? localStorage.setItem(OWNER_HASH_KEY, h) : localStorage.removeItem(OWNER_HASH_KEY); localStorage.removeItem(OWNER_KEY); } catch (e) {} }
+function legacyOwnerPass() { try { return localStorage.getItem(OWNER_KEY) || ''; } catch (e) { return ''; } }
+function forgetLegacyOwnerPass() { try { localStorage.removeItem(OWNER_KEY); } catch (e) {} }
 function ownerUnlocked() { try { return sessionStorage.getItem(OWNER_KEY + '.ok') === '1'; } catch (e) { return false; } }
 function setOwnerUnlocked(v) { try { v ? sessionStorage.setItem(OWNER_KEY + '.ok', '1') : sessionStorage.removeItem(OWNER_KEY + '.ok'); } catch (e) {} }
 
@@ -8631,11 +8638,16 @@ async function ownerEntry() {
   if (!canHash()) return ownerNoHash();
   let claim = await ownerClaim();
   /* this device already had a passcode from before the lock existed: it becomes the owner's, once */
-  if (claim === null && !bakedOwnerPass() && ownerPass() && Cloud.on() && !Cloud.blocked()) {
-    const h = await ownerHash(ownerPass());
-    if (h) claim = await claimOwner(h);
+  const legacy = legacyOwnerPass();
+  if (claim === null && !bakedOwnerPass() && legacy && Cloud.on() && !Cloud.blocked()) {
+    const h = await ownerHash(legacy);
+    if (h) { claim = await claimOwner(h); if (claim === h) setOwnerStoredHash(h); }
   }
+  forgetLegacyOwnerPass();   /* whatever happened above, the plain copy does not stay on disk */
   if (claim === undefined) return ownerOffline();
+  /* no database to claim in and nothing baked: the hash this browser already holds is the lock, so
+     setting a passcode once is not undone by simply reloading the page. */
+  if (!claim && (!Cloud.on() || Cloud.blocked())) { const local = ownerStoredHash(); if (local) return ownerGate(local); }
   if (!claim) return ownerSetPass();
   return ownerGate(claim);
 }
@@ -8663,7 +8675,7 @@ function ownerSetPass() {
       const got = await claimOwner(h);
       if (got && got !== h) { $('#pwMsg').textContent = 'Someone has already claimed this app. Enter their passcode instead.'; setTimeout(ownerEntry, 1500); return; }
     }
-    setOwnerPass(a); setOwnerUnlocked(true); renderOwner();
+    setOwnerStoredHash(h); setOwnerUnlocked(true); renderOwner();
   });
 }
 function ownerGate(claim) {
@@ -8671,7 +8683,7 @@ function ownerGate(claim) {
   <div class="setupform narrow"><label><span class="label">Passcode</span><input type="password" id="pw" autocomplete="current-password"></label><div class="btn-row"><button type="button" class="btn rose" id="pwGo">Open</button><a class="btn ghost" href="#home">Back</a></div><p class="small muted" id="pwMsg"></p></div>`;
   const go = async () => {
     const h = await ownerHash($('#pw').value);
-    if (h && h === claim) { setOwnerPass($('#pw').value); setOwnerUnlocked(true); renderOwner(); }
+    if (h && h === claim) { setOwnerStoredHash(h); setOwnerUnlocked(true); renderOwner(); }
     else $('#pwMsg').textContent = 'Not that one.';
   };
   $('#pwGo').addEventListener('click', go);
@@ -8694,8 +8706,8 @@ function ownerLockHTML() {
 }
 async function wireOwnerLock() {
   const pre = $('#lockLine'); if (!pre) return;
-  const h = await ownerHash(ownerPass());
-  pre.textContent = h ? `BRAND_OWNER_PASS="${h}"` : 'Open the app from its web address to see this.';
+  const h = ownerStoredHash();
+  pre.textContent = h ? `BRAND_OWNER_PASS="${h}"` : 'Sign in with the owner passcode on this device to see the line.';
   const btn = $('#lockCopy');
   if (btn) btn.addEventListener('click', () => { navigator.clipboard.writeText(pre.textContent).then(() => toast('Line copied.'), () => toast('Select it and copy by hand.')); });
 }
