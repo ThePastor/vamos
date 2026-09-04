@@ -1404,6 +1404,7 @@ html.standalone .foot { padding: 14px 18px calc(14px + env(safe-area-inset-botto
 html.standalone .foot > span:first-child, html.standalone .foot #footStat { display: none; }
 html.standalone .foot > span:nth-child(2) { display: flex; flex-direction: column-reverse; align-items: center; gap: 3px; }
 html.standalone .foot #footv { opacity: .5; }
+html.standalone .foot a.cright { order: 9; opacity: .75; font-size: .62rem; }
 html.standalone .foot #footcredit { text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: .82rem; color: var(--ink-2); }
 html.standalone .foot #footcredit::before { content: none; margin: 0; }
 html.standalone .topbar { padding-top: max(env(safe-area-inset-top, 0px), 6px); }
@@ -1803,9 +1804,12 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 </nav>
 
 <footer class="foot page">
-  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a> · <a class="cright" href="#rights">© 2026 JohnsonXCorp · All rights reserved</a></span>
+  <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a></span>
   <span><span id="footv">v2</span><span id="footcredit"></span></span>
   <span id="footStat"></span>
+  <!-- outside the links span on purpose: the installed app hides that span, and a licence
+       nobody can reach is a licence nobody has read -->
+  <a class="cright" href="#rights">© 2026 JohnsonXCorp · All rights reserved</a>
 </footer>
 <script>
 /* =========================== BRAND ===========================
@@ -7419,6 +7423,7 @@ function renderSettings() {
     </section>
     <section class="setcard links">
       <a href="#install">Install it on your phone <span class="arr">→</span></a>
+      <a href="#rights">Copyright and permissions <span class="arr">→</span></a>
       <a href="#about">About ${esc(BRAND.name)} and the cast <span class="arr">→</span></a>
       <a href="#placement">Placement test <span class="arr">→</span></a>
       <a href="#collection">Collection <span class="arr">→</span></a>
