@@ -1,0 +1,26 @@
+{
+  "name": "Vamos — Learn Spanish",
+  "short_name": "Vamos",
+  "description": "Spanish from the very first word to real fluency, one small step a day. Companions that grow, and practice that comes back until it sticks.",
+  "id": "/vamos/",
+  "start_url": "./?source=pwa#home",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#FBF7EF",
+  "theme_color": "#FBF7EF",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Practice", "short_name": "Practice", "description": "Words, grammar, verbs and translation due today", "url": "./?source=shortcut#review", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Word Hunt", "short_name": "Hunt", "description": "Find the word, learn its meaning", "url": "./?source=shortcut#hunt", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Casita", "short_name": "Casita", "description": "Your companions, chests and the shop", "url": "./?source=shortcut#casita", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
