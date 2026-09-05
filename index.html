@@ -5573,7 +5573,10 @@ function mercadoItems() {
 }
 
 const MERCADO_LEN = [['corto', 'Corto', 10], ['normal', 'Normal', 20], ['largo', 'Largo', 32]];
-const MERCADO = { customers: 20, baseTime: 7000, minTime: 3600, step: 180 };
+/* Pace. The old numbers (7s, floored at 3.6s, shedding 180ms a combo) were quick enough that a
+   fluent speaker could not keep up — which means the game was testing reaction time, not Spanish.
+   Ten seconds to read, find and tap; the squeeze is gentler and it stops at six. */
+const MERCADO = { customers: 20, baseTime: 10000, minTime: 6000, step: 120 };
 let MG = null;   /* the running Mercado game */
 function mercadoPick() {
   const seen = new Set(MG.asked);
@@ -5846,7 +5849,7 @@ function renderGames(id) {
     <a class="gamecard t-gold" href="#games/mercado"><span class="gemoji" aria-hidden="true">🍅</span><div><span class="label">Vocabulary · speed</span><h3>Mercado</h3><p>Customers point, you tap the Spanish before they walk off.</p><span class="gstat">${m.plays ? 'best ' + m.best + ' · ' + m.plays + ' round' + (m.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
     <a class="gamecard t-sky" href="#games/escucha"><span class="gemoji" aria-hidden="true">🎧</span><div><span class="label">Listening · spelling</span><h3>Escucha y escribe</h3><p>Hear a sentence once, type it, climb the ladder.</p><span class="gstat">${e.plays ? 'best rung ' + e.best + '/' + ESCUCHA.rungs : 'new'}</span></div><span class="arr">→</span></a>
     <a class="gamecard t-sand" href="#games/loteria"><span class="gemoji" aria-hidden="true">🫘</span><div><span class="label">Listening · vocabulary</span><h3>Lotería</h3><p>The caller names a card; you find the picture on your board.</p><span class="gstat">${l.plays ? 'best ' + l.best + ' · ' + l.plays + ' board' + (l.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
-    <a class="gamecard t-lilac" href="#games/genero"><span class="gemoji" aria-hidden="true">⚖️</span><div><span class="label">Grammar · speed</span><h3>¡El o la!</h3><p>Words fall — send each one to <b>el</b> or <b>la</b>. Two minutes.</p><span class="gstat">${gn.plays ? 'best ' + gn.best + ' · ' + gn.plays + ' round' + (gn.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
+    <a class="gamecard t-lilac" href="#games/genero"><span class="gemoji" aria-hidden="true">⚖️</span><div><span class="label">Grammar · speed</span><h3>¡El o la!</h3><p>Words fall — send each one to <b>el</b> or <b>la</b>. ${gsRoundLabel()}.</p><span class="gstat">${gn.plays ? 'best ' + gn.best + ' · ' + gn.plays + ' round' + (gn.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
     <a class="gamecard t-mint" href="#games/crucigrama"><span class="gemoji" aria-hidden="true">🧩</span><div><span class="label">Words · daily</span><h3>Crucigrama</h3><p>A little 5×5 from this week's words, clues in Spanish.</p><span class="gstat">${cwDone ? "today's is done ✓" : cw.best ? cw.best + ' solved · today is waiting' : 'new · one a day'}</span></div><span class="arr">→</span></a>
     <div class="gamecard soon"><span class="gemoji" aria-hidden="true">🎲</span><div><span class="label">Coming soon</span><h3>More games</h3><p>The conjugation runner, karaoke lines and a duel for two are next on the list.</p></div></div>
   </section>`;
@@ -5987,7 +5990,14 @@ function loteriaEnd() {
 /* =========================== ¡EL O LA! (gender sort) =========================== */
 /* Words fall; swipe or tap left for EL, right for LA. A plural needs the double — two quick taps on the
    same side, or the little LOS / LAS chip. 120 seconds, or 60 when it is rescuing a streak. */
-const GS_CONF = { secs: 120, rescueSecs: 60, rescueTarget: 12, fall0: 4600, fallMin: 2100, fallStep: 90, dblMs: 300 };
+/* Pace. A word used to reach the floor at 2.1s — long enough to read a noun, not long enough to
+   also recall its gender and aim a swipe, and nowhere near enough for the double-swipe a plural
+   needs. Everything here is slower, and the round is longer so the extra time does not simply
+   mean fewer words. dblMs is the window for that second swipe: 300ms asked for a flick most
+   thumbs cannot land. */
+const GS_CONF = { secs: 150, rescueSecs: 90, rescueTarget: 12, fall0: 6500, fallMin: 3600, fallStep: 60, dblMs: 450 };
+/* "2.5 minutes" rather than a bare number of seconds, wherever the round is described */
+const gsRoundLabel = () => { const s = GS_CONF.secs; return s % 60 === 0 ? (s / 60) + (s === 60 ? ' minute' : ' minutes') : (s / 60).toFixed(1).replace(/\.0$/, '') + ' minutes'; };
 let GS = null, _GP = null;
 function genderPool() {
   if (!_GP) _GP = DICT.filter(d => nounGender(d) && d.es.length <= 12 && !/\s/.test(d.es) && !/s$/i.test(d.es) && GENDER_TRAPS.indexOf(d.es) < 0)
@@ -6124,7 +6134,7 @@ function genderEnd() {
   $('#gsAgain').addEventListener('click', () => genderStart(false));
 }
 
-/* ----- streak rescue: one missed day can be bought back with a 60-second round ----- */
+/* ----- streak rescue: one missed day can be bought back with a single timed round ----- */
 /* Recorded at boot, because the first XP of the day rewrites S.streak. */
 function initStreak() {
   if (!S.rescue) S.rescue = {};
@@ -6476,7 +6486,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v18.5', date: '4 September 2026' };
+const BUILD = { v: 'v18.6', date: '4 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
