@@ -1380,10 +1380,62 @@ img, svg { max-width: 100%; }
 .installbox .btn { justify-self: start; margin-top: 4px; }
 .installbox.compact { grid-template-columns: auto 1fr; align-items: center; gap: 14px; padding-right: 44px; }
 .installbox .x { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 1.3rem; color: var(--ink-3); cursor: pointer; padding: 6px 10px; min-width: 40px; min-height: 40px; }
-.updtoast { position: fixed; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 95; display: flex; align-items: center; gap: 12px; padding: 12px 40px 12px 16px; border-radius: 16px; background: var(--ink); color: var(--inverse-ink); box-shadow: var(--shadow); }
-.updtoast span { flex: 1 1 auto; font-weight: 600; }
-.updtoast .x { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--inverse-ink-2); font-size: 1.3rem; padding: 6px 10px; cursor: pointer; }
-@media (min-width: 761px) { .updtoast { left: auto; right: 18px; bottom: 18px; max-width: 420px; } }
+/* ---------- the update prompt ----------
+   An installed app is opened, put away and opened again for weeks. When a new build lands it has
+   to say so where it cannot be missed and cannot time out, and it has to ASK — an app must never
+   rearrange itself under someone halfway through a lesson. So: a card, not a toast that fades. */
+.updcard { position: fixed; z-index: 95; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; padding: 16px 18px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); opacity: 0; transform: translateY(14px); transition: opacity .22s ease, transform .22s ease; }
+.updcard.in { opacity: 1; transform: none; }
+.updcard .ubody { display: grid; gap: 6px; }
+.updcard .ubody b { font-family: var(--font-display); font-size: 1.06rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; }
+.updcard .ubody p { color: var(--ink-2); line-height: 1.5; }
+.updcard .uacts { display: flex; gap: 8px; flex-wrap: wrap; }
+.updcard .uacts .btn { flex: 1 1 auto; justify-content: center; min-height: 44px; }
+@media (min-width: 761px) { .updcard { left: auto; right: 18px; bottom: 18px; width: min(420px, calc(100vw - 36px)); } }
+@media (max-width: 480px) { .updcard .uacts .btn { flex: 1 1 100%; } }
+@media print { .updcard, .acttoast, .wnwrap { display: none !important; } }
+
+/* the header's refresh — what you can still find after saying "not now" */
+.topbar .theme { gap: 2px; }
+.topbar .theme #updBtn { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; cursor: pointer; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; padding: 6px 8px; border-radius: 999px; color: var(--pink-5); }
+.topbar .theme #updBtn:hover { background: var(--pink-1); color: var(--ink); }
+.topbar .theme #updBtn[hidden] { display: none; }
+@media (max-width: 900px) { .topbar .theme #updBtn .ulabel { display: none; } }
+
+/* a toast you can answer — the plain one says a thing and goes */
+.acttoast { position: fixed; z-index: 96; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; padding: 12px 42px 12px 16px; border-radius: 16px; background: var(--ink); color: var(--inverse-ink); box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); transition: opacity .2s ease, transform .2s ease; }
+.acttoast.in { opacity: 1; transform: none; }
+.acttoast > span { flex: 1 1 auto; font-weight: 600; }
+.acttoast .btn { flex: none; border-color: var(--inverse-ink-2); color: var(--inverse-ink); background: none; }
+.acttoast .btn:hover { border-color: var(--inverse-ink); }
+.acttoast .x { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--inverse-ink-2); font-size: 1.3rem; line-height: 1; padding: 6px 10px; cursor: pointer; }
+@media (min-width: 761px) { .acttoast { left: auto; right: 18px; bottom: 18px; max-width: 460px; } }
+
+/* ---------- what changed ----------
+   Kept in the app rather than in a file on a code host, because the person who wants it is the one
+   who just watched the app refresh itself. Opened by the version in the footer, or by the note
+   that appears after an update. */
+.wnwrap { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(24, 12, 20, .45); opacity: 0; transition: opacity .2s ease; }
+.wnwrap.in { opacity: 1; }
+.wnpanel { width: min(560px, 100%); max-height: 86vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; transform: translateY(10px); transition: transform .2s ease; }
+.wnwrap.in .wnpanel { transform: none; }
+.wnhead { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.wnhead h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.03em; margin-top: 2px; }
+.wnhead .x { margin-left: auto; background: none; border: 0; color: var(--ink-3); font-size: 1.5rem; line-height: 1; padding: 4px 8px; cursor: pointer; }
+.wnhead .x:hover { color: var(--ink); }
+.wnbody { padding: 18px 20px; display: grid; gap: 12px; overflow-y: auto; }
+.wnfoot { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; }
+.wnlist { display: grid; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; list-style: none; margin: 0; padding: 0; }
+.wnlist li { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: baseline; padding: 12px 14px; background: var(--surface); font-size: .92rem; line-height: 1.5; }
+.wnlist li.now { background: var(--pink-1); }
+.wnlist li > b { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; color: var(--pink-5); font-weight: 500; }
+.wnlist li.now > b { color: var(--ink); }
+@media (max-width: 480px) { .wnlist li { grid-template-columns: 1fr; gap: 3px; } }
+
+/* the version in the footer opens the list */
+.foot .vbtn { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+.foot .vbtn:hover { text-decoration-color: currentColor; }
+
 #netpill { position: fixed; top: calc(8px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; padding: 6px 12px; border-radius: 999px; background: var(--ink); color: var(--inverse-ink); font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
 #netpill[hidden] { display: none; }
 /* installed: no browser chrome, so the footer's web links go — but the credit line stays, centred
@@ -1767,7 +1819,10 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
     <span class="streak" id="streakTxt"></span><span class="streakm" id="streakM"></span>
   </a>
   <a class="coins" id="coinWidget" href="#casita" aria-label="Your quetzalitos and companion"><span class="coin" aria-hidden="true">◕</span><b id="coinTxt">0</b></a>
-  <div class="theme"><button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch to the dark theme" title="Light or dark">
+  <div class="theme"><button id="updBtn" type="button" hidden aria-label="A newer version is ready — refresh to it" title="A newer version is ready">
+    <svg class="ic" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3.5V9h-5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="ulabel">Update</span>
+  </button><button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch to the dark theme" title="Light or dark">
     <svg class="ic ic-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
     <svg class="ic ic-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
     <span class="tlabel">Dark</span>
@@ -1790,7 +1845,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 
 <footer class="foot page">
   <span>Vamos · Grade 1 → Fluent · <a href="#about">About</a> · <a href="#owner">Owner</a></span>
-  <span><span id="footv">v2</span><span id="footcredit"></span></span>
+  <span><button type="button" id="footv" class="vbtn" data-whatsnew title="What changed in this version">v2</button><span id="footcredit"></span></span>
   <span id="footStat"></span>
   <span class="rights"><a href="#rights" id="footRights">All rights reserved</a></span>
 </footer>
@@ -5410,6 +5465,27 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
 /* Only the hosted https copy has a service worker (sw.js sits next to index.html on GitHub Pages).
    The claude.ai artifact and the local file skip all of this quietly. */
 
+/* =========================== What each version changed ===========================
+   Newest first, and kept IN the app rather than in a file on a code host: the person who wants it
+   is the one who just watched the app refresh itself and would like to know what moved. Add a line
+   whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
+   Written for whichever build this is, so nothing here names one app's cast or one app's country. */
+const WHATS_NEW = [
+  ['v20', 'Updates that ask first. When a newer version has finished downloading, a card asks before refreshing instead of changing the app under you — and afterwards a short note says what changed, with the full list a tap away from the version in the footer.'],
+  ['v19', 'The daily crossword explains itself, starts each word off with its first letter and has a <b>Pista</b> button for when one will not come. Culture notes and examples travel across Latin America.'],
+  ['v18.1', 'More time in every timed game, and a <b>Con calma / Normal / Rápido</b> setting so the pace is yours — Rápido is the old speed.'],
+  ['v18', 'An <b>All rights reserved</b> page, opened from the copyright line at the bottom of every screen.'],
+  ['v17.3', 'A light and dark switch in the header — on phones and tablets too, where the old text toggle was hidden.'],
+  ['v17.2', 'The Owner page can be claimed once. The first passcode set is the only one, and nobody else can set another.'],
+  ['v17.1', 'Added to a home screen, the app keeps its own name and the line at the foot of the page.'],
+  ['v17', 'One set of lessons, more than one app: a brand file carries the name, palette and cloud, so a copy can be rebranded without touching a single word of Spanish.'],
+  ['v16', 'Lotería, ¡El o la! with falling nouns, a daily crucigrama built from the week\'s words, and a 90-second round that can rescue a broken streak.'],
+  ['v15', 'A Play tab — Mercado, the dictation ladder and the word hunts in one place.'],
+];
+const verNum = (v) => String(v).replace(/^v/i, '').split('.').map((n) => Number(n) || 0);
+/* true when a is a later version than b: v19 > v18.1 > v18 */
+const newerThan = (a, b) => { const x = verNum(a), y = verNum(b); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+
 const PWA = {
   prompt: null,           /* the deferred beforeinstallprompt event (Android / desktop Chrome) */
   reg: null,
@@ -5429,8 +5505,21 @@ const PWA = {
     return false;
   },
   updating: false,
+  lastCheck: 0,
+  /* Ask the server whether there is a newer worker. Throttled, because these fire on every wake-up
+     and there is no sense asking twice in the same minute. */
+  check(force) {
+    if (!PWA.reg || navigator.onLine === false) return;
+    const now = Date.now();
+    if (!force && now - PWA.lastCheck < 60 * 1000) return;
+    PWA.lastCheck = now;
+    try { PWA.reg.update().catch(() => {}); } catch (e) { /* the registration went away */ }
+  },
   applyUpdate() {
+    /* leave a note for the page that comes back, so it can say what it landed on */
+    try { sessionStorage.setItem(KEY + '.from', BUILD.v); } catch (e) { /* private mode */ }
     PWA.updating = true;
+    hideUpdateCard();
     if (!PWA.waiting) { location.reload(); return; }
     PWA.waiting.postMessage('SKIP_WAITING');
     /* if the worker never answers, don't leave the button stuck */
@@ -5446,38 +5535,146 @@ function initPWA() {
   /* online / offline pill */
   const paintNet = () => { document.documentElement.classList.toggle('offline', !navigator.onLine); const p = $('#netpill'); if (p) p.hidden = navigator.onLine; };
   window.addEventListener('online', paintNet); window.addEventListener('offline', paintNet); paintNet();
+  /* the version in the footer, and anything else marked up with data-whatsnew, opens the list.
+     Delegated, and wired before the service-worker check below, so it works on the Claude copy
+     and the local file too — neither of those has a worker, but both have a version. */
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest && e.target.closest('[data-whatsnew]');
+    if (!el) return;
+    e.preventDefault();
+    whatChanged(null);
+  });
   if (!PWA.canRegister()) return;
-  navigator.serviceWorker.register('./sw.js').then((reg) => {
+  /* updateViaCache: 'none' is not optional. Without it the browser may answer the check for a new
+     sw.js out of its own HTTP cache for up to a day, so a build published this morning stays
+     invisible until tomorrow — the exact failure this whole path exists to prevent. */
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
     PWA.reg = reg;
-    if (reg.waiting && navigator.serviceWorker.controller) { PWA.waiting = reg.waiting; showUpdateToast(); }
+    /* a newer build has finished downloading in the background. The card is the ask; the header
+       button is what can still be found after saying "not now". */
+    const offer = (w) => {
+      if (!w || !navigator.serviceWorker.controller) return;
+      PWA.waiting = w;
+      showUpdateCard();
+      showUpdateBtn();
+    };
+    if (reg.waiting) offer(reg.waiting);
     reg.addEventListener('updatefound', () => {
       const nw = reg.installing; if (!nw) return;
-      nw.addEventListener('statechange', () => {
-        if (nw.state === 'installed' && navigator.serviceWorker.controller) { PWA.waiting = nw; showUpdateToast(); }
-      });
+      nw.addEventListener('statechange', () => { if (nw.state === 'installed') offer(reg.waiting || nw); });
     });
-    /* check for a newer build every time the app comes back to the front */
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
-    setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+    /* Registering checks once, at load. An app on a home screen is not reloaded for days: it is
+       opened, put away and opened again, and without these it would sit on an old build with a
+       new one published and never know. Coming back to the front is the moment that matters. */
+    setInterval(() => PWA.check(true), 30 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) PWA.check(false); });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) PWA.check(false); });
+    window.addEventListener('focus', () => PWA.check(false));
+    window.addEventListener('online', () => PWA.check(false));
   }).catch(() => {});
   /* reload only when WE asked for the new worker — the first install also fires this and must not bounce the page */
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (!PWA.updating || reloading) return; reloading = true; location.reload(); });
 }
 
-function showUpdateToast() {
-  if ($('#updToast')) return;
+/* ---------- the prompt ----------
+   A toast that fades after eight seconds is not a way to tell somebody their app has changed, and
+   neither is an unlabelled icon that is twelve pixels wide on a phone. This is a card that stays
+   until it is answered, and answering it is the only thing that refreshes the app. */
+function showUpdateCard() {
+  if ($('#updCard')) return;
   const el = document.createElement('div');
-  el.id = 'updToast'; el.className = 'updtoast';
-  el.innerHTML = `<span>A newer ${esc(BRAND.name)} is ready.</span><button type="button" class="btn sm rose" id="updGo">Refresh</button><button type="button" class="x" aria-label="Later">×</button>`;
+  el.id = 'updCard'; el.className = 'updcard';
+  el.setAttribute('role', 'region');
+  el.setAttribute('aria-label', 'A newer version is ready');
+  el.innerHTML = `<div class="ubody">
+      <span class="label">Update ready</span>
+      <b>A newer ${esc(BRAND.name)} has finished downloading.</b>
+      <p class="small">Refreshing takes a second. Your words, streak, XP, coins and companions are kept on this device, not in the page — nothing is lost.</p>
+    </div>
+    <div class="uacts">
+      <button type="button" class="btn sm rose" id="updGo">Refresh now <span class="arr">→</span></button>
+      <button type="button" class="btn sm ghost" id="updLater">Not now</button>
+    </div>`;
   document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('in'));
   $('#updGo').addEventListener('click', () => { $('#updGo').textContent = 'Refreshing…'; PWA.applyUpdate(); });
-  el.querySelector('.x').addEventListener('click', () => el.remove());
+  $('#updLater').addEventListener('click', () => {
+    hideUpdateCard();
+    toast('Left as it is — the update button in the header takes it whenever you are ready.');
+  });
+}
+function hideUpdateCard() { const el = $('#updCard'); if (el) el.remove(); }
+function showUpdateBtn() {
+  const b = $('#updBtn'); if (!b) return;
+  b.hidden = false;
+  if (b.dataset.wired) return;
+  b.dataset.wired = '1';
+  b.addEventListener('click', () => PWA.applyUpdate());
+}
+
+/* ---------- after the refresh ----------
+   Without this an update is a flicker and a version number nobody was watching. */
+function noteUpdated() {
+  let from = null;
+  try { from = sessionStorage.getItem(KEY + '.from'); sessionStorage.removeItem(KEY + '.from'); } catch (e) { return; }
+  if (!from || from === BUILD.v) return;
+  setTimeout(() => actToast('Updated to ' + BUILD.v + '.', 'What changed', () => whatChanged(from)), 900);
+}
+
+/* a toast you can answer. The plain toast() is a pill that says a thing and goes; this one waits,
+   because the whole point of it is the button. */
+function actToast(msg, label, fn) {
+  const el = document.createElement('div');
+  el.className = 'acttoast';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `<span>${esc(msg)}</span><button type="button" class="btn sm ghost">${esc(label)}</button><button type="button" class="x" aria-label="Dismiss">×</button>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('in'));
+  const kill = () => { clearTimeout(timer); el.classList.remove('in'); setTimeout(() => el.remove(), 240); };
+  const timer = setTimeout(kill, 14000);
+  el.querySelector('.btn').addEventListener('click', () => { kill(); fn(); });
+  el.querySelector('.x').addEventListener('click', kill);
+}
+
+/* ---------- what changed ----------
+   whatChanged('v18') lists only what landed since v18; whatChanged(null) shows the whole history. */
+function whatChanged(from) {
+  const old = $('#wnWrap'); if (old) old.remove();
+  const rows = from ? WHATS_NEW.filter(([v]) => newerThan(v, from)) : WHATS_NEW;
+  const shown = rows.length ? rows : WHATS_NEW.slice(0, 1);
+  const el = document.createElement('div');
+  el.id = 'wnWrap'; el.className = 'wnwrap';
+  el.innerHTML = `<div class="wnpanel" role="dialog" aria-modal="true" aria-label="What changed">
+      <div class="wnhead">
+        <div><span class="label">${from ? 'You were on ' + esc(from) : 'Version history'}</span><h2>What changed</h2></div>
+        <button type="button" class="x" id="wnX" aria-label="Close">×</button>
+      </div>
+      <div class="wnbody">
+        ${from ? `<p class="small muted">${shown.length === 1 ? 'One release' : shown.length + ' releases'} since the copy you had.</p>` : ''}
+        <ol class="wnlist">${shown.map(([v, line]) => `<li${v === BUILD.v ? ' class="now"' : ''}><b>${esc(v)}</b><span>${line}</span></li>`).join('')}</ol>
+        <p class="small muted">You are on <b>${esc(BUILD.v)}</b>, built ${esc(BUILD.date)}. The version is always at the bottom of the page.</p>
+      </div>
+      <div class="wnfoot"><button type="button" class="btn sm rose" id="wnOk">Got it</button></div>
+    </div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('in'));
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  const close = () => {
+    document.removeEventListener('keydown', onKey);
+    el.classList.remove('in');
+    setTimeout(() => el.remove(), 220);
+  };
+  document.addEventListener('keydown', onKey);
+  el.addEventListener('click', (e) => { if (e.target === el) close(); });
+  $('#wnX').addEventListener('click', close);
+  $('#wnOk').addEventListener('click', close);
+  $('#wnOk').focus();
 }
 
 /* the same block is used on Home (as a banner) and in Settings (as a card) */
 function installHTML(compact) {
-  if (PWA.standalone()) return compact ? '' : `<div class="installbox done"><b>Installed ✓</b><p class="small muted">You are using ${esc(BRAND.name)} as an app. Updates arrive on their own — a "Refresh" note appears when one is ready.</p></div>`;
+  if (PWA.standalone()) return compact ? '' : `<div class="installbox done"><b>Installed ✓</b><p class="small muted">You are using ${esc(BRAND.name)} as an app. Updates arrive on their own — a card asks before anything is refreshed.</p></div>`;
   if (!PWA.canRegister()) return compact ? '' : (BRAND.site ? `<div class="installbox"><b>Install from the web address</b><p class="small muted">Open <a href="${BRAND.site}">${esc(BRAND.site.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a> in Safari or Chrome on the phone — that copy can be added to the home screen and works offline. This one can't.</p></div>` : `<div class="installbox"><b>Install from a web address</b><p class="small muted">Put ${esc(BRAND.name)} on an https address and that copy can be added to the home screen and works offline. This one can't.</p></div>`);
   if (PWA.isIOS()) {
     return `<div class="installbox ${compact ? 'compact' : ''}" id="${compact ? 'installBanner' : 'installCard'}">
@@ -6645,7 +6842,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v19', date: '4 September 2026' };
+const BUILD = { v: 'v20', date: '10 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -7410,7 +7607,7 @@ function renderSettings() {
       <a href="#collection">Collection <span class="arr">→</span></a>
       <a href="#owner">Owner view and test tools <span class="arr">→</span></a>
     </section>
-    <p class="small muted buildstamp">Version <b>${esc(BUILD.v)}</b> · built ${esc(BUILD.date)} · ${learnedCount()} words · ${S.xp || 0} XP total</p>
+    <p class="small muted buildstamp">Version <b>${esc(BUILD.v)}</b> · built ${esc(BUILD.date)} · ${learnedCount()} words · ${S.xp || 0} XP total · <a href="#settings" data-whatsnew>What changed</a></p>
   </div>`;
   document.querySelectorAll('[data-cloudstate]').forEach(paintCloudPill);
   app.querySelectorAll('.levelrow button').forEach(b => b.addEventListener('click', () => { S.level = Number(b.dataset.level); save(); renderSettings(); }));
@@ -7520,7 +7717,7 @@ function renderAbout() {
       <p><b>Next:</b> levels 4–6 filled in, illustrated stories with audio, a “hearts” mode for quizzes, streak repair and weekly quests.</p>
       <p><b>Later:</b> an AI conversation partner, native audio clips, writing correction.</p>
       <p class="small">On a phone, add ${esc(BRAND.name)} to the home screen (<a href="#settings">Settings → On your phone</a>) and it opens full screen and works with no signal. Progress is saved in this browser, and — if cloud sync is switched on — mirrored to your own Supabase project so the <a href="#owner">Owner</a> page can see it.${BRAND.credit ? ' ' + BRAND.credit : ''}</p>
-      <p class="small buildstamp">Version <b>${esc(BUILD.v)}</b> · built ${esc(BUILD.date)}<br>If this copy is on a web address, compare this line with the one in the Claude version to check it is up to date.</p>
+      <p class="small buildstamp">Version <b>${esc(BUILD.v)}</b> · built ${esc(BUILD.date)} · <a href="#about" data-whatsnew>What changed</a><br>If this copy is on a web address, compare this line with the one in the Claude version to check it is up to date.</p>
     </div>
   </div>`;
 }
@@ -9027,6 +9224,8 @@ startClock();
 render();
 setTimeout(askAccount, 1200);
 { const fv = $('#footv'); if (fv) fv.textContent = BUILD.v; }
+/* if this load followed an update, say so — and offer the list of what moved */
+noteUpdated();
 { const fc = $('#footcredit'); if (fc) fc.innerHTML = creditHTML(); }
 { const fr = $('#footRights'); if (fr) fr.textContent = rightsLine(); }
 </script>
