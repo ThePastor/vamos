@@ -1380,6 +1380,40 @@ img, svg { max-width: 100%; }
 .installbox .btn { justify-self: start; margin-top: 4px; }
 .installbox.compact { grid-template-columns: auto 1fr; align-items: center; gap: 14px; padding-right: 44px; }
 .installbox .x { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 1.3rem; color: var(--ink-3); cursor: pointer; padding: 6px 10px; min-width: 40px; min-height: 40px; }
+/* ---------- the sign-up gate ----------
+   On a build that requires an account this is the whole screen — the app behind it is not hidden
+   under an overlay, it is switched off, so there is nothing to tab into or scroll past. */
+html.gated, html.gated body { overflow: hidden; height: 100%; }
+html.gated .topbar, html.gated .crumbm, html.gated .mobnav, html.gated .foot, html.gated #app,
+html.gated .updcard, html.gated .acttoast, html.gated .bigtoast { display: none !important; }
+.gate { position: fixed; inset: 0; z-index: 200; overflow-y: auto; background: var(--bg); display: flex; align-items: flex-start; justify-content: center; padding: max(24px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.gatebox { width: min(440px, 100%); margin: auto; display: grid; gap: 10px; justify-items: center; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 26px 22px 20px; }
+.gwordmark { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.04em; color: var(--ink); }
+.gwordmark b { background: var(--pink-4); color: #3A2230; padding: 0 6px 2px; border-radius: 8px; font-weight: 800; }
+.gate .gpic { margin: 2px 0 -2px; }
+.gate h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.03em; line-height: 1.1; }
+.gate .gsub { color: var(--ink-2); line-height: 1.45; }
+.gate .small.muted { line-height: 1.5; }
+.gform { width: 100%; display: grid; gap: 10px; margin-top: 6px; text-align: left; }
+.gform label { display: grid; gap: 5px; }
+.gform input { font: inherit; width: 100%; padding: 12px 14px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); }
+.gform input:focus { outline: 2px solid var(--pink-4); outline-offset: 1px; border-color: transparent; }
+.gate #gGo { width: 100%; justify-content: center; min-height: 50px; margin-top: 4px; }
+.gate .gmsg { color: var(--ink-2); line-height: 1.45; min-height: 1.2em; }
+.gchoice { width: 100%; display: grid; gap: 8px; text-align: left; }
+.gchoice .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.gchoice .btn-row .btn { flex: 1 1 auto; justify-content: center; }
+.gfoot { margin-top: 6px; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.gfoot a { color: inherit; }
+@media (max-width: 420px) { .gatebox { padding: 20px 16px 16px; border-radius: 18px; } .gate h1 { font-size: 1.6rem; } }
+
+/* the Owner page's headcount */
+.ostats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: 14px; overflow: hidden; }
+.ostat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.ostat .label { color: var(--ink-2); }
+.omail { color: var(--ink-2); word-break: break-all; }
+@media (max-width: 700px) { .ostats { grid-template-columns: repeat(2, 1fr); } }
+
 /* ---------- the update prompt ----------
    An installed app is opened, put away and opened again for weeks. When a new build lands it has
    to say so where it cannot be missed and cannot time out, and it has to ASK — an app must never
@@ -1881,6 +1915,10 @@ const BRAND = {
   cast: 'neutral',
   /* "guatemala" keeps the single-country layer; "latam" widens it across the region */
   locale: 'latam',
+  /* "required" makes the app open onto a sign-up: nobody gets in without a name, an email and a
+     PIN, so the Owner page is a real count of who is using this copy. Empty leaves the account
+     optional, which is the right setting for a build that goes to one person. */
+  signup: 'required',
   /* SHA-256 of the owner passcode. Set it and that passcode is the only way into the Owner page,
      on every device, with no database involved. Empty: the first device to claim it wins. */
   ownerPass: '',
@@ -4726,6 +4764,8 @@ function summary() {
   const b = buddy();
   return {
     id: S.who.id, name: learnerName(), since: S.who.since,
+    /* only ever set on a build that asks for one at sign-up; the Owner page is the only reader */
+    email: (S.acct && S.acct.email) || '',
     v: BUILD.v, at: new Date().toISOString(),
     xp: S.xp || 0, coins: S.coins || 0, level: S.level, goal: S.goal,
     xpToday: xpToday(), streak: streakAlive(),
@@ -4774,6 +4814,10 @@ const Cloud = {
   async push(force) {
     const cfg = cloudCfg(); if (!cfg) return;
     if (S.test) return;                                   /* the owner's test copy never leaves the device */
+    /* On a build that requires an account, nothing is written until there is one. Otherwise every
+       person who opened the link and walked away would leave an empty "Learner" row behind, and the
+       Owner page — the whole point of which is a count of real people — would be a list of nobody. */
+    if (typeof gateNeeded === 'function' && gateNeeded()) return;
     if (Cloud.blocked()) { Cloud.setState('blocked', 'Sync is switched off inside claude.ai — use your web address.'); return; }
     const payload = summary(); payload.full = fullState(); payload.acct = !!S.acct;
     const body = { id: rowId(), name: learnerName(), updated_at: new Date().toISOString(), payload };
@@ -4924,9 +4968,11 @@ async function signIn(name, pin, opts) {
   if (row && row.payload && row.payload.full) {
     const cloudXP = row.payload.full.xp || 0;
     if (localXP > cloudXP && !opts.prefer) return { ok: false, choice: { local: localXP, cloud: cloudXP, name } };
-    if (opts.prefer === 'local') { S.acct = { id, name, since: todayStr() }; save(); await Cloud.push(true); return { ok: true, msg: `Signed in as ${name}. This device's progress (${localXP} XP) is now the saved copy.` }; }
+    if (opts.prefer === 'local') { S.acct = { id, name, since: todayStr(), email: String(opts.email || '').trim() || (row.payload.email || '') }; save(); await Cloud.push(true); return { ok: true, msg: `Signed in as ${name}. This device's progress (${localXP} XP) is now the saved copy.` }; }
     adoptState(row.payload.full);
     S.acct = { id, name, since: (row.payload.full.acct && row.payload.full.acct.since) || todayStr() };
+    /* whatever they typed now wins; otherwise keep the address the saved copy already had */
+    S.acct.email = String(opts.email || '').trim() || (row.payload.email || '');
     if (S.who.id && S.who.id !== id) Cloud.patch(S.who.id, { migrated_to: id, name });
     S.who.name = name; save(); Cloud.lastSent = ''; await Cloud.push(true);
     logAct('signin', name);
@@ -4945,7 +4991,7 @@ async function signIn(name, pin, opts) {
     Cloud.patch(legacy.id, Object.assign({}, legacy.payload, { migrated_to: id }));
   }
   if (S.who.id && S.who.id !== id) Cloud.patch(S.who.id, { migrated_to: id, name });
-  S.acct = { id, name, since: todayStr() };
+  S.acct = { id, name, since: todayStr(), email: String(opts.email || '').trim() };
   S.who.name = name; save(); Cloud.lastSent = ''; await Cloud.push(true);
   logAct('signup', name);
   const dup = sameName.some(isAcct) ? ` (There was already a ${name} saved with a different PIN — if that was you, sign out and try the other PIN.)` : '';
@@ -6808,7 +6854,8 @@ function renderRights() {
 
   ${sec('privacy', 'Privacy', `
     <p>${name} has no analytics, no advertising and no third-party trackers. Nothing about your use of it is sold or shared.</p>
-    <p>By default everything is saved in your own browser and leaves your device only if you sign in. If you do, what is stored is a first name, an identifier derived from your PIN (never the PIN itself), and your practice state — in a database belonging to whoever runs this copy.</p>
+    <p>What leaves your device is a first name, an identifier derived from your PIN (never the PIN itself), your practice state, and — on a copy that asks for one at sign-up — the email address you gave. It goes to a database belonging to whoever runs this copy, and it is used to tell learners apart and to reach you about the app itself. It is not sold, not shared, and not added to any mailing list you did not ask for.</p>
+    <p>${BRAND.signup === 'required' ? 'This copy asks for an account before it starts, so that the person who publishes it knows how many people are using it.' : 'On this copy an account is optional, and without one nothing at all leaves your browser.'} Ask at ${contact} to see what is held about you, to correct it, or to have it deleted.</p>
     <p>The fonts are fetched from Google's servers on first load, which tells them your IP address, as any web font does. After that they are cached and the app works with no network at all.</p>`)}
 
   ${sec('warranty', 'No warranty', `
@@ -6834,6 +6881,116 @@ function renderRights() {
   }));
 }
 
+/* =========================== The sign-up gate ===========================
+   Some copies of this app are handed to a whole campus at once, and the person who published it
+   needs to know how many people actually opened the link. When the brand file says
+   BRAND_SIGNUP="required" the app does not start until there is an account: a name, an email and a
+   PIN. The PIN is not security theatre — it is what lets a learner pick the app back up on another
+   phone with their streak and their companions intact.
+
+   The gate is deliberately narrow, because a door with no key is worse than no door:
+     • never inside the Claude artifact frame, which cannot reach the internet at all;
+     • never in the owner's test copy, and never once the Owner page has been unlocked;
+     • never in a copy with no cloud project — a rebrand with the keys stripped out would
+       otherwise be unopenable by anybody, including the person who rebranded it;
+     • never again once somebody is signed in, on this device, online or off.
+   Two pages stay reachable from behind it: the rights notice, because a licence nobody can open is
+   a licence nobody has read, and the Owner page, so the owner can always get in. */
+const GATE_ON = BRAND.signup === 'required';
+const GATE_OPEN_PAGES = { rights: 1, owner: 1 };
+
+function gateNeeded() {
+  return GATE_ON && !S.acct && !ON_CLAUDE && !S.test && !ownerUnlocked() && Cloud.on();
+}
+const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim());
+
+/* render() calls this on every route change: it decides whether the door is shut right now. */
+function syncGate(page) {
+  if (!GATE_ON) return;
+  const need = gateNeeded() && !GATE_OPEN_PAGES[page];
+  document.documentElement.classList.toggle('gated', need);
+  if (need) showGate();
+  else { const g = $('#gate'); if (g) g.remove(); }
+}
+
+function gateFormHTML() {
+  return `<div class="gform">
+      <label><span class="label">Your name</span><input type="text" id="gName" maxlength="24" placeholder="${esc(BRAND.sample)}" autocomplete="given-name" value="${esc((S.who && S.who.name) || '')}"></label>
+      <label><span class="label">Email</span><input type="email" id="gEmail" maxlength="120" placeholder="you@example.com" autocomplete="email" inputmode="email" value="${esc((S.who && S.who.email) || '')}"></label>
+      <label><span class="label">PIN (4–8 digits)</span><input type="password" id="gPin" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off"></label>
+    </div>
+    <button type="button" class="btn rose" id="gGo">Start learning <span class="arr">→</span></button>
+    <p class="small gmsg" id="gMsg">${navigator.onLine === false
+      ? 'No connection at the moment. The very first sign-up needs the internet — after that the app works with no signal at all.'
+      : 'Been here before? The same name and PIN sign you back in and bring your progress with you.'}</p>`;
+}
+
+function showGate() {
+  if ($('#gate')) return;                        /* never rebuild it under someone mid-type */
+  const el = document.createElement('div');
+  el.id = 'gate'; el.className = 'gate';
+  el.innerHTML = `<div class="gatebox">
+      <span class="gwordmark">${esc(BRAND.a)}<b>${esc(BRAND.b)}</b></span>
+      <div class="gpic">${mascot(CAST_LEAD, 104)}</div>
+      <span class="label">Before you start</span>
+      <h1>Make your account</h1>
+      <p class="gsub">${esc(BRAND.tagline)}</p>
+      <p class="small muted">Ten seconds, and it is what keeps your XP, streak, words and companions when you switch phone or clear your browser.</p>
+      <div id="gSlot">${gateFormHTML()}</div>
+      <div class="gfoot"><a href="#rights">All rights reserved</a> · <a href="#owner">Owner</a></div>
+    </div>`;
+  document.body.appendChild(el);
+  wireGate();
+  const n = $('#gName'); if (n && !n.value) setTimeout(() => n.focus(), 120);
+}
+
+function wireGate() {
+  const go = $('#gGo'); if (!go) return;
+  const msg = $('#gMsg');
+  const attempt = async (opts) => {
+    const name = ($('#gName').value || '').trim();
+    const email = ($('#gEmail').value || '').trim();
+    const pin = $('#gPin').value;
+    if (name.length < 2) { msg.textContent = 'Type your name first.'; $('#gName').focus(); return; }
+    if (!validEmail(email)) { msg.textContent = 'That email does not look right — check it over.'; $('#gEmail').focus(); return; }
+    if (!validPin(pin)) { msg.textContent = 'The PIN is 4 to 8 digits. Pick something you will remember.'; $('#gPin').focus(); return; }
+    /* keep what was typed, so a failed attempt does not mean typing it all again */
+    S.who.name = name; S.who.email = email; save();
+    go.disabled = true; msg.textContent = 'One moment…';
+    const r = await signIn(name, pin, Object.assign({ email }, opts || {}));
+    go.disabled = false;
+    if (r.choice) { gateChoice(r.choice, name, pin, email); return; }
+    if (!r.ok) { msg.textContent = r.msg; return; }
+    const g = $('#gate'); if (g) g.remove();
+    document.documentElement.classList.remove('gated');
+    render();
+    if (r.restored) bigToast('Welcome back', esc(r.msg), buddy().id); else toast(r.msg);
+  };
+  go.addEventListener('click', () => attempt());
+  ['gName', 'gEmail', 'gPin'].forEach(id => {
+    const f = $('#' + id);
+    if (f) f.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } });
+  });
+}
+
+/* the one fork: this device has more progress on it than the saved copy for that name and PIN */
+function gateChoice(c, name, pin, email) {
+  $('#gSlot').innerHTML = `<div class="gchoice">
+      <b>Which copy should we keep?</b>
+      <p class="small muted">This device has <b>${c.local} XP</b> on it; the saved copy for ${esc(c.name)} has <b>${c.cloud} XP</b>. The other one is replaced.</p>
+      <div class="btn-row"><button type="button" class="btn sm rose" id="gLocal">Keep this device's (${c.local} XP)</button><button type="button" class="btn sm" id="gCloud">Use the saved copy (${c.cloud} XP)</button></div>
+    </div>`;
+  const finish = async (prefer) => {
+    const r = await signIn(name, pin, { prefer, email });
+    const g = $('#gate'); if (g) g.remove();
+    document.documentElement.classList.remove('gated');
+    render();
+    toast(r.msg);
+  };
+  $('#gLocal').addEventListener('click', () => finish('local'));
+  $('#gCloud').addEventListener('click', () => finish('cloud'));
+}
+
 /* =========================== APP =========================== */
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -6842,7 +6999,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v20', date: '10 September 2026' };
+const BUILD = { v: 'v21', date: '11 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -7371,6 +7528,7 @@ function route() { const h = (location.hash || '#home').slice(1).split('/'); ret
 window.addEventListener('hashchange', render);
 function render() {
   const { page, id, sub } = route();
+  syncGate(page);           /* on a build that requires an account, this is what keeps the door shut */
   Player.stop(); LineAudio.stop();
   if (activeHunt && page !== 'hunt') { activeHunt = null; }
   if (page !== 'games') { if (typeof MG !== 'undefined' && MG) { clearTimeout(MG.timer); MG = null; }
@@ -7631,6 +7789,7 @@ function accountHTML(opts) {
     return `<div class="acct in" id="acctCard">
       <div class="row between"><b>Signed in as ${esc(S.acct.name)}</b><span class="cpill" data-cloudstate></span></div>
       <p class="small muted">Everything — XP, ${COIN_NAME}, lessons, outfits — is saved to the cloud as you go (last saved ${fmtAgo(Cloud.last ? Cloud.last.getTime() : S.savedAt)}). Sign in with the same name and PIN on any phone or iPad and it all comes with you.</p>
+      ${S.acct.email ? `<p class="small muted">Email on the account: <b>${esc(S.acct.email)}</b></p>` : ''}
       <div class="btn-row"><button type="button" class="btn sm ghost" id="acctSync">Save now</button><button type="button" class="btn sm ghost" id="acctOut">Sign out</button></div>
     </div>`;
   }
@@ -7679,6 +7838,7 @@ function wireAccount(root, after) {
 }
 /* first run, and again once there is something worth keeping */
 function askAccount() {
+  if (GATE_ON) return;   /* the gate already asked, and it does not take Later for an answer */
   if (S.acct || S.who.asked || ON_CLAUDE || S.test || !Cloud.on()) return;
   S.who.asked = true; save();
   const el = document.createElement('div');
@@ -9007,13 +9167,27 @@ function sparkline(days) {
   const vals = Object.values(days), max = Math.max(10, ...vals);
   return `<div class="spark" role="img" aria-label="XP over the last 30 days">${vals.map((v, i) => `<i style="height:${Math.max(3, Math.round(v / max * 100))}%" title="${Object.keys(days)[i]}: ${v} XP"></i>`).join('')}</div>`;
 }
+/* How many people have this app — the first thing you want from this page once a link is out in
+   the world. "Signed up" counts real accounts; the rest are devices that never made one. */
+function ownerCountHTML(rows) {
+  const now = Date.now();
+  const seen = (r, days) => r.updated_at && (now - new Date(r.updated_at).getTime()) < days * 864e5;
+  const acct = rows.filter(r => (r.payload && r.payload.acct) || /^a_/.test(r.id));
+  const stat = (n, label, note) => `<div class="ostat"><div class="big-stat">${n}</div><span class="label">${label}</span><span class="small muted">${note}</span></div>`;
+  return `<section class="hsec"><div class="hbody"><div class="ostats">
+      ${stat(rows.length, 'Learners', 'rows in the database')}
+      ${stat(acct.length, 'Signed up', `${rows.length - acct.length} on one device only`)}
+      ${stat(rows.filter(r => seen(r, 7)).length, 'This week', 'opened it in the last 7 days')}
+      ${stat(rows.filter(r => seen(r, 1)).length, 'Today', 'opened it in the last 24 hours')}
+    </div></div></section>`;
+}
 function ownerCard(row) {
   const p = row.payload || {};
   const done = p.lessonsTotal ? Math.round(p.lessons / p.lessonsTotal * 100) : 0;
   return `<section class="ocard">
     <div class="ohead">
       <div class="who">${p.buddy ? `<span class="mascot" style="width:56px;height:56px">${companionSVG(p.buddy, { stage: p.stage || 1, worn: {} })}</span>` : ''}
-        <div><b>${esc(row.name || p.name || 'Learner')}</b> ${p.acct || /^a_/.test(row.id) ? '<span class="pill ok">account</span>' : '<span class="pill">this device only</span>'}<br><span class="small muted">${esc(row.id)} · last seen ${fmtWhen(row.updated_at)} · ${esc(p.v || '')}${p.full ? ' · full copy saved' : ''}</span></div></div>
+        <div><b>${esc(row.name || p.name || 'Learner')}</b> ${p.acct || /^a_/.test(row.id) ? '<span class="pill ok">account</span>' : '<span class="pill">this device only</span>'}<br><span class="small muted">${esc(row.id)} · last seen ${fmtWhen(row.updated_at)} · ${esc(p.v || '')}${p.full ? ' · full copy saved' : ''}</span>${p.email ? `<br><span class="small omail">${esc(p.email)}</span>` : ''}</div></div>
       <div class="obadges"><span class="pill">Level ${p.level ?? '—'}</span><span class="pill">♥ ${p.streak ?? 0}-day streak</span><span class="pill">${p.xp ?? 0} XP</span></div>
     </div>
     <div class="ogrid">
@@ -9060,8 +9234,9 @@ async function loadOwner() {
   box.innerHTML = '<p class="muted">Loading…</p>';
   try {
     const rows = (await Cloud.all()).filter(r => r.id !== OWNER_ROW && !(r.payload && r.payload.migrated_to));
+    box.dataset.count = rows.length;
     if (!rows.length) { box.innerHTML = `<div class="notice">No learners yet. Open ${esc(BRAND.name)} on the other device, put a name in <b>Casita → your name</b>, and earn a little XP — the row appears here within a few seconds.</div>`; return; }
-    box.innerHTML = rows.map(ownerCard).join('');
+    box.innerHTML = ownerCountHTML(rows) + rows.map(ownerCard).join('');
   } catch (e) {
     box.innerHTML = `<div class="notice warn"><b>Could not read the cloud.</b><br>${esc(String(e.message || e))}</div>` + ownerSetupHTML();
     wireOwnerSetup();
