@@ -1280,6 +1280,7 @@ img, svg { max-width: 100%; }
   .topbar .theme button { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; color: var(--ink-2); }
   .topbar .theme button:active { background: var(--pink-1); }
   .topbar .theme .tlabel { display: none; }
+  .topbar .theme #langBtn { width: auto; min-width: 44px; height: 44px; padding: 0 6px; border-radius: 999px; }
   .topbar .wordmark { font-size: 1.5rem; padding: 0 16px; min-height: 60px; }
   .topbar .goal { display: flex !important; justify-content: center; gap: 6px; padding: 6px 12px 6px 8px; margin: 0 4px; border-radius: 999px; background: var(--pink-1); min-height: 40px; }
   .topbar .goal .ring { width: 26px; height: 26px; }
@@ -1350,6 +1351,8 @@ img, svg { max-width: 100%; }
   .topbar .goal, .topbar .coins { padding: 5px 8px; margin: 0 1px; font-size: .86rem; }
   .topbar .gear { margin-right: 2px; width: 40px; height: 40px; }
   .topbar .theme button { width: 40px; height: 40px; }
+  .topbar .theme #langBtn { width: auto; min-width: 40px; height: 40px; padding: 0 4px; }
+  .multilang .topbar .wordmark { font-size: 1rem; }
   .mobnav a { font-size: .68rem; }
   .mobnav a .mi { width: 44px; }
 }
@@ -1450,7 +1453,7 @@ html.gated .updcard, html.gated .acttoast, html.gated .bigtoast { display: none 
 .updcard .uacts .btn { flex: 1 1 auto; justify-content: center; min-height: 44px; }
 @media (min-width: 761px) { .updcard { left: auto; right: 18px; bottom: 18px; width: min(420px, calc(100vw - 36px)); } }
 @media (max-width: 480px) { .updcard .uacts .btn { flex: 1 1 100%; } }
-@media print { .updcard, .acttoast, .wnwrap { display: none !important; } }
+@media print { .updcard, .acttoast, .wnwrap, .lmwrap { display: none !important; } }
 
 /* the header's refresh — what you can still find after saying "not now" */
 .topbar .theme { gap: 2px; }
@@ -1458,6 +1461,47 @@ html.gated .updcard, html.gated .acttoast, html.gated .bigtoast { display: none 
 .topbar .theme #updBtn:hover { background: var(--pink-1); color: var(--ink); }
 .topbar .theme #updBtn[hidden] { display: none; }
 @media (max-width: 900px) { .topbar .theme #updBtn .ulabel { display: none; } }
+
+/* ---------- switching language from the header ----------
+   It lives in the .theme cell beside the theme and update buttons, so the topbar's grid keeps
+   the same number of columns at every breakpoint and nothing is pushed onto a second line.
+   Wide screens get the globe and the code; narrow ones keep only the code, which is both the
+   smaller of the two and the more useful - it says which language you are in. */
+.topbar .theme #langBtn { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; cursor: pointer; padding: 6px 8px; border-radius: 999px; color: var(--ink-2); }
+.topbar .theme #langBtn:hover { background: var(--pink-1); color: var(--ink); }
+.topbar .theme #langBtn[hidden] { display: none; }
+.topbar .theme #langBtn .lcode { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.topbar .theme #langBtn[aria-expanded="true"] { background: var(--pink-1); color: var(--ink); }
+@media (max-width: 900px) {
+  .topbar .theme #langBtn .ic-globe { display: none; }
+  .topbar .theme #langBtn { padding: 0 9px; min-height: 44px; }
+  .topbar .theme #langBtn .lcode { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; border-radius: 999px; background: var(--pink-1); color: var(--ink); font-size: .66rem; }
+}
+
+/* the sheet the button opens - one panel, centred, so it behaves the same on a phone,
+   an iPad and a desktop, and closes on Escape, on a tap outside, or on a choice */
+.lmwrap { position: fixed; inset: 0; z-index: 130; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(24, 12, 20, .45); opacity: 0; transition: opacity .18s ease; }
+.lmwrap.in { opacity: 1; }
+.lmpanel { width: min(380px, 100%); max-height: 86vh; overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 18px 18px 14px; transform: translateY(10px); transition: transform .18s ease; }
+.lmwrap.in .lmpanel { transform: none; }
+.lmhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.lmhead h2 { margin: 2px 0 0; font-size: 1.28rem; }
+.lmhead .x { border: 0; background: none; cursor: pointer; font-size: 1.5rem; line-height: 1; color: var(--ink-3); padding: 2px 6px; border-radius: 10px; }
+.lmhead .x:hover { background: var(--pink-1); color: var(--ink); }
+.lmnote { margin: 12px 2px 0; }
+/* A third control in the bar costs about 48px, and on a phone that is the wordmark's last
+   spare inch. Where the app teaches more than one language, and only there, the wordmark
+   gives a little back rather than running under the streak pill. */
+@media (max-width: 480px) {
+  .multilang .topbar .wordmark { font-size: .92rem; min-width: 0; overflow: hidden; text-overflow: clip; }
+  .multilang .topbar .theme #langBtn { padding: 0 5px; }
+  .multilang .topbar .theme #langBtn .lcode { min-width: 27px; height: 24px; }
+  .multilang .topbar .goal, .multilang .topbar .coins { padding: 5px 8px; }
+}
+@media (max-width: 560px) {
+  .lmwrap { align-items: flex-end; padding: 0; }
+  .lmpanel { width: 100%; max-height: 82vh; border-radius: 22px 22px 0 0; border-bottom: 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateY(24px); }
+}
 
 /* a toast you can answer — the plain one says a thing and goes */
 .acttoast { position: fixed; z-index: 96; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; padding: 12px 42px 12px 16px; border-radius: 16px; background: var(--ink); color: var(--inverse-ink); box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); transition: opacity .2s ease, transform .2s ease; }
@@ -1876,7 +1920,10 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
     <span class="streak" id="streakTxt"></span><span class="streakm" id="streakM"></span>
   </a>
   <a class="coins" id="coinWidget" href="#casita" aria-label="Your quetzalitos and companion"><span class="coin" aria-hidden="true">◕</span><b id="coinTxt">0</b></a>
-  <div class="theme"><button id="updBtn" type="button" hidden aria-label="A newer version is ready — refresh to it" title="A newer version is ready">
+  <div class="theme"><button id="langBtn" type="button" hidden aria-haspopup="dialog" aria-expanded="false" aria-label="Switch language" title="Switch language">
+    <svg class="ic ic-globe" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="lcode" id="langCode">ES</span>
+  </button><button id="updBtn" type="button" hidden aria-label="A newer version is ready — refresh to it" title="A newer version is ready">
     <svg class="ic" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 3.5V9h-5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="ulabel">Update</span>
   </button><button id="themeBtn" type="button" aria-pressed="false" aria-label="Switch to the dark theme" title="Light or dark">
@@ -5550,6 +5597,7 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v24', 'The language you are learning now sits in the header, on every screen - phone, tablet and computer. Tap it and the whole app changes over; each language keeps its own lessons and its own level, while your XP, your streak and your casita come with you.'],
   ['v23', 'French is finished — all six levels, from the alphabet to reading Camus in the original. And <b>Japanese</b> arrives beside it: kana from the first lesson, the reading always printed next to the writing, and a verb trainer cut for a language that does not conjugate for person.'],
   ['v22', 'More than one language. A course is now something the app switches on, and <b>French</b> is the first one beside Spanish — its own words, lessons, dialogues, passages, hunts and verb trainer. Your streak, XP, quetzalitos and everyone in the casita follow you between languages; lessons and words stay with the language they belong to.'],
   ['v21', 'An account before the app opens, on the builds that ask for one — a name, an email and a PIN — so the person who published it knows how many people are using it. Nothing is written to the database until that account exists.'],
@@ -7137,8 +7185,64 @@ function setCourse(id, opts) {
   if (!opts.first) applyCourse(c.id);
   bindCourse(c);
   document.documentElement.setAttribute('data-lang', c.id);
+  paintLangBtn();
   if (!opts.quiet) save();
   return c;
+}
+
+/* ---------- the header button ----------
+   Hidden outright where there is only one course, so the build that teaches one language
+   carries no switch for a choice it does not offer. */
+function paintLangBtn() {
+  const b = document.getElementById('langBtn');
+  if (!b) return;
+  document.documentElement.classList.toggle('multilang', multilingual());
+  if (!multilingual()) { b.hidden = true; return; }
+  b.hidden = false;
+  const code = document.getElementById('langCode');
+  if (code && COURSE) code.textContent = COURSE.code;
+  if (COURSE) {
+    b.setAttribute('aria-label', 'Language: ' + COURSE.name + '. Switch to another.');
+    b.setAttribute('title', COURSE.name + ' - tap to switch');
+  }
+}
+function closeLangMenu() {
+  const el = document.getElementById('lmWrap');
+  if (!el) return;
+  const b = document.getElementById('langBtn');
+  if (b) b.setAttribute('aria-expanded', 'false');
+  el.classList.remove('in');
+  setTimeout(() => el.remove(), 200);
+  if (b && document.contains(b)) b.focus();
+}
+function langMenu() {
+  if (!multilingual()) return;
+  if (document.getElementById('lmWrap')) { closeLangMenu(); return; }
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+  const el = document.createElement('div');
+  el.id = 'lmWrap'; el.className = 'lmwrap';
+  el.innerHTML = '<div class="lmpanel" role="dialog" aria-modal="true" aria-label="Choose a language">'
+    + '<div class="lmhead"><div><span class="label">Learning</span><h2>Choose a language</h2></div>'
+    + '<button type="button" class="x" id="lmX" aria-label="Close">&times;</button></div>'
+    + '<div class="langbox">' + courseList().map(c => courseRow(c, c.id === S.lang)).join('') + '</div>'
+    + '<p class="small muted lmnote">Each language keeps its own lessons and its own level. Your XP, your streak and your casita follow you into all of them.</p>'
+    + '</div>';
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('in'));
+  const onKey = (e) => { if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); closeLangMenu(); } };
+  document.addEventListener('keydown', onKey);
+  el.addEventListener('click', (e) => { if (e.target === el) { document.removeEventListener('keydown', onKey); closeLangMenu(); } });
+  const x = document.getElementById('lmX');
+  if (x) x.addEventListener('click', () => { document.removeEventListener('keydown', onKey); closeLangMenu(); });
+  el.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.lang;
+    document.removeEventListener('keydown', onKey);
+    closeLangMenu();
+    if (id !== S.lang && typeof switchLanguage === 'function') switchLanguage(id);
+  }));
+  const first = el.querySelector('.lrow:not(.on)') || el.querySelector('.lrow');
+  if (first) first.focus();
 }
 
 /* called once at boot, before the first render */
@@ -9381,7 +9485,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v23', date: '15 September 2026' };
+const BUILD = { v: 'v24', date: '15 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -9558,14 +9662,14 @@ function stopEnList() { EN_TOKEN++; }
 if ('speechSynthesis' in window) { refreshVoices(); refreshEnVoices(); speechSynthesis.onvoiceschanged = () => { refreshVoices(); refreshEnVoices(); }; }
 function voiceLabel(v) { const f = FEMALE.test(v.name) ? '♀ ' : MALE.test(v.name) ? '♂ ' : ''; return `${f}${v.name} · ${v.lang}`; }
 function fillVoicePick(sel) {
-  sel.innerHTML = VOICES.length ? VOICES.map(v => `<option value="${esc(v.voiceURI)}" ${VOICE && v.voiceURI === VOICE.voiceURI ? 'selected' : ''}>${esc(voiceLabel(v))}</option>`).join('') : '<option>No Spanish voices found</option>';
+  sel.innerHTML = VOICES.length ? VOICES.map(v => `<option value="${esc(v.voiceURI)}" ${VOICE && v.voiceURI === VOICE.voiceURI ? 'selected' : ''}>${esc(voiceLabel(v))}</option>`).join('') : `<option>No ${esc(COURSE ? COURSE.name : 'Spanish')} voices found</option>`;
 }
 function voicePickHTML() {
   const cname = COURSE ? COURSE.name : 'Spanish';
   const note = VOICE ? (/es-mx|es-us|es-419/i.test(VOICE.lang) ? 'Latin American Spanish — the closest engine to Guatemalan Spanish (there is no dedicated Guatemalan voice yet)' : 'Closest ' + cname + ' voice on this device') : 'Voices load when the page is ready';
   const hq = EN_VOICE && /premium|enhanced|natural|neural|online/i.test(EN_VOICE.name);
   const enNote = EN_VOICE ? ((/en-us/i.test(EN_VOICE.lang) ? 'American English' : 'Closest English voice on this device') + (hq ? ' — a high-quality (★) voice' : ' — a basic voice. For a more human one on a Mac, download “Ava (Premium)”, “Zoe (Premium)” or “Samantha (Enhanced)” in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices, then reload; on Windows, Edge offers “Microsoft Aria/Jenny Online (Natural)”')) : 'Loads when the page is ready';
-  return `<div class="voicepick"><span class="label">Spanish voice · ${esc(leadName())}</span><select class="select" data-es aria-label="Choose the Spanish voice"></select><span class="small">${esc(note)}. On a Mac, "Paulina" (Spanish – Mexico) is the closest female voice to Guatemalan Spanish — add it in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices if it is missing.</span>
+  return `<div class="voicepick"><span class="label">${esc(cname)} voice · ${esc(leadName())}</span><select class="select" data-es aria-label="Choose the ${esc(cname)} voice"></select><span class="small">${esc(note)}.${!COURSE || COURSE.id !== 'es' ? ' If this device has no voice for it, add one in your system settings under Spoken Content.' : ' On a Mac, "Paulina" (Spanish – Mexico) is the closest female voice to Guatemalan Spanish — add it in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices if it is missing.'}</span>
   <span class="label" style="margin-top:6px">English voice · translations</span><select class="select" data-en aria-label="Choose the English voice"></select><span class="small">${esc(enNote)}.</span></div>`;
 }
 function wireVoicePicks(root) {
@@ -9868,7 +9972,7 @@ function gloss(raw) {
   const tries = [ [sing, 'plural of '], [w.replace(/a$/, 'o'), 'feminine of '], [sing.replace(/a$/, 'o'), 'feminine plural of '], [w.replace(/as$/, 'o'), 'feminine plural of '], [w.replace(/ces$/, 'z'), 'plural of '] ];
   for (const [cand, note] of tries) { if (cand !== w && DICT_BY_ES[cand]) return { ...DICT_BY_ES[cand], word: w, note: note + cand }; }
   if (sing !== w && FORMS[sing]) return { es: w, word: w, ...FORMS[sing], note: 'plural of ' + sing };
-  if (/^[A-ZÁÉÍÓÚÑ]/.test(String(raw).replace(/^[¿¡"“(]+/, ''))) return { es: w, word: String(raw).replace(/^[¿¡"“(]+|[.,;:!?"”)]+$/g, ''), en: 'a name or place', pos: 'proper noun', def: 'Names and places stay as they are. Say it with Spanish vowels.' };
+  if (/^[A-ZÁÉÍÓÚÑ]/.test(String(raw).replace(/^[¿¡"“(]+/, ''))) return { es: w, word: String(raw).replace(/^[¿¡"“(]+|[.,;:!?"”)]+$/g, ''), en: 'a name or place', pos: 'proper noun', def: `Names and places stay as they are. Say it with ${COURSE ? COURSE.name : 'Spanish'} vowels.` };
   return null;
 }
 function learnWord(es) { if (DICT_BY_ES[es] && !S.learned[es]) { S.learned[es] = true; if (!S.cards[es]) S.cards[es] = { box: 0, due: todayStr(), at: todayStr() }; return true; } return false; }
@@ -9993,7 +10097,7 @@ function renderHome() {
   app.innerHTML = `
   <section class="home-hero">
     <div class="copy">
-      <span class="label" style="color:var(--pink-5)">Español · Level ${lv.id} · ${esc(lv.name)}</span>
+      <span class="label" style="color:var(--pink-5)">${esc(COURSE.native)} · Level ${lv.id} · ${esc(lv.name)}</span>
       <h1>${esc(BRAND.a)}<span class="mos">${esc(BRAND.b)}</span></h1>
       <p class="tag">${esc(BRAND.tagline)}</p>
       <div class="btn-row">
@@ -10493,7 +10597,7 @@ function renderSpeaking(id, sub) {
   const phrases = SPEAKING[lv.id] || [], dlgs = DIALOGUES[lv.id] || [];
   app.innerHTML = `
   <section class="pagehead">
-    <div class="title"><span class="label">02 · Speaking · Level ${lv.id} ${esc(lv.name)}</span><h1>Speaking</h1><p>${tab === 'phrases' ? 'Listen, then repeat into the microphone. Each word you said is checked against the phrase — green is clear, red needs work — and you can play back your own recording next to your companion\'s.' : tab === 'dialogues' ? 'Real-life conversations. The app voices one side in Latin American Spanish; you say the other. Play the whole thing first, then take your lines.' : tab === 'listen' ? 'A phrase plays with no text. Type what you hear, accents optional. A close match counts.' : 'The eight things that make Spanish sound Spanish. Hear each one in the app\'s voice, normal and slow.'}</p></div>
+    <div class="title"><span class="label">02 · Speaking · Level ${lv.id} ${esc(lv.name)}</span><h1>Speaking</h1><p>${tab === 'phrases' ? 'Listen, then repeat into the microphone. Each word you said is checked against the phrase — green is clear, red needs work — and you can play back your own recording next to your companion\'s.' : tab === 'dialogues' ? `Real-life conversations. The app voices one side; you say the other. Play the whole thing first, then take your lines.` : tab === 'listen' ? 'A phrase plays with no text. Type what you hear, accents optional. A close match counts.' : `The eight things that make ${esc(COURSE.name)} sound like ${esc(COURSE.name)}. Hear each one in the app's voice, normal and slow.`}</p></div>
     <div class="side pink">${voicePickHTML()}${tab === 'guide' ? '' : micPanelHTML()}</div>
   </section>
   ${speakingTabs(tab)}
@@ -11114,7 +11218,7 @@ function renderTranslate() {
           <div class="tmarks">${g.marks.map(m => `<span class="tm ${m.ok ? (m.accent ? 'acc' : 'ok') : m.missing ? 'miss' : 'bad'}" ${m.want && m.want !== m.w ? `title="should be: ${esc(m.want)}"` : ''}>${esc(m.w)}</span>`).join('')}</div>
           <div class="tanswer"><span class="label">The answer</span><div class="es">${esc(target)}</div></div>
           ${!g.ok && g.cause ? causeNoteHTML(g.cause) : ''}
-          <div class="btn-row"><button type="button" class="btn sm ghost" id="tHear">◉ Hear the Spanish</button><button type="button" class="btn sm rose" id="tNext">Next →</button></div>
+          <div class="btn-row"><button type="button" class="btn sm ghost" id="tHear">◉ Hear the ${esc(COURSE.name)}</button><button type="button" class="btn sm rose" id="tNext">Next →</button></div>
         </div>`;
       $('#tHear').addEventListener('click', () => speak(cur.es, true));
       $('#tNext').addEventListener('click', next);
@@ -11818,6 +11922,7 @@ startClock();
 render();
 setTimeout(askAccount, 1200);
 { const fv = $('#footv'); if (fv) fv.textContent = BUILD.v; }
+{ const lb = $('#langBtn'); if (lb) lb.addEventListener('click', langMenu); paintLangBtn(); }
 /* if this load followed an update, say so — and offer the list of what moved */
 noteUpdated();
 { const fc = $('#footcredit'); if (fc) fc.innerHTML = creditHTML(); }
