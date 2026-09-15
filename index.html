@@ -5550,6 +5550,8 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v22', 'More than one language. A course is now something the app switches on, and <b>French</b> is the first one beside Spanish — its own words, lessons, dialogues, passages, hunts and verb trainer. Your streak, XP, quetzalitos and everyone in the casita follow you between languages; lessons and words stay with the language they belong to.'],
+  ['v21', 'An account before the app opens, on the builds that ask for one — a name, an email and a PIN — so the person who published it knows how many people are using it. Nothing is written to the database until that account exists.'],
   ['v20', 'Updates that ask first. When a newer version has finished downloading, a card asks before refreshing instead of changing the app under you — and afterwards a short note says what changed, with the full list a tap away from the version in the footer.'],
   ['v19', 'The daily crossword explains itself, starts each word off with its first letter and has a <b>Pista</b> button for when one will not come. Culture notes and examples travel across Latin America.'],
   ['v18.1', 'More time in every timed game, and a <b>Con calma / Normal / Rápido</b> setting so the pace is yours — Rápido is the old speed.'],
@@ -5558,8 +5560,6 @@ const WHATS_NEW = [
   ['v17.2', 'The Owner page can be claimed once. The first passcode set is the only one, and nobody else can set another.'],
   ['v17.1', 'Added to a home screen, the app keeps its own name and the line at the foot of the page.'],
   ['v17', 'One set of lessons, more than one app: a brand file carries the name, palette and cloud, so a copy can be rebranded without touching a single word of Spanish.'],
-  ['v16', 'Lotería, ¡El o la! with falling nouns, a daily crucigrama built from the week\'s words, and a 90-second round that can rescue a broken streak.'],
-  ['v15', 'A Play tab — Mercado, the dictation ladder and the word hunts in one place.'],
 ];
 const verNum = (v) => String(v).replace(/^v/i, '').split('.').map((n) => Number(n) || 0);
 /* true when a is a later version than b: v19 > v18.1 > v18 */
@@ -9011,8 +9011,8 @@ function renderLesson(l) {
   const sayText = (e) => e[0].replace(/→.*$/, '').replace(/\s*\/\s*/g, '. ');
   box.innerHTML = `
     <div><span class="label">${esc(l.id.toUpperCase())}</span><h2 style="margin-top:6px">${esc(l.title)}</h2><p class="lede" style="margin-top:10px">${esc(l.lede)}</p></div>
-    <div class="playbar"><div><span class="label">Read aloud, slowly</span><p class="small muted" id="playHint">${leadName()} reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.</p></div>${playerHTML('lessonPlayer', true)}</div>
-    ${(l.rules || []).map((r, gi) => `<div class="rule" data-group="${gi}"><div class="r">${esc(r.r)}</div><div class="boxbar"><span class="label">Box ${gi + 1} · ${r.ex.length} example${r.ex.length === 1 ? '' : 's'}</span><div class="btn-row"><button type="button" class="btn sm rose boxplay" data-group="${gi}" aria-label="Play or pause this box">▶ Play box ${gi + 1}</button><button type="button" class="btn sm boxen" data-group="${gi}" aria-label="Read the English of this box">EN · Read English</button></div></div><div class="exs">${r.ex.map(e => `<div class="ex" data-ex="${esc(sayText(e))}" data-en="${esc(e[1])}"><span><span class="es">${esc(e[0])}</span><button class="say" type="button" aria-label="Listen in Spanish" title="Spanish, slowly">◉</button><button class="sayen" type="button" aria-label="Read the English" title="English">EN</button></span><span class="en">${esc(e[1])}</span></div>`).join('')}</div></div>`).join('')}
+    <div class="playbar"><div><span class="label">Read aloud, slowly</span><p class="small muted" id="playHint">${leadName()} reads one box in ${COURSE.name}, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.</p></div>${playerHTML('lessonPlayer', true)}</div>
+    ${(l.rules || []).map((r, gi) => `<div class="rule" data-group="${gi}"><div class="r">${esc(r.r)}</div><div class="boxbar"><span class="label">Box ${gi + 1} · ${r.ex.length} example${r.ex.length === 1 ? '' : 's'}</span><div class="btn-row"><button type="button" class="btn sm rose boxplay" data-group="${gi}" aria-label="Play or pause this box">▶ Play box ${gi + 1}</button><button type="button" class="btn sm boxen" data-group="${gi}" aria-label="Read the English of this box">EN · Read English</button></div></div><div class="exs">${r.ex.map(e => `<div class="ex" data-ex="${esc(sayText(e))}" data-en="${esc(e[1])}"><span><span class="es">${esc(e[0])}</span><button class="say" type="button" aria-label="Listen in ${COURSE.name}" title="${COURSE.name}, slowly">◉</button><button class="sayen" type="button" aria-label="Read the English" title="English">EN</button></span><span class="en">${esc(e[1])}</span></div>`).join('')}</div></div>`).join('')}
     ${l.table ? `<div class="tablewrap"><table class="conj"><thead><tr>${l.table.h.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${l.table.rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'es' : ''}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
     ${l.callout ? `<div class="callout">${l.callout}</div>` : ''}
     ${tips ? `<div class="tips">${tips.ojo ? `<div class="tip ojo"><span class="label">¡Ojo! · watch out</span><p>${esc(tips.ojo)}</p></div>` : ''}${tips.cultura ? `<div class="tip cultura"><span class="label">Cultura</span><p>${esc(tips.cultura)}</p></div>` : ''}</div>` : ''}
@@ -9036,7 +9036,7 @@ function renderLesson(l) {
   wirePlayer($('#lessonPlayer'), items, { slow: true, sayEnglish: false, stopAfterGroup: true, gapMs: 700, onpaint: (P) => {
     box.querySelectorAll('.rule').forEach(r => r.classList.toggle('waiting', P.state === 'paused' && P.waitingGroup !== null && Number(r.dataset.group) === P.waitingGroup));
     paintBoxes(P);
-    const h = $('#playHint'); if (h) h.textContent = P.state === 'paused' && P.waitingGroup !== null ? `Box ${P.waitingGroup} done. Press ▶ (or the box button) to hear box ${P.waitingGroup + 1}. EN reads the English.` : P.state === 'done' ? 'All boxes read. Press ▶ to start again.' : '${leadName()} reads one box in Spanish, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.';
+    const h = $('#playHint'); if (h) h.textContent = P.state === 'paused' && P.waitingGroup !== null ? `Box ${P.waitingGroup} done. Press ▶ (or the box button) to hear box ${P.waitingGroup + 1}. EN reads the English.` : P.state === 'done' ? 'All boxes read. Press ▶ to start again.' : `${leadName()} reads one box in ${COURSE.name}, then waits. Press ▶ for the next box. Each box has its own play / pause and an EN button that reads the English.`;
   } });
   exEls.forEach(el => { el.querySelector('.say').addEventListener('click', () => speak(el.dataset.ex, true)); el.querySelector('.sayen').addEventListener('click', () => speakEn(el.dataset.en)); });
   box.querySelectorAll('.boxplay').forEach(b => b.addEventListener('click', () => {
@@ -9241,7 +9241,7 @@ function renderPassage(r) {
       </div>
       <aside class="readside">
         <div class="gloss" id="gloss"><span class="label">Tap a word</span><p class="muted small">Its meaning and an example will appear here. Dotted words have an entry; a solid pink underline means it's already in your list.</p></div>
-        <details class="tipsbox"><summary>How to read in Spanish · ${READ_TIPS.length} tips</summary><ul>${READ_TIPS.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
+        <details class="tipsbox"><summary>How to read in ${COURSE.name} · ${READ_TIPS.length} tips</summary><ul>${READ_TIPS.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
       </aside>
     </div>`;
   if (r.en) wirePlayer($('#readPlayer'), sentences.map((s, k) => ({ text: s, el: box.querySelector(`.sent[data-s="${k}"]`) })));
@@ -9687,7 +9687,7 @@ function renderTranslate() {
     const target = dir === 'es' ? cur.es : cur.en;
     body.innerHTML = `
       <div class="tdrill">
-        <span class="label">${dir === 'es' ? 'Say this in Spanish' : 'What does this mean?'}</span>
+        <span class="label">${dir === 'es' ? 'Say this in ' + COURSE.name : 'What does this mean?'}</span>
         <div class="tprompt">${esc(prompt)}${dir === 'en' ? `<button type="button" class="btn sm ghost" id="tSay">◉</button>` : ''}</div>
         <textarea id="tAns" rows="2" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="${dir === 'es' ? 'Escribe en español…' : 'Type it in English…'}" aria-label="Your translation"></textarea>
         <div class="btn-row"><button type="button" class="btn rose" id="tGo">Check</button><button type="button" class="btn ghost" id="tReset">↺ Reset</button><button type="button" class="btn ghost" id="tSkip">Show me</button><span class="mono muted" style="margin-left:auto">${asked ? right + '/' + asked : ''}</span></div>
@@ -9732,7 +9732,7 @@ document.addEventListener('click', (e) => {
 });
 function checkpointQuestionHTML(q, i) {
   if (q.kind === 'ex') return `<div class="cpq" data-i="${i}">${exerciseHTML(q.ex, i)}</div>`;
-  if (q.kind === 'trans') return `<div class="cpq" data-i="${i}"><div class="q"><div class="prompt">${i + 1}. Say this in Spanish: <span class="muted" style="font-weight:400">“${esc(q.en)}”</span></div><div class="cprow"><input type="text" class="cpin" autocomplete="off" spellcheck="false" aria-label="Your answer"><button type="button" class="btn sm ghost cpreset" title="Clear this answer">↺</button></div><div class="why" hidden></div></div></div>`;
+  if (q.kind === 'trans') return `<div class="cpq" data-i="${i}"><div class="q"><div class="prompt">${i + 1}. Say this in ${COURSE.name}: <span class="muted" style="font-weight:400">“${esc(q.en)}”</span></div><div class="cprow"><input type="text" class="cpin" autocomplete="off" spellcheck="false" aria-label="Your answer"><button type="button" class="btn sm ghost cpreset" title="Clear this answer">↺</button></div><div class="why" hidden></div></div></div>`;
   if (q.kind === 'listen') return `<div class="cpq" data-i="${i}"><div class="q"><div class="prompt">${i + 1}. Type what you hear <button type="button" class="btn sm ghost cpsay">◉ Play</button></div><div class="cprow"><input type="text" class="cpin" autocomplete="off" spellcheck="false" aria-label="Your answer"><button type="button" class="btn sm ghost cpreset" title="Clear this answer">↺</button></div><div class="why" hidden></div></div></div>`;
   const p = PERSONS.find(x => x.k === q.person);
   return `<div class="cpq" data-i="${i}"><div class="q"><div class="prompt">${i + 1}. <b>${esc(q.inf)}</b> <span class="muted" style="font-weight:400">(${esc(q.en)})</span> — ${esc(TENSE_BY_K[q.tense].t)}, <b>${esc(p.t)}</b></div><div class="cprow"><input type="text" class="cpin" autocomplete="off" spellcheck="false" aria-label="Your answer"><button type="button" class="btn sm ghost cpreset" title="Clear this answer">↺</button></div><div class="why" hidden></div></div></div>`;
