@@ -10,19 +10,19 @@
 <!-- the card a shared link unfurls into: the app's own icon and its own words, in the
      brand's colours, rather than a bare URL. og:image has to be absolute, so it is built
      from BRAND_SITE. -->
-<meta name="description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta name="description" content="From the very first word to real fluency, one small step a day.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Vamos">
-<meta property="og:title" content="Vamos — Learn Spanish">
-<meta property="og:description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta property="og:title" content="Vamos — Learn a language">
+<meta property="og:description" content="From the very first word to real fluency, one small step a day.">
 <meta property="og:url" content="https://thepastor.github.io/vamos/">
 <meta property="og:image" content="https://thepastor.github.io/vamos/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta property="og:image:alt" content="Vamos">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Vamos — Learn Spanish">
-<meta name="twitter:description" content="Spanish from the very first word to real fluency, one small step a day.">
+<meta name="twitter:title" content="Vamos — Learn a language">
+<meta name="twitter:description" content="From the very first word to real fluency, one small step a day.">
 <meta name="twitter:image" content="https://thepastor.github.io/vamos/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1380,6 +1380,29 @@ img, svg { max-width: 100%; }
 .installbox .btn { justify-self: start; margin-top: 4px; }
 .installbox.compact { grid-template-columns: auto 1fr; align-items: center; gap: 14px; padding-right: 44px; }
 .installbox .x { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 1.3rem; color: var(--ink-3); cursor: pointer; padding: 6px 10px; min-width: 40px; min-height: 40px; }
+/* ---------- languages ----------
+   A language is not a country, so the picker wears the language's own two letters rather than a
+   flag that would be wrong for most of the people who speak it. */
+.lbadge { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 38px; height: 38px; border-radius: 11px; background: var(--pink-2); color: var(--ink); font-family: var(--font-mono); font-size: .72rem; font-weight: 500; letter-spacing: .06em; }
+.langgrid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.lpick { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px 12px; min-height: 60px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.lpick span { display: block; min-width: 0; }
+.lpick b { font-weight: 600; }
+.lpick .small { display: block; }
+.lpick:hover { border-color: var(--pink-4); }
+.lpick.on { border-color: var(--pink-5); background: var(--pink-1); box-shadow: inset 0 0 0 1px var(--pink-5); }
+.glangs { width: 100%; display: grid; gap: 8px; text-align: left; margin-top: 4px; }
+
+.lrow { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--line-soft); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.lrow:last-child { border-bottom: 0; }
+.lrow:hover { background: var(--pink-1); }
+.lrow.on { background: var(--pink-1); }
+.lrow .lname { flex: 1 1 auto; min-width: 0; }
+.lrow .lname b { display: block; font-weight: 600; }
+.lrow .lgo { color: var(--ink-3); font-family: var(--font-mono); }
+.langbox { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.langnow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
 /* ---------- the sign-up gate ----------
    On a build that requires an account this is the whole screen — the app behind it is not hidden
    under an overlay, it is switched off, so there is nothing to tab into or scroll past. */
@@ -1891,9 +1914,9 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 const BRAND = {
   id: 'vamos',
   name: 'Vamos',
-  longName: 'Vamos — Learn Spanish',
+  longName: 'Vamos — Learn a language',
   a: 'Va', b: 'mos',
-  tagline: 'Spanish from the very first word to real fluency, one small step a day.',
+  tagline: 'From the very first word to real fluency, one small step a day.',
   why: '“Vamos” means “let\'s go”.',
   about: '“Vamos” is what you say when it is time to start — “let\'s go”. That is the whole idea: a little every day, from the first word to a real conversation.',
   nameNote: '',
@@ -1919,6 +1942,9 @@ const BRAND = {
      PIN, so the Owner page is a real count of who is using this copy. Empty leaves the account
      optional, which is the right setting for a build that goes to one person. */
   signup: 'required',
+  /* which courses this build offers, comma-separated ("es,fr"). Empty means Spanish alone, which
+     is what a single-language build like Nat's should stay. */
+  langs: 'es,fr',
   /* SHA-256 of the owner passcode. Set it and that passcode is the only way into the Owner page,
      on every device, with no database involved. Empty: the first device to claim it wins. */
   ownerPass: '',
@@ -1929,7 +1955,7 @@ const BRAND = {
 const KEY = BRAND.id + '.v1';
 
 /* =========================== DATA =========================== */
-const LEVELS = [
+let LEVELS = [
   { id: 1, name: 'Semillas', grade: 'Grade 1 · Absolute beginner', cefr: 'Pre-A1', blurb: 'The alphabet, greetings, numbers, colours, family. Your first hundred words.' },
   { id: 2, name: 'Raíces',   grade: 'Grade 3–4 · Beginner',        cefr: 'A1',     blurb: 'Regular present-tense verbs, ser vs. estar, questions, everyday routines.' },
   { id: 3, name: 'Tallos',   grade: 'Grade 6–7 · Elementary',      cefr: 'A2',     blurb: 'Talking about the past, giving directions, likes and dislikes, short stories.' },
@@ -1938,8 +1964,10 @@ const LEVELS = [
   { id: 6, name: 'Fluidez',  grade: 'University · Fluent',         cefr: 'C1–C2', blurb: 'Literature, humour, regional Spanish, debating and thinking in Spanish.' },
 ];
 
-/* Dictionary: es, en, pos, def, ex, exEn, lvl, theme */
-const DICT = [
+/* Dictionary: es, en, pos, def, ex, exEn, lvl, theme.
+   These seven are `let` rather than `const` because part21 swaps them when the learner changes
+   language — `es` means "the word in the language being learned", whichever that is. */
+let DICT = [
   // greetings / basics
   { es:'hola', en:'hello', pos:'interjection', def:'A friendly greeting used at any time of day.', ex:'¡Hola! ¿Cómo estás?', exEn:'Hello! How are you?', lvl:1, theme:'saludos' },
   { es:'adiós', en:'goodbye', pos:'interjection', def:'What you say when leaving.', ex:'Adiós, hasta mañana.', exEn:'Goodbye, see you tomorrow.', lvl:1, theme:'saludos' },
@@ -2244,7 +2272,7 @@ const FORMS = {
 };
 
 /* Grammar lessons */
-const GRAMMAR = {
+let GRAMMAR = {
   1: [
     { id:'g1-1', title:'The alphabet and how Spanish sounds', sub:'Every letter says its name, every time.',
       lede:'Spanish spelling is honest: once you know the sounds, you can read any word aloud. Five vowels, five sounds, no surprises.',
@@ -2401,7 +2429,7 @@ const GRAMMAR = {
 };
 
 /* Speaking phrases: es, en, hint */
-const SPEAKING = {
+let SPEAKING = {
   1: [
     { es:'Hola, me llamo Nat.', en:'Hello, my name is Nat.', hint:'OH-lah, meh YAH-moh' },
     { es:'¿Cómo estás?', en:'How are you?', hint:'KOH-moh ehs-TAHS' },
@@ -2449,7 +2477,7 @@ const SPEAKING = {
 };
 
 /* Reading passages */
-const READING = {
+let READING = {
   1: [
     { id:'r1-1', title:'Mi familia', words:60,
       text:['Hola. Me llamo Ana y tengo ocho años. Vivo en una casa pequeña con mi familia.','Mi madre se llama Rosa. Es doctora. Mi padre se llama Luis. Es maestro y cocina muy bien.','Tengo un hermano. Se llama Pablo y tiene diez años. Tenemos un perro negro y un gato blanco.','Mi familia es pequeña, pero es muy feliz.'],
@@ -2478,7 +2506,7 @@ const READING = {
 };
 
 /* Word Hunt sets */
-const HUNTS = {
+let HUNTS = {
   1: [
     { theme:'Animales', words:['perro','gato','pájaro','pez','vaca','caballo','conejo','oso'] },
     { theme:'Colores', words:['rojo','azul','verde','amarillo','negro','blanco','rosa','gris'] },
@@ -2501,7 +2529,7 @@ const HUNTS = {
 };
 
 /* Dialogues (Babbel-style): the app voices A; the learner is B */
-const DIALOGUES = {
+let DIALOGUES = {
   1: [
     { id:'d1-1', title:'En la escuela', scene:'First day. Ana says hello.', lines:[
       { who:'A', es:'¡Hola! ¿Cómo te llamas?', en:'Hi! What is your name?' },
@@ -4766,6 +4794,9 @@ function summary() {
     id: S.who.id, name: learnerName(), since: S.who.since,
     /* only ever set on a build that asks for one at sign-up; the Owner page is the only reader */
     email: (S.acct && S.acct.email) || '',
+    /* which course this row is about, and every language this learner has opened */
+    lang: S.lang || 'es', langs: Object.keys(S.byLang || {}).concat([S.lang || 'es'])
+      .filter((v, i, a) => v && a.indexOf(v) === i),
     v: BUILD.v, at: new Date().toISOString(),
     xp: S.xp || 0, coins: S.coins || 0, level: S.level, goal: S.goal,
     xpToday: xpToday(), streak: streakAlive(),
@@ -5061,7 +5092,7 @@ function setOwnerUnlocked(v) { try { v ? sessionStorage.setItem(OWNER_KEY + '.ok
    No vosotros — nobody in Guatemala uses it, and it doubles the memorising.
    vos IS included: it is what Nat will actually hear there.
    ---------------------------------------------------------------------- */
-const PERSONS = [
+let PERSONS = [
   { k: 'y', t: 'yo', en: 'I' },
   { k: 't', t: 'tú', en: 'you' },
   { k: 'v', t: 'vos', en: 'you (Guatemala)', vos: true },
@@ -5069,9 +5100,9 @@ const PERSONS = [
   { k: 'n', t: 'nosotros', en: 'we' },
   { k: 's', t: 'ellos/ustedes', en: 'they/you all' },
 ];
-const PK = PERSONS.map(p => p.k);
+let PK = PERSONS.map(p => p.k);
 
-const TENSES = [
+let TENSES = [
   { k: 'pres', t: 'Presente', en: 'Present', level: 1, ex: 'hablo — I speak', blurb: 'What happens now, or usually. The one you use most.' },
   { k: 'pret', t: 'Pretérito', en: 'Preterite', level: 3, ex: 'hablé — I spoke', blurb: 'Finished actions in the past: yesterday, last year, once.' },
   { k: 'imperf', t: 'Imperfecto', en: 'Imperfect', level: 4, ex: 'hablaba — I used to speak', blurb: 'Habits and backgrounds in the past: used to, was ‑ing.' },
@@ -5081,14 +5112,14 @@ const TENSES = [
   { k: 'subj', t: 'Presente de subjuntivo', en: 'Present subjunctive', level: 5, ex: 'que hable — that I speak', blurb: 'Wishes, doubts, feelings. Take the yo form and swap the vowel.' },
   { k: 'imp', t: 'Imperativo', en: 'Commands', level: 5, ex: '¡hablá! — speak!', blurb: 'Telling someone to do something. vos commands are everywhere in Guatemala.' },
 ];
-const TENSE_BY_K = Object.fromEntries(TENSES.map(t => [t.k, t]));
+let TENSE_BY_K = Object.fromEntries(TENSES.map(t => [t.k, t]));
 const IMP_PERSONS = ['t', 'v', 'e', 's'];
 
 /* Verb records.
    type: ar|er|ir · stem: present stem change · irr: explicit forms per tense
    futStem: irregular future/conditional stem · part: irregular participle
    pretStem: strong preterite stem · irStem: -ir stem change used in 3rd person preterite */
-const VERBS = [
+let VERBS = [
   /* --- fully irregular, highest frequency --- */
   { inf: 'ser', en: 'to be (permanent)', type: 'er', lvl: 1, tags: ['irr', 'core'],
     irr: { pres: ['soy', 'eres', 'sos', 'es', 'somos', 'son'], imperf: ['era', 'eras', 'eras', 'era', 'éramos', 'eran'],
@@ -5270,14 +5301,14 @@ function conj(verb, tense, pk) {
 }
 function conjTable(verb, tense) {
   const persons = tense === 'imp' ? IMP_PERSONS : PK;
-  return persons.map(k => ({ k, person: PERSONS.find(p => p.k === k), form: conj(verb, tense, k) }));
+  return persons.map(k => ({ k, person: PERSONS.find(p => p.k === k), form: courseConj(verb, tense, k) }));
 }
 /* which part of the form is unexpected — so the table can highlight it */
 function regularForm(v, tense, pk) {
   const plain = { inf: v.inf, type: v.type };
   return conj(plain, tense, pk);
 }
-function isIrregularAt(v, tense, pk) { return conj(v, tense, pk) !== regularForm(v, tense, pk); }
+function isIrregularAt(v, tense, pk) { return courseConj(v, tense, pk) !== courseRegular(v, tense, pk); }
 const tensesForLevel = (lv) => TENSES.filter(t => t.level <= Math.max(1, lv));
 const verbsForLevel = (lv) => VERBS.filter(v => v.lvl <= Math.max(1, lv));
 
@@ -5307,13 +5338,15 @@ const SER_ESTAR = ['ser', 'estar'];
 
 /* every form of every verb we know, so a wrong ending can be recognised as the same verb */
 let FORM_INDEX = null, FORM_EXACT = null;
+/* built from the active course's verbs — resetForms() drops it when the language changes */
+function resetForms() { FORM_INDEX = null; FORM_EXACT = null; }
 function formIndex() {
   if (FORM_INDEX) return FORM_INDEX;
   FORM_INDEX = {}; FORM_EXACT = {};
   VERBS.forEach(v => {
     TENSES.forEach(t => {
       (t.k === 'imp' ? IMP_PERSONS : PK).forEach(k => {
-        const f = conj(v, t.k, k);
+        const f = courseConj(v, t.k, k);
         if (!f) return;
         f.split(' ').forEach(word => {
           const n = norm(word);
@@ -6230,6 +6263,9 @@ function renderGames(id) {
 /* feminine nouns that take EL in the singular (stressed a-) — too cruel for a speed game */
 const GENDER_TRAPS = ['agua', 'alma', 'área', 'águila', 'hambre', 'aula', 'arma', 'hacha', 'ala'];
 function nounGender(d) { return d && /^noun \((m|f)\)$/.test(d.pos) ? d.pos.charAt(6) : null; }
+/* A French headword is stored the way a French class teaches it — "la table", article included —
+   so the gender game has to take the article off before asking which article it is. */
+function bareNoun(es) { return String(es).replace(/^(le |la |les |l'|el |los |las )/i, ''); }
 /* regular Spanish plural: vowel + s, consonant + es, -z → -ces, and a final stressed syllable loses its accent */
 function pluralOf(es) {
   const w = String(es);
@@ -6363,16 +6399,20 @@ const GS_CONF = { secs: 150, rescueSecs: 90, rescueTarget: 10, fall0: 6800, fall
 const gsSecs = (rescue) => Math.round((rescue ? GS_CONF.rescueSecs : GS_CONF.secs) * paceMul());
 let GS = null, _GP = null;
 function genderPool() {
-  if (!_GP) _GP = DICT.filter(d => nounGender(d) && d.es.length <= 12 && !/\s/.test(d.es) && !/s$/i.test(d.es) && GENDER_TRAPS.indexOf(d.es) < 0)
-    .map(d => ({ es: d.es, g: nounGender(d), en: d.en }));
+  if (!_GP) _GP = DICT.map(d => ({ d, w: bareNoun(d.es) }))
+    .filter(({ d, w }) => nounGender(d) && w.length <= 12 && !/\s/.test(w) && !/s$/i.test(w) && GENDER_TRAPS.indexOf(w) < 0)
+    .map(({ d, w }) => ({ es: w, g: nounGender(d), en: d.en }));
   return _GP;
 }
+function genderArt(g) { const G = (COURSE && COURSE.gender) || { a: ['el'], b: ['la'] }; return g === 'f' ? G.b[0] : G.a[0]; }
+/* a course whose plural article does not change gender learns nothing from the plural round */
+function genderPlurals() { return !!(COURSE && COURSE.gender && COURSE.gender.plural); }
 function genderNext() {
   if (!GS || GS.over) return;
   const pool = genderPool();
   const d = pool[Math.floor(Math.random() * pool.length)];
-  const plural = Math.random() < 0.3;
-  GS.cur = { es: plural ? pluralOf(d.es) : d.es, base: d.es, en: d.en, plural, art: (d.g === 'f' ? 'la' : 'el') + (plural ? 's' : '') };
+  const plural = genderPlurals() && Math.random() < 0.3;
+  GS.cur = { es: plural ? pluralOf(d.es) : d.es, base: d.es, en: d.en, plural, art: genderArt(d.g) + (plural ? 's' : '') };
   GS.pending = null;
   GS.fall = Math.round(Math.max(GS_CONF.fallMin, GS_CONF.fall0 - GS.n * GS_CONF.fallStep) * paceMul());
   GS.n++;
@@ -6391,7 +6431,7 @@ function genderSide(side) {
   if (!GS || GS.over || !GS.cur) return;
   if (GS.pending && GS.pending.side === side) { clearTimeout(GS.pending.t); const p = GS.pending; GS.pending = null; genderAnswer(p.art + 's'); return; }
   if (GS.pending) clearTimeout(GS.pending.t);
-  const art = side === 'l' ? 'el' : 'la';
+  const art = side === 'l' ? genderArt('m') : genderArt('f');
   GS.pending = { side, art, t: setTimeout(() => { GS.pending = null; genderAnswer(art); }, GS_CONF.dblMs) };
   const z = $(side === 'l' ? '#gsL' : '#gsR'); if (z) { z.classList.add('armed'); setTimeout(() => z.classList.remove('armed'), GS_CONF.dblMs); }
 }
@@ -6914,7 +6954,11 @@ function syncGate(page) {
 }
 
 function gateFormHTML() {
-  return `<div class="gform">
+  return `${!multilingual() ? '' : `<div class="glangs" role="group" aria-label="Choose a language to learn">
+      <span class="label">I want to learn</span>
+      <div class="langgrid">${courseList().map(c => `<button type="button" class="lpick ${c.id === (S.lang || DEFAULT_COURSE) ? 'on' : ''}" data-pick="${esc(c.id)}"${c.id === (S.lang || DEFAULT_COURSE) ? ' aria-pressed="true"' : ' aria-pressed="false"'}>${courseBadge(c)}<span><b>${esc(c.name)}</b><span class="small muted">${esc(c.native)}</span></span></button>`).join('')}</div>
+    </div>`}
+    <div class="gform">
       <label><span class="label">Your name</span><input type="text" id="gName" maxlength="24" placeholder="${esc(BRAND.sample)}" autocomplete="given-name" value="${esc((S.who && S.who.name) || '')}"></label>
       <label><span class="label">Email</span><input type="email" id="gEmail" maxlength="120" placeholder="you@example.com" autocomplete="email" inputmode="email" value="${esc((S.who && S.who.email) || '')}"></label>
       <label><span class="label">PIN (4–8 digits)</span><input type="password" id="gPin" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off"></label>
@@ -6967,6 +7011,15 @@ function wireGate() {
     if (r.restored) bigToast('Welcome back', esc(r.msg), buddy().id); else toast(r.msg);
   };
   go.addEventListener('click', () => attempt());
+  /* the language is chosen before the account exists, so it is simply the active course */
+  document.querySelectorAll('#gate [data-pick]').forEach(b => b.addEventListener('click', () => {
+    setCourse(b.dataset.pick);
+    document.querySelectorAll('#gate [data-pick]').forEach(o => {
+      const on = o === b;
+      o.classList.toggle('on', on);
+      o.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }));
   ['gName', 'gEmail', 'gPin'].forEach(id => {
     const f = $('#' + id);
     if (f) f.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } });
@@ -6991,6 +7044,931 @@ function gateChoice(c, name, pin, email) {
   $('#gCloud').addEventListener('click', () => finish('cloud'));
 }
 
+/* =========================== COURSES ===========================
+   The app was written to teach one language, and the field holding the word being learned is
+   called `es` in about a hundred and sixty places. Renaming it would touch every render function
+   in the app for no gain, so `es` simply means "the word in the language you are learning" now,
+   and a COURSE supplies the data behind it: its own dictionary, lessons, phrases, dialogues,
+   passages, hunts, verbs and voice.
+
+   Everything above this line has already built the Spanish course — part3 lays it down, part6 and
+   part7 deepen it, part8 moves it to Guatemala, part19 widens it across Latin America. This part
+   captures that finished result as one course, registers the others beside it, and swaps the live
+   bindings when a learner changes language.
+
+   Progress: one person, one casita. XP, quetzalitos, the streak, the companions and everything
+   bought with them are shared across languages — they belong to the learner. What is per-course is
+   what could only mean one thing in one language: lessons finished, words learned, the flashcard
+   boxes, the mistakes queue, checkpoints and the level you are on. */
+
+const DEFAULT_COURSE = 'es';
+const COURSES = {};
+let COURSE = null;
+
+/* fields that belong to one course and are put away when you switch */
+const COURSE_FIELDS = {
+  level: () => 1, done: () => ({}), found: () => ({}), learned: () => ({}), quiz: () => ({}),
+  spoken: () => ({}), listen: () => ({}), cards: () => ({}), gcards: () => ({}),
+  mistakes: () => [], checks: () => ({}), placement: () => null, transDir: () => 'es',
+};
+
+function registerCourse(c) {
+  COURSES[c.id] = c;
+  return c;
+}
+/* Which courses THIS build offers. A brand that names none teaches Spanish and only Spanish —
+   the single-language app this started as. The others stay compiled in but unreachable. */
+function brandLangs() {
+  const l = String((BRAND && BRAND.langs) || '').split(',').map(s => s.trim()).filter(Boolean);
+  return l.length ? l : [DEFAULT_COURSE];
+}
+function courseEnabled(id) { return brandLangs().indexOf(id) >= 0; }
+/* every course the learner can actually pick, in the order the brand lists them */
+function courseList() { return brandLangs().map(id => COURSES[id]).filter(Boolean); }
+const multilingual = () => courseList().length > 1;
+function courseOf(id) { return COURSES[id] || COURSES[DEFAULT_COURSE]; }
+function courseName(id) { const c = COURSES[id]; return c ? c.name : id; }
+/* has this learner put any work into that language? */
+function courseStarted(id) {
+  if (S.lang === id) return lessonsDone() > 0 || learnedCount() > 0;
+  const b = (S.byLang || {})[id];
+  if (!b) return false;
+  return Object.keys(b.done || {}).length > 0 || Object.keys(b.learned || {}).length > 0;
+}
+
+/* ---------- putting one course away and taking the next one out ---------- */
+function stashCourse(id) {
+  if (!id) return;
+  if (!S.byLang) S.byLang = {};
+  const b = {};
+  Object.keys(COURSE_FIELDS).forEach(k => { b[k] = S[k]; });
+  S.byLang[id] = b;
+}
+function applyCourse(id) {
+  const b = (S.byLang || {})[id] || {};
+  Object.keys(COURSE_FIELDS).forEach(k => {
+    S[k] = (b[k] === undefined || b[k] === null) && k !== 'placement' ? COURSE_FIELDS[k]() : b[k];
+  });
+}
+
+/* ---------- the live bindings every other part reads ---------- */
+function bindCourse(c) {
+  LEVELS = c.levels; DICT = c.dict; GRAMMAR = c.grammar; SPEAKING = c.speaking;
+  READING = c.reading; HUNTS = c.hunts; DIALOGUES = c.dialogues;
+  TENSES = c.tenses || []; VERBS = c.verbs || []; PERSONS = c.persons || [];
+  PK = PERSONS.map(p => p.k);
+  TENSE_BY_K = Object.fromEntries(TENSES.map(t => [t.k, t]));
+  DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
+  VOICE = null;            /* the voice is picked again for the new language */
+}
+
+/* setCourse('fr') — the only way the active language changes.
+   { first: true } is the boot call: nothing is put away, because nothing was out yet. */
+function setCourse(id, opts) {
+  opts = opts || {};
+  const c = courseOf(id);
+  if (COURSE && COURSE.id === c.id && !opts.force) return c;
+  if (COURSE && !opts.first) stashCourse(COURSE.id);
+  COURSE = c;
+  S.lang = c.id;
+  if (!opts.first) applyCourse(c.id);
+  bindCourse(c);
+  document.documentElement.setAttribute('data-lang', c.id);
+  if (!opts.quiet) save();
+  return c;
+}
+
+/* called once at boot, before the first render */
+function initCourses() {
+  if (!S.byLang) S.byLang = {};
+  /* a learner from before there was more than one language is a Spanish learner */
+  if (!S.lang || !COURSES[S.lang] || !courseEnabled(S.lang)) S.lang = courseList()[0] ? courseList()[0].id : DEFAULT_COURSE;
+  setCourse(S.lang, { first: true, quiet: true });
+}
+
+/* ---------- the verb trainer asks the course, not Spanish ---------- */
+function courseConj(v, tense, pk) { return COURSE && COURSE.conj ? COURSE.conj(v, tense, pk) : conj(v, tense, pk); }
+function courseRegular(v, tense, pk) { return COURSE && COURSE.regular ? COURSE.regular(v, tense, pk) : regularForm(v, tense, pk); }
+
+/* ---------- what each course calls the two directions of a translation drill ---------- */
+function transLabels() {
+  const t = COURSE ? COURSE.code : 'ES';
+  return { to: 'EN → ' + t, from: t + ' → EN' };
+}
+
+/* ---------- the badge that stands in for a flag ----------
+   A language is not a country — Spanish is not Spain, French is not France — so the picker uses
+   the language's own two letters rather than a flag that would be wrong for most of its speakers. */
+function courseBadge(c, cls) {
+  return `<span class="lbadge ${cls || ''}" aria-hidden="true">${esc(c.code)}</span>`;
+}
+function courseRow(c, on) {
+  return `<button type="button" class="lrow ${on ? 'on' : ''}" data-lang="${esc(c.id)}"${on ? ' aria-current="true"' : ''}>
+    ${courseBadge(c)}
+    <span class="lname"><b>${esc(c.name)}</b><span class="small muted">${esc(c.native)}${c.note ? ' · ' + esc(c.note) : ''}</span></span>
+    <span class="lgo">${on ? '✓' : '→'}</span>
+  </button>`;
+}
+
+/* ---------- registering Spanish ----------
+   Everything loaded above is the Spanish course; this hands it over whole. */
+registerCourse({
+  id: 'es', code: 'ES', name: 'Spanish', native: 'Español',
+  note: 'Latin America',
+  levels: LEVELS, dict: DICT, grammar: GRAMMAR, speaking: SPEAKING,
+  reading: READING, hunts: HUNTS, dialogues: DIALOGUES,
+  tenses: TENSES, verbs: VERBS, persons: PERSONS,
+  conj: (v, t, pk) => conj(v, t, pk),
+  regular: (v, t, pk) => regularForm(v, t, pk),
+  /* the voice this language wants, best first */
+  voice: ['es-mx', 'es-us', 'es-419', 'es-', 'es'],
+  recog: 'es-MX',
+  /* ¡El o la! — the falling-noun gender game. A course with no articles hides it instead. */
+  gender: { title: '¡El o la!', a: ['el', 'masculine'], b: ['la', 'feminine'], plural: true },
+  /* the crossword and the word hunt need letters; a course that writes another way says so here */
+  letters: 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ',
+  romanised: false,
+});
+
+/* =========================== FRENCH ===========================
+   Built to the same shape as the Spanish course, so every screen in the app works without being
+   told which language it is showing. `es` on a record means "the French", because that is the
+   field name the rest of the app reads.
+
+   Levels 1 and 2 are written out in full — the same eight lessons, four dialogues and four
+   passages a level that the Spanish course carries. Levels 3 to 6 are declared so the ladder is
+   honest about where the course goes, and fill in as they are written; the app already says so
+   where a level is still empty. */
+
+const FR_LEVELS = [
+  { id: 1, name: 'Graines', grade: 'Grade 1 · Absolute beginner', cefr: 'Pre-A1', blurb: 'Sounds, greetings, numbers, colours, family. Your first hundred words.',
+    cando: ['Greet people and introduce yourself', 'Count to 20 and give your age', 'Name family, animals, colours and food', 'Read a short paragraph about a family'] },
+  { id: 2, name: 'Racines', grade: 'Grade 3–4 · Beginner', cefr: 'A1', blurb: 'Present-tense verbs, être and avoir, questions, the day as it happens.',
+    cando: ['Describe your home, your day and your school', 'Say what you like and what you do', 'Ask a question three different ways', 'Order in a café and ask where something is'] },
+  { id: 3, name: 'Tiges', grade: 'Grade 6–7 · Elementary', cefr: 'A2', blurb: 'The past with passé composé, directions, the weather, short stories.',
+    cando: ['Tell a short story about yesterday', 'Give and follow directions', 'Talk about weather and how you feel', 'Read a 100-word text without a dictionary'] },
+  { id: 4, name: 'Feuilles', grade: 'Grade 9–10 · Intermediate', cefr: 'B1', blurb: 'Imperfect against perfect, the future, pronouns that pile up.',
+    cando: ['Say what you were doing when something happened', 'Talk about plans and conditions', 'Replace nouns with y, en and object pronouns', 'Handle a hotel, a doctor or a train station'] },
+  { id: 5, name: 'Fleurs', grade: 'Grade 12 · Upper intermediate', cefr: 'B2', blurb: 'The subjunctive, opinions, argument, the news.',
+    cando: ['Argue a position with connectors', 'Use the subjunctive after doubt and feeling', 'Understand a news article', 'Follow a fast conversation'] },
+  { id: 6, name: 'Maîtrise', grade: 'University · Fluent', cefr: 'C1–C2', blurb: 'Register, literature, humour, the French of Québec and of Africa.',
+    cando: ['Read literature in the original', 'Switch register: tu, vous, argot', 'Hedge, joke and disagree naturally', 'Hear the difference between Paris, Marseille and Montréal'] },
+];
+
+/* ---------------------------------------------------------------- dictionary
+   es = the French · en = English · pos · def · ex / exEn · lvl · theme
+   Gender is carried in the article on the headword, the way a French class teaches it: you learn
+   "la table", never "table". */
+const FR_DICT = [
+  /* --- level 1 · greetings --- */
+  { es:'bonjour', en:'hello, good morning', pos:'interjection', def:'The all-purpose greeting until about six in the evening.', ex:'Bonjour, ça va ?', exEn:'Hello, how are you?', lvl:1, theme:'salutations' },
+  { es:'bonsoir', en:'good evening', pos:'interjection', def:'Replaces bonjour once the evening starts.', ex:'Bonsoir, madame.', exEn:'Good evening, madam.', lvl:1, theme:'salutations' },
+  { es:'salut', en:'hi, bye', pos:'interjection', def:'Casual, for friends only. Works arriving and leaving.', ex:'Salut ! À demain.', exEn:'Hi! See you tomorrow.', lvl:1, theme:'salutations' },
+  { es:'au revoir', en:'goodbye', pos:'phrase', def:'Literally "until the seeing again".', ex:'Au revoir et merci.', exEn:'Goodbye and thank you.', lvl:1, theme:'salutations' },
+  { es:'merci', en:'thank you', pos:'interjection', def:'Reply with "de rien" — it is nothing.', ex:'Merci beaucoup !', exEn:'Thank you very much!', lvl:1, theme:'salutations' },
+  { es:'s\'il vous plaît', en:'please', pos:'phrase', def:'Literally "if it pleases you". With a friend: s\'il te plaît.', ex:'Un café, s\'il vous plaît.', exEn:'A coffee, please.', lvl:1, theme:'salutations' },
+  { es:'oui', en:'yes', pos:'adverb', def:'Yes. After a negative question, French uses "si" instead.', ex:'Oui, je veux bien.', exEn:'Yes, I would like that.', lvl:1, theme:'salutations' },
+  { es:'non', en:'no', pos:'adverb', def:'No.', ex:'Non, merci.', exEn:'No, thank you.', lvl:1, theme:'salutations' },
+  { es:'pardon', en:'sorry, excuse me', pos:'interjection', def:'For bumping into someone, or for not hearing them.', ex:'Pardon, je n\'ai pas compris.', exEn:'Sorry, I did not understand.', lvl:1, theme:'salutations' },
+  { es:'excusez-moi', en:'excuse me', pos:'phrase', def:'To get someone\'s attention before asking something.', ex:'Excusez-moi, où est la gare ?', exEn:'Excuse me, where is the station?', lvl:1, theme:'salutations' },
+  { es:'de rien', en:'you\'re welcome', pos:'phrase', def:'Literally "of nothing". The standard reply to merci.', ex:'— Merci ! — De rien.', exEn:'— Thanks! — You\'re welcome.', lvl:1, theme:'salutations' },
+  { es:'ça va', en:'how are you / I\'m fine', pos:'phrase', def:'Question and answer in two words, depending on the tone.', ex:'Ça va ? — Ça va bien.', exEn:'How are you? — I\'m well.', lvl:1, theme:'salutations' },
+
+  /* --- level 1 · people and family --- */
+  { es:'la famille', en:'family', pos:'noun (f)', def:'Your people.', ex:'Ma famille est petite.', exEn:'My family is small.', lvl:1, theme:'famille' },
+  { es:'la mère', en:'mother', pos:'noun (f)', def:'Mother. Informally: maman.', ex:'Ma mère est médecin.', exEn:'My mother is a doctor.', lvl:1, theme:'famille' },
+  { es:'le père', en:'father', pos:'noun (m)', def:'Father. Informally: papa.', ex:'Mon père cuisine bien.', exEn:'My father cooks well.', lvl:1, theme:'famille' },
+  { es:'le frère', en:'brother', pos:'noun (m)', def:'Brother.', ex:'J\'ai un frère.', exEn:'I have a brother.', lvl:1, theme:'famille' },
+  { es:'la sœur', en:'sister', pos:'noun (f)', def:'Sister. The œ is one letter, typed o then e.', ex:'Ma sœur a dix ans.', exEn:'My sister is ten.', lvl:1, theme:'famille' },
+  { es:'la grand-mère', en:'grandmother', pos:'noun (f)', def:'Grandmother. Informally: mamie.', ex:'Ma grand-mère habite ici.', exEn:'My grandmother lives here.', lvl:1, theme:'famille' },
+  { es:'le grand-père', en:'grandfather', pos:'noun (m)', def:'Grandfather. Informally: papi.', ex:'Mon grand-père a un jardin.', exEn:'My grandfather has a garden.', lvl:1, theme:'famille' },
+  { es:'le fils', en:'son', pos:'noun (m)', def:'Son. The l is silent: "feess".', ex:'C\'est son fils.', exEn:'That is his son.', lvl:1, theme:'famille' },
+  { es:'la fille', en:'daughter, girl', pos:'noun (f)', def:'Both daughter and girl, depending on the sentence.', ex:'Sa fille s\'appelle Léa.', exEn:'His daughter is called Léa.', lvl:1, theme:'famille' },
+  { es:'l\'ami', en:'friend', pos:'noun (m)', def:'A male friend; une amie is a female one.', ex:'C\'est mon ami.', exEn:'This is my friend.', lvl:1, theme:'famille' },
+  { es:'l\'homme', en:'man', pos:'noun (m)', def:'Man. The h is silent and the word elides: l\'homme.', ex:'L\'homme est grand.', exEn:'The man is tall.', lvl:1, theme:'famille' },
+  { es:'la femme', en:'woman, wife', pos:'noun (f)', def:'Woman, and also wife. Said "fam".', ex:'La femme parle français.', exEn:'The woman speaks French.', lvl:1, theme:'famille' },
+  { es:'l\'enfant', en:'child', pos:'noun (m/f)', def:'Child — the same word for a boy or a girl.', ex:'L\'enfant joue.', exEn:'The child is playing.', lvl:1, theme:'famille' },
+
+  /* --- level 1 · numbers --- */
+  { es:'un', en:'one', pos:'number', def:'The number 1, and also "a" before a masculine noun.', ex:'J\'ai un chien.', exEn:'I have a dog.', lvl:1, theme:'nombres' },
+  { es:'deux', en:'two', pos:'number', def:'The number 2. The x is silent.', ex:'Deux cafés, s\'il vous plaît.', exEn:'Two coffees, please.', lvl:1, theme:'nombres' },
+  { es:'trois', en:'three', pos:'number', def:'The number 3.', ex:'Il a trois sœurs.', exEn:'He has three sisters.', lvl:1, theme:'nombres' },
+  { es:'quatre', en:'four', pos:'number', def:'The number 4.', ex:'Quatre chaises.', exEn:'Four chairs.', lvl:1, theme:'nombres' },
+  { es:'cinq', en:'five', pos:'number', def:'The number 5.', ex:'Il est cinq heures.', exEn:'It is five o\'clock.', lvl:1, theme:'nombres' },
+  { es:'six', en:'six', pos:'number', def:'The number 6. Said "seess" alone, "see" before a consonant.', ex:'six ans', exEn:'six years', lvl:1, theme:'nombres' },
+  { es:'sept', en:'seven', pos:'number', def:'The number 7. The p is silent.', ex:'sept jours', exEn:'seven days', lvl:1, theme:'nombres' },
+  { es:'huit', en:'eight', pos:'number', def:'The number 8.', ex:'huit heures', exEn:'eight o\'clock', lvl:1, theme:'nombres' },
+  { es:'neuf', en:'nine', pos:'number', def:'The number 9, and also the adjective "new".', ex:'neuf euros', exEn:'nine euros', lvl:1, theme:'nombres' },
+  { es:'dix', en:'ten', pos:'number', def:'The number 10.', ex:'J\'ai dix ans.', exEn:'I am ten years old.', lvl:1, theme:'nombres' },
+  { es:'onze', en:'eleven', pos:'number', def:'The number 11.', ex:'onze élèves', exEn:'eleven pupils', lvl:1, theme:'nombres' },
+  { es:'douze', en:'twelve', pos:'number', def:'The number 12.', ex:'douze mois', exEn:'twelve months', lvl:1, theme:'nombres' },
+  { es:'vingt', en:'twenty', pos:'number', def:'The number 20. The t is silent on its own.', ex:'vingt ans', exEn:'twenty years old', lvl:1, theme:'nombres' },
+
+  /* --- level 1 · colours --- */
+  { es:'rouge', en:'red', pos:'adjective', def:'Red. Same form for masculine and feminine.', ex:'une pomme rouge', exEn:'a red apple', lvl:1, theme:'couleurs' },
+  { es:'bleu', en:'blue', pos:'adjective', def:'Blue. Feminine: bleue.', ex:'le ciel bleu', exEn:'the blue sky', lvl:1, theme:'couleurs' },
+  { es:'vert', en:'green', pos:'adjective', def:'Green. Feminine: verte, and the t is then heard.', ex:'l\'herbe verte', exEn:'the green grass', lvl:1, theme:'couleurs' },
+  { es:'jaune', en:'yellow', pos:'adjective', def:'Yellow. Same in both genders.', ex:'le soleil jaune', exEn:'the yellow sun', lvl:1, theme:'couleurs' },
+  { es:'noir', en:'black', pos:'adjective', def:'Black. Feminine: noire.', ex:'un chat noir', exEn:'a black cat', lvl:1, theme:'couleurs' },
+  { es:'blanc', en:'white', pos:'adjective', def:'White. Feminine: blanche.', ex:'une maison blanche', exEn:'a white house', lvl:1, theme:'couleurs' },
+  { es:'rose', en:'pink', pos:'adjective', def:'Pink — and also the noun for a rose.', ex:'une robe rose', exEn:'a pink dress', lvl:1, theme:'couleurs' },
+  { es:'gris', en:'grey', pos:'adjective', def:'Grey. Feminine: grise.', ex:'un ciel gris', exEn:'a grey sky', lvl:1, theme:'couleurs' },
+  { es:'orange', en:'orange', pos:'adjective', def:'Orange. Never changes — it is a fruit standing in for a colour.', ex:'des fleurs orange', exEn:'orange flowers', lvl:1, theme:'couleurs' },
+
+  /* --- level 1 · animals --- */
+  { es:'le chien', en:'dog', pos:'noun (m)', def:'Dog.', ex:'Mon chien est noir.', exEn:'My dog is black.', lvl:1, theme:'animaux' },
+  { es:'le chat', en:'cat', pos:'noun (m)', def:'Cat. The t is silent.', ex:'Le chat dort.', exEn:'The cat is sleeping.', lvl:1, theme:'animaux' },
+  { es:'l\'oiseau', en:'bird', pos:'noun (m)', def:'Bird. Plural: les oiseaux.', ex:'L\'oiseau chante.', exEn:'The bird is singing.', lvl:1, theme:'animaux' },
+  { es:'le poisson', en:'fish', pos:'noun (m)', def:'Fish.', ex:'J\'ai deux poissons.', exEn:'I have two fish.', lvl:1, theme:'animaux' },
+  { es:'la vache', en:'cow', pos:'noun (f)', def:'Cow.', ex:'La vache est dans le champ.', exEn:'The cow is in the field.', lvl:1, theme:'animaux' },
+  { es:'le cheval', en:'horse', pos:'noun (m)', def:'Horse. Plural: les chevaux.', ex:'Le cheval court.', exEn:'The horse is running.', lvl:1, theme:'animaux' },
+  { es:'le lapin', en:'rabbit', pos:'noun (m)', def:'Rabbit.', ex:'Un petit lapin blanc.', exEn:'A little white rabbit.', lvl:1, theme:'animaux' },
+  { es:'l\'ours', en:'bear', pos:'noun (m)', def:'Bear. The s is heard.', ex:'L\'ours est grand.', exEn:'The bear is big.', lvl:1, theme:'animaux' },
+
+  /* --- level 1 · food --- */
+  { es:'le pain', en:'bread', pos:'noun (m)', def:'Bread. A baguette is one shape of it.', ex:'Je mange du pain.', exEn:'I eat bread.', lvl:1, theme:'nourriture' },
+  { es:'l\'eau', en:'water', pos:'noun (f)', def:'Water. Feminine, despite the l\'.', ex:'Une bouteille d\'eau.', exEn:'A bottle of water.', lvl:1, theme:'nourriture' },
+  { es:'le lait', en:'milk', pos:'noun (m)', def:'Milk.', ex:'Du lait dans le café ?', exEn:'Milk in the coffee?', lvl:1, theme:'nourriture' },
+  { es:'la pomme', en:'apple', pos:'noun (f)', def:'Apple. Une pomme de terre is a potato — an "earth apple".', ex:'Je voudrais une pomme.', exEn:'I would like an apple.', lvl:1, theme:'nourriture' },
+  { es:'le fromage', en:'cheese', pos:'noun (m)', def:'Cheese.', ex:'J\'aime le fromage.', exEn:'I like cheese.', lvl:1, theme:'nourriture' },
+  { es:'l\'œuf', en:'egg', pos:'noun (m)', def:'Egg. Said "uhf" alone; the plural œufs is said "uh".', ex:'deux œufs', exEn:'two eggs', lvl:1, theme:'nourriture' },
+  { es:'le riz', en:'rice', pos:'noun (m)', def:'Rice. The z is silent.', ex:'du riz et du poulet', exEn:'rice and chicken', lvl:1, theme:'nourriture' },
+  { es:'le poulet', en:'chicken', pos:'noun (m)', def:'Chicken, as food.', ex:'Le poulet est bon.', exEn:'The chicken is good.', lvl:1, theme:'nourriture' },
+  { es:'le café', en:'coffee', pos:'noun (m)', def:'Coffee — and the place you drink it in.', ex:'Un café, s\'il vous plaît.', exEn:'A coffee, please.', lvl:1, theme:'nourriture' },
+
+  /* --- level 1 · first verbs and small words --- */
+  { es:'être', en:'to be', pos:'verb', def:'The most irregular and most used verb in the language.', ex:'Je suis canadien.', exEn:'I am Canadian.', lvl:1, theme:'verbes' },
+  { es:'avoir', en:'to have', pos:'verb', def:'To have. French uses it for age: j\'ai dix ans.', ex:'J\'ai un chat.', exEn:'I have a cat.', lvl:1, theme:'verbes' },
+  { es:'s\'appeler', en:'to be called', pos:'verb', def:'How French asks a name: literally "to call oneself".', ex:'Je m\'appelle Ana.', exEn:'My name is Ana.', lvl:1, theme:'verbes' },
+  { es:'parler', en:'to speak', pos:'verb', def:'To speak. The model -er verb.', ex:'Je parle un peu français.', exEn:'I speak a little French.', lvl:1, theme:'verbes' },
+  { es:'habiter', en:'to live (somewhere)', pos:'verb', def:'To live in a place.', ex:'J\'habite à Kamloops.', exEn:'I live in Kamloops.', lvl:1, theme:'verbes' },
+  { es:'le', en:'the (m)', pos:'article', def:'The, before a masculine noun.', ex:'le livre', exEn:'the book', lvl:1, theme:'grammaire' },
+  { es:'la', en:'the (f)', pos:'article', def:'The, before a feminine noun.', ex:'la table', exEn:'the table', lvl:1, theme:'grammaire' },
+  { es:'les', en:'the (plural)', pos:'article', def:'The, before any plural noun.', ex:'les enfants', exEn:'the children', lvl:1, theme:'grammaire' },
+  { es:'et', en:'and', pos:'conjunction', def:'And.', ex:'un chien et un chat', exEn:'a dog and a cat', lvl:1, theme:'grammaire' },
+  { es:'mais', en:'but', pos:'conjunction', def:'But.', ex:'petit mais joli', exEn:'small but pretty', lvl:1, theme:'grammaire' },
+  { es:'très', en:'very', pos:'adverb', def:'Very.', ex:'très bien', exEn:'very well', lvl:1, theme:'grammaire' },
+  { es:'aussi', en:'also, too', pos:'adverb', def:'Also.', ex:'Moi aussi.', exEn:'Me too.', lvl:1, theme:'grammaire' },
+  { es:'petit', en:'small', pos:'adjective', def:'Small. Feminine: petite. Goes before the noun.', ex:'une petite maison', exEn:'a small house', lvl:1, theme:'adjectifs' },
+  { es:'grand', en:'big, tall', pos:'adjective', def:'Big. Feminine: grande. Goes before the noun.', ex:'un grand jardin', exEn:'a big garden', lvl:1, theme:'adjectifs' },
+  { es:'beau', en:'beautiful', pos:'adjective', def:'Beautiful. Feminine: belle; before a vowel: bel.', ex:'un beau jour', exEn:'a beautiful day', lvl:1, theme:'adjectifs' },
+  { es:'bon', en:'good', pos:'adjective', def:'Good. Feminine: bonne.', ex:'C\'est bon !', exEn:'That\'s good!', lvl:1, theme:'adjectifs' },
+
+  /* --- level 2 · the house --- */
+  { es:'la maison', en:'house', pos:'noun (f)', def:'House.', ex:'Ma maison est petite.', exEn:'My house is small.', lvl:2, theme:'la maison' },
+  { es:'l\'appartement', en:'flat, apartment', pos:'noun (m)', def:'Apartment.', ex:'J\'habite dans un appartement.', exEn:'I live in an apartment.', lvl:2, theme:'la maison' },
+  { es:'la cuisine', en:'kitchen, cooking', pos:'noun (f)', def:'Kitchen — and the cooking done in it.', ex:'La cuisine est grande.', exEn:'The kitchen is big.', lvl:2, theme:'la maison' },
+  { es:'la chambre', en:'bedroom', pos:'noun (f)', def:'Bedroom. Not any room — that is "la pièce".', ex:'Ma chambre est bleue.', exEn:'My bedroom is blue.', lvl:2, theme:'la maison' },
+  { es:'le lit', en:'bed', pos:'noun (m)', def:'Bed.', ex:'Le chat dort sur le lit.', exEn:'The cat sleeps on the bed.', lvl:2, theme:'la maison' },
+  { es:'la table', en:'table', pos:'noun (f)', def:'Table.', ex:'sur la table', exEn:'on the table', lvl:2, theme:'la maison' },
+  { es:'la chaise', en:'chair', pos:'noun (f)', def:'Chair.', ex:'quatre chaises', exEn:'four chairs', lvl:2, theme:'la maison' },
+  { es:'la porte', en:'door', pos:'noun (f)', def:'Door.', ex:'Ferme la porte.', exEn:'Close the door.', lvl:2, theme:'la maison' },
+  { es:'la fenêtre', en:'window', pos:'noun (f)', def:'Window. The ê marks a lost s — cf. English "fenestration".', ex:'par la fenêtre', exEn:'through the window', lvl:2, theme:'la maison' },
+  { es:'le jardin', en:'garden', pos:'noun (m)', def:'Garden.', ex:'Le jardin est joli.', exEn:'The garden is pretty.', lvl:2, theme:'la maison' },
+  { es:'la clé', en:'key', pos:'noun (f)', def:'Key. Also spelled "clef".', ex:'Où est la clé ?', exEn:'Where is the key?', lvl:2, theme:'la maison' },
+
+  /* --- level 2 · school and work --- */
+  { es:'l\'école', en:'school', pos:'noun (f)', def:'School.', ex:'Je vais à l\'école.', exEn:'I go to school.', lvl:2, theme:'l\'école' },
+  { es:'le livre', en:'book', pos:'noun (m)', def:'Book. Une livre, feminine, is a pound.', ex:'un livre de français', exEn:'a French book', lvl:2, theme:'l\'école' },
+  { es:'le professeur', en:'teacher', pos:'noun (m)', def:'Teacher. Shortened to "le prof" everywhere.', ex:'Le professeur explique.', exEn:'The teacher explains.', lvl:2, theme:'l\'école' },
+  { es:'le crayon', en:'pencil', pos:'noun (m)', def:'Pencil.', ex:'un crayon rouge', exEn:'a red pencil', lvl:2, theme:'l\'école' },
+  { es:'le papier', en:'paper', pos:'noun (m)', def:'Paper.', ex:'une feuille de papier', exEn:'a sheet of paper', lvl:2, theme:'l\'école' },
+  { es:'la classe', en:'class, classroom', pos:'noun (f)', def:'Class, and the room it happens in.', ex:'en classe', exEn:'in class', lvl:2, theme:'l\'école' },
+  { es:'la question', en:'question', pos:'noun (f)', def:'Question.', ex:'J\'ai une question.', exEn:'I have a question.', lvl:2, theme:'l\'école' },
+  { es:'les devoirs', en:'homework', pos:'noun (m pl)', def:'Homework — always plural.', ex:'Je fais mes devoirs.', exEn:'I am doing my homework.', lvl:2, theme:'l\'école' },
+  { es:'le travail', en:'work, job', pos:'noun (m)', def:'Work. Plural: les travaux.', ex:'Mon travail est intéressant.', exEn:'My job is interesting.', lvl:2, theme:'l\'école' },
+
+  /* --- level 2 · the day --- */
+  { es:'le jour', en:'day', pos:'noun (m)', def:'Day, counted. "La journée" is the day as it is lived.', ex:'trois jours', exEn:'three days', lvl:2, theme:'le temps' },
+  { es:'le matin', en:'morning', pos:'noun (m)', def:'Morning.', ex:'le matin, je bois un café', exEn:'in the morning I drink a coffee', lvl:2, theme:'le temps' },
+  { es:'le soir', en:'evening', pos:'noun (m)', def:'Evening.', ex:'ce soir', exEn:'this evening', lvl:2, theme:'le temps' },
+  { es:'la nuit', en:'night', pos:'noun (f)', def:'Night.', ex:'Bonne nuit.', exEn:'Good night.', lvl:2, theme:'le temps' },
+  { es:'aujourd\'hui', en:'today', pos:'adverb', def:'Today. Four little words fused into one.', ex:'Aujourd\'hui, il fait beau.', exEn:'Today the weather is nice.', lvl:2, theme:'le temps' },
+  { es:'demain', en:'tomorrow', pos:'adverb', def:'Tomorrow.', ex:'À demain !', exEn:'See you tomorrow!', lvl:2, theme:'le temps' },
+  { es:'hier', en:'yesterday', pos:'adverb', def:'Yesterday.', ex:'hier soir', exEn:'yesterday evening', lvl:2, theme:'le temps' },
+  { es:'maintenant', en:'now', pos:'adverb', def:'Now.', ex:'Je travaille maintenant.', exEn:'I am working now.', lvl:2, theme:'le temps' },
+  { es:'l\'heure', en:'hour, time', pos:'noun (f)', def:'Hour. "Quelle heure est-il ?" is how you ask the time.', ex:'Il est trois heures.', exEn:'It is three o\'clock.', lvl:2, theme:'le temps' },
+  { es:'la semaine', en:'week', pos:'noun (f)', def:'Week.', ex:'cette semaine', exEn:'this week', lvl:2, theme:'le temps' },
+
+  /* --- level 2 · verbs --- */
+  { es:'aller', en:'to go', pos:'verb', def:'To go. Also builds the near future: je vais manger.', ex:'Je vais à l\'école.', exEn:'I go to school.', lvl:2, theme:'verbes' },
+  { es:'faire', en:'to do, to make', pos:'verb', def:'To do or make — and what the weather does.', ex:'Il fait froid.', exEn:'It is cold.', lvl:2, theme:'verbes' },
+  { es:'manger', en:'to eat', pos:'verb', def:'To eat. Keeps its e in "nous mangeons" to hold the soft g.', ex:'Nous mangeons à midi.', exEn:'We eat at noon.', lvl:2, theme:'verbes' },
+  { es:'boire', en:'to drink', pos:'verb', def:'To drink.', ex:'Je bois de l\'eau.', exEn:'I drink water.', lvl:2, theme:'verbes' },
+  { es:'aimer', en:'to like, to love', pos:'verb', def:'To like. With a person it means to love.', ex:'J\'aime le chocolat.', exEn:'I like chocolate.', lvl:2, theme:'verbes' },
+  { es:'vouloir', en:'to want', pos:'verb', def:'To want. "Je voudrais" is the polite form you will use most.', ex:'Je voudrais un café.', exEn:'I would like a coffee.', lvl:2, theme:'verbes' },
+  { es:'pouvoir', en:'to be able to, can', pos:'verb', def:'Can.', ex:'Je peux vous aider ?', exEn:'Can I help you?', lvl:2, theme:'verbes' },
+  { es:'prendre', en:'to take', pos:'verb', def:'To take — including taking a coffee or a train.', ex:'Je prends le bus.', exEn:'I take the bus.', lvl:2, theme:'verbes' },
+  { es:'voir', en:'to see', pos:'verb', def:'To see.', ex:'Je vois la mer.', exEn:'I see the sea.', lvl:2, theme:'verbes' },
+  { es:'finir', en:'to finish', pos:'verb', def:'To finish. The model -ir verb.', ex:'Je finis à cinq heures.', exEn:'I finish at five.', lvl:2, theme:'verbes' },
+  { es:'attendre', en:'to wait for', pos:'verb', def:'To wait for — no "for" needed in French.', ex:'J\'attends le bus.', exEn:'I am waiting for the bus.', lvl:2, theme:'verbes' },
+
+  /* --- level 2 · getting around --- */
+  { es:'la ville', en:'town, city', pos:'noun (f)', def:'Town or city.', ex:'J\'aime cette ville.', exEn:'I like this city.', lvl:2, theme:'la ville' },
+  { es:'la rue', en:'street', pos:'noun (f)', def:'Street.', ex:'dans la rue', exEn:'in the street', lvl:2, theme:'la ville' },
+  { es:'la gare', en:'train station', pos:'noun (f)', def:'Railway station.', ex:'Où est la gare ?', exEn:'Where is the station?', lvl:2, theme:'la ville' },
+  { es:'le magasin', en:'shop', pos:'noun (m)', def:'Shop.', ex:'Le magasin est fermé.', exEn:'The shop is closed.', lvl:2, theme:'la ville' },
+  { es:'le marché', en:'market', pos:'noun (m)', def:'Market. Saturday morning, in most towns.', ex:'au marché', exEn:'at the market', lvl:2, theme:'la ville' },
+  { es:'la boulangerie', en:'bakery', pos:'noun (f)', def:'Bakery. Bread is bought fresh, daily.', ex:'à la boulangerie', exEn:'at the bakery', lvl:2, theme:'la ville' },
+  { es:'l\'argent', en:'money', pos:'noun (m)', def:'Money — and silver.', ex:'Je n\'ai pas d\'argent.', exEn:'I have no money.', lvl:2, theme:'la ville' },
+  { es:'à droite', en:'on the right', pos:'phrase', def:'To the right.', ex:'Tournez à droite.', exEn:'Turn right.', lvl:2, theme:'la ville' },
+  { es:'à gauche', en:'on the left', pos:'phrase', def:'To the left.', ex:'C\'est à gauche.', exEn:'It is on the left.', lvl:2, theme:'la ville' },
+  { es:'tout droit', en:'straight ahead', pos:'phrase', def:'Straight on. Note: droit, not droite.', ex:'Allez tout droit.', exEn:'Go straight ahead.', lvl:2, theme:'la ville' },
+
+  /* --- level 2 · question words and small grammar --- */
+  { es:'où', en:'where', pos:'adverb', def:'Where. The accent separates it from "ou" (or).', ex:'Où habites-tu ?', exEn:'Where do you live?', lvl:2, theme:'questions' },
+  { es:'quand', en:'when', pos:'adverb', def:'When.', ex:'Quand arrives-tu ?', exEn:'When do you arrive?', lvl:2, theme:'questions' },
+  { es:'pourquoi', en:'why', pos:'adverb', def:'Why. Answer with "parce que".', ex:'Pourquoi ? Parce que.', exEn:'Why? Because.', lvl:2, theme:'questions' },
+  { es:'comment', en:'how', pos:'adverb', def:'How.', ex:'Comment ça va ?', exEn:'How are you?', lvl:2, theme:'questions' },
+  { es:'combien', en:'how much, how many', pos:'adverb', def:'How much.', ex:'C\'est combien ?', exEn:'How much is it?', lvl:2, theme:'questions' },
+  { es:'qui', en:'who', pos:'pronoun', def:'Who.', ex:'Qui est-ce ?', exEn:'Who is it?', lvl:2, theme:'questions' },
+  { es:'parce que', en:'because', pos:'conjunction', def:'Because.', ex:'parce que j\'aime ça', exEn:'because I like that', lvl:2, theme:'questions' },
+  { es:'beaucoup', en:'a lot, much', pos:'adverb', def:'A lot.', ex:'J\'aime beaucoup.', exEn:'I like it a lot.', lvl:2, theme:'grammaire' },
+  { es:'un peu', en:'a little', pos:'phrase', def:'A little.', ex:'un peu de lait', exEn:'a little milk', lvl:2, theme:'grammaire' },
+  { es:'toujours', en:'always, still', pos:'adverb', def:'Always — and, in context, still.', ex:'Il est toujours là.', exEn:'He is still there.', lvl:2, theme:'grammaire' },
+  { es:'jamais', en:'never', pos:'adverb', def:'Never. Pairs with ne: je ne fume jamais.', ex:'Je ne sors jamais.', exEn:'I never go out.', lvl:2, theme:'grammaire' },
+];
+
+/* ---------------------------------------------------------------- lessons */
+const FR_GRAMMAR = {
+  1: [
+    { id:'fg1-1', title:'How French sounds', sub:'The letters you do not say are the point.',
+      lede:'French spelling keeps letters that stopped being pronounced centuries ago. Once you know which ones are silent, the rest is regular — and far more predictable than English.',
+      rules:[
+        { r:'A final consonant is usually silent.', ex:[['petit','"puh-TEE" — no t'],['grand','"grahn" — no d'],['français','"frahn-SAY" — no s'],['beaucoup','"boh-KOO" — no p']] },
+        { r:'But a final e makes the consonant before it speak.', ex:[['petit / petite','"puh-TEE" / "puh-TEET"'],['grand / grande','"grahn" / "grahnd"'],['vert / verte','"vair" / "vairt"']] },
+        { r:'Some vowel pairs are a single sound.', ex:[['ou — bonjour','"oo"'],['au, eau — beau','"oh"'],['ai — mais','"eh"'],['oi — trois','"wah"'],['u — tu','purse your lips and say "ee"']] },
+        { r:'A silent letter wakes up before a vowel. This is liaison.', ex:[['les amis','"lay-zah-MEE"'],['deux enfants','"duh-zahn-FAHN"'],['vous avez','"voo-zah-VAY"']] },
+      ],
+      callout:'The letter h is always silent. It never makes a sound — but some h-words still refuse to elide (le héros, not l\'héros), a leftover from Germanic borrowings.',
+      culture:'French is an official language in twenty-nine countries. More people speak it in Africa than in Europe — Kinshasa is the largest French-speaking city in the world, ahead of Paris.',
+      quiz:[
+        { q:'How is "petit" pronounced?', o:['puh-TEET','puh-TEE','PEH-tit','puh-TEE-tuh'], a:1, why:'A final consonant is silent — until a feminine -e is added.' },
+        { q:'What does "oi" sound like?', o:['"oy"','"oh"','"wah"','"oo"'], a:2, why:'oi is "wah": trois, moi, boire.' },
+        { q:'Why is "les amis" said "lay-zah-MEE"?', o:['A spelling mistake','Liaison — the silent s wakes before a vowel','The s is always said','Because amis is plural'], a:1, why:'That is liaison: a silent final consonant is pronounced before a vowel.' },
+        { q:'Which letter is always silent?', o:['h','r','l','f'], a:0, why:'h is never pronounced in French.' },
+      ] },
+
+    { id:'fg1-2', title:'Every noun is masculine or feminine', sub:'le, la, and why you learn the article with the word.',
+      lede:'French nouns have a gender, and it is rarely about meaning — a table is feminine, a book is masculine, and there is no reason for either. The trick is never to learn a noun alone.',
+      rules:[
+        { r:'le before a masculine noun, la before a feminine one.', ex:[['le livre','the book'],['le chien','the dog'],['la table','the table'],['la maison','the house']] },
+        { r:'Before a vowel or a silent h, both shrink to l\'.', ex:[['l\'ami','the friend (m)'],['l\'école','the school (f)'],['l\'homme','the man (m)'],['l\'eau','the water (f)']] },
+        { r:'un and une mean "a".', ex:[['un chat','a cat'],['une chaise','a chair'],['un enfant','a child'],['une pomme','an apple']] },
+        { r:'Plural is les for everything, and the noun usually takes -s you cannot hear.', ex:[['les livres','the books'],['les maisons','the houses'],['des chiens','some dogs']] },
+      ],
+      table:{ h:['','masculine','feminine','plural'], rows:[['the','le','la','les'],['a / some','un','une','des'],['before a vowel','l\'','l\'','les']] },
+      callout:'Learn "la table", never "table". The gender costs nothing to learn now and is painful to add later — and l\' hides it, so check any word you met as l\'.',
+      culture:'The Académie française has been ruling on French since 1635. It has no power to enforce anything, which has not stopped it arguing about the gender of "Covid" — it decided feminine, and almost nobody listened.',
+      quiz:[
+        { q:'Which article goes with "maison"?', o:['le','la','les','un'], a:1, why:'Maison is feminine: la maison.' },
+        { q:'How do you say "the school"?', o:['la école','le école','l\'école','les école'], a:2, why:'École begins with a vowel, so la shrinks to l\'.' },
+        { q:'What does "des chiens" mean?', o:['the dogs','some dogs','a dog','no dogs'], a:1, why:'des is the plural of un/une — some.' },
+        { q:'Why learn nouns with their article?', o:['It sounds nicer','Because l\' hides the gender otherwise','It is required in writing','To make plurals'], a:1, why:'The article is the only reliable carrier of gender, and l\' conceals it.' },
+      ] },
+
+    { id:'fg1-3', title:'Saying who you are', sub:'je suis, je m\'appelle, j\'ai.',
+      lede:'Three patterns carry the whole of a first conversation: what you are, what you are called, and what you have — including your age, which French treats as something you own.',
+      rules:[
+        { r:'être — to be. Learn all six now; you will use them hourly.', ex:[['je suis','I am'],['tu es','you are'],['il/elle est','he/she is'],['nous sommes','we are'],['vous êtes','you are (formal/plural)'],['ils/elles sont','they are']] },
+        { r:'s\'appeler — to be called. Literally "to call oneself".', ex:[['je m\'appelle Ana','my name is Ana'],['tu t\'appelles comment ?','what is your name?'],['il s\'appelle Luc','his name is Luc']] },
+        { r:'avoir — to have. French has an age, it is not one.', ex:[['j\'ai dix ans','I am ten (I have ten years)'],['tu as un frère','you have a brother'],['elle a un chat','she has a cat']] },
+        { r:'je becomes j\' before a vowel.', ex:[['j\'ai','I have'],['j\'habite','I live'],['j\'aime','I like']] },
+      ],
+      table:{ h:['','être (to be)','avoir (to have)'], rows:[['je','suis','ai'],['tu','es','as'],['il / elle','est','a'],['nous','sommes','avons'],['vous','êtes','avez'],['ils / elles','sont','ont']] },
+      callout:'"J\'ai quinze ans" — never "je suis quinze". Saying "je suis quinze" means you are the number fifteen.',
+      quiz:[
+        { q:'How do you say "I am ten years old"?', o:['Je suis dix','J\'ai dix ans','Je suis dix ans','J\'ai dix'], a:1, why:'Age is something you have in French: j\'ai dix ans.' },
+        { q:'"___ m\'appelle Nat."', o:['Je','Tu','Il','Nous'], a:0, why:'Je m\'appelle — I call myself.' },
+        { q:'Which is "we are"?', o:['nous avons','vous êtes','nous sommes','ils sont'], a:2, why:'nous sommes.' },
+        { q:'Why "j\'ai" and not "je ai"?', o:['A contraction before a vowel','It is slang','A spelling error','Only in writing'], a:0, why:'je elides to j\' before a vowel sound.' },
+      ] },
+
+    { id:'fg1-4', title:'Numbers to twenty, and your age', sub:'Counting, and the numbers that hide their endings.',
+      lede:'French numbers are regular up to sixteen, then start building. The pronunciation shifts depending on what follows, which is the only genuinely tricky part.',
+      rules:[
+        { r:'One to ten.', ex:[['un, deux, trois','1, 2, 3'],['quatre, cinq, six','4, 5, 6'],['sept, huit, neuf','7, 8, 9'],['dix','10']] },
+        { r:'Eleven to sixteen are single words; seventeen to nineteen are built.', ex:[['onze, douze, treize','11, 12, 13'],['quatorze, quinze, seize','14, 15, 16'],['dix-sept, dix-huit, dix-neuf','17, 18, 19'],['vingt','20']] },
+        { r:'Final consonants come and go.', ex:[['six','"seess" alone'],['six ans','"see-ZAHN" — liaison'],['six livres','"see LEEVR" — silent']] },
+        { r:'Ask an age with quel âge.', ex:[['Quel âge as-tu ?','How old are you?'],['J\'ai douze ans.','I am twelve.']] },
+      ],
+      callout:'"Ans" is never dropped. English says "I am twelve"; French must say the years — j\'ai douze ans.',
+      culture:'Seventy in France is "soixante-dix" — sixty-ten. In Belgium and Switzerland it is simply "septante", which is what most learners wish everyone said.',
+      quiz:[
+        { q:'Which is 16?', o:['seize','six','dix-six','seizième'], a:0, why:'seize — 16. Dix-six does not exist.' },
+        { q:'How do you ask someone\'s age?', o:['Comment âge as-tu ?','Quel âge as-tu ?','Combien âge es-tu ?','Où est ton âge ?'], a:1, why:'Quel âge as-tu ? — literally "what age have you?"' },
+        { q:'"J\'ai quinze ___."', o:['ans','années','ages','vieux'], a:0, why:'ans, and it cannot be left out.' },
+      ] },
+
+    { id:'fg1-5', title:'Describing things', sub:'Adjectives agree, and a few jump in front.',
+      lede:'A French adjective changes to match the noun it describes, and usually stands after it. A short list of very common ones goes before instead — and those are the ones you will need first.',
+      rules:[
+        { r:'Add -e for feminine, -s for plural, -es for both.', ex:[['un chat noir','a black cat (m)'],['une robe noire','a black dress (f)'],['des chats noirs','black cats'],['des robes noires','black dresses']] },
+        { r:'Most adjectives follow the noun.', ex:[['une maison blanche','a white house'],['un livre intéressant','an interesting book'],['une voiture rouge','a red car']] },
+        { r:'These common ones go before it: beau, bon, grand, petit, joli, jeune, vieux, nouveau.', ex:[['une petite maison','a small house'],['un bon café','a good coffee'],['un beau jardin','a beautiful garden']] },
+        { r:'Adjectives already ending in -e do not change for gender.', ex:[['un stylo rouge','a red pen'],['une porte rouge','a red door'],['un jeune homme','a young man']] },
+      ],
+      callout:'Position can change meaning. "Un homme grand" is a tall man; "un grand homme" is a great one.',
+      quiz:[
+        { q:'"une voiture ___" (green)', o:['vert','verte','verts','vertes'], a:1, why:'Voiture is feminine singular: verte.' },
+        { q:'Where does "petit" go?', o:['After the noun','Before the noun','Either, no difference','Only at the end of the sentence'], a:1, why:'petit is one of the short list that precedes the noun.' },
+        { q:'Why does "rouge" not change for feminine?', o:['It is irregular','It already ends in -e','It is a borrowed word','It always changes'], a:1, why:'An adjective ending in -e is already the feminine form.' },
+      ] },
+
+    { id:'fg1-6', title:'-er verbs: the biggest family', sub:'One pattern covers most verbs in the language.',
+      lede:'About nine in ten French verbs end in -er, and they all behave the same way. Learn these six endings once and you can use thousands of verbs.',
+      rules:[
+        { r:'Take off -er and add: -e, -es, -e, -ons, -ez, -ent.', ex:[['je parle','I speak'],['tu parles','you speak'],['il parle','he speaks'],['nous parlons','we speak'],['vous parlez','you speak'],['ils parlent','they speak']] },
+        { r:'Four of the six sound identical. Only nous and vous stand out.', ex:[['parle, parles, parle, parlent','all said "parl"'],['parlons','"par-LOHN"'],['parlez','"par-LAY"']] },
+        { r:'French has one present tense where English has three.', ex:[['je parle','I speak / I am speaking / I do speak']] },
+        { r:'Some you already know: habiter, aimer, manger, travailler, regarder.', ex:[['j\'habite ici','I live here'],['nous mangeons','we eat'],['ils regardent','they watch']] },
+      ],
+      table:{ h:['','parler (to speak)','habiter (to live)'], rows:[['je / j\'','parle','habite'],['tu','parles','habites'],['il / elle','parle','habite'],['nous','parlons','habitons'],['vous','parlez','habitez'],['ils / elles','parlent','habitent']] },
+      callout:'The -ent ending on ils/elles is completely silent. "Ils parlent" and "il parle" sound exactly the same — context and the article do the work.',
+      quiz:[
+        { q:'"Nous ___ français." (parler)', o:['parle','parles','parlons','parlez'], a:2, why:'nous takes -ons: nous parlons.' },
+        { q:'Which forms sound the same?', o:['nous and vous','je, tu, il and ils','tu and vous','all six'], a:1, why:'-e, -es, -e and -ent are all silent endings.' },
+        { q:'"Je parle" can mean…', o:['only "I speak"','"I speak" or "I am speaking"','only "I am speaking"','"I spoke"'], a:1, why:'French has one present tense covering both English forms.' },
+      ] },
+
+    { id:'fg1-7', title:'Saying no', sub:'ne … pas wraps around the verb.',
+      lede:'A French negative comes in two pieces with the verb held between them. In speech the first piece is usually dropped, which is why what you hear rarely matches what is written.',
+      rules:[
+        { r:'ne before the verb, pas after it.', ex:[['je ne parle pas','I do not speak'],['il n\'aime pas','he does not like'],['nous ne sommes pas','we are not']] },
+        { r:'ne becomes n\' before a vowel.', ex:[['je n\'ai pas','I do not have'],['elle n\'habite pas ici','she does not live here']] },
+        { r:'After a negative, un/une/des become de.', ex:[['J\'ai un chien. → Je n\'ai pas de chien.','I have no dog.'],['Il y a du pain. → Il n\'y a pas de pain.','There is no bread.']] },
+        { r:'Other pairs work the same way.', ex:[['ne … jamais','never'],['ne … rien','nothing'],['ne … plus','no longer']] },
+      ],
+      callout:'Spoken French drops the ne almost every time: "je sais pas", "c\'est pas grave". Write both; expect to hear one.',
+      quiz:[
+        { q:'"Je ___ parle ___ anglais."', o:['ne / pas','pas / ne','non / pas','ne / rien'], a:0, why:'ne before the verb, pas after: je ne parle pas.' },
+        { q:'Negative of "J\'ai un frère"?', o:['Je n\'ai pas un frère','Je n\'ai pas de frère','Je ne ai pas frère','J\'ai pas un frère'], a:1, why:'un becomes de after a negative.' },
+        { q:'What happens to ne in speech?', o:['It is stressed','It is usually dropped','It moves to the end','It doubles'], a:1, why:'Casual speech drops it almost always.' },
+      ] },
+
+    { id:'fg1-8', title:'tu or vous', sub:'Two ways to say "you", and choosing wrongly is noticed.',
+      lede:'French makes you decide how close you are to someone every time you address them. English lost this distinction; French uses it constantly, and the choice carries real social weight.',
+      rules:[
+        { r:'tu — one person you are close to: family, friends, children, classmates.', ex:[['Tu viens ?','Are you coming?'],['Comment tu t\'appelles ?','What is your name?']] },
+        { r:'vous — anyone else, and any group at all.', ex:[['Vous êtes prêt ?','Are you ready?'],['Excusez-moi, vous avez l\'heure ?','Excuse me, do you have the time?']] },
+        { r:'vous is the safe default with an adult you have just met.', ex:[['Bonjour, vous allez bien ?','Hello, are you well?']] },
+        { r:'There are verbs for the switch itself.', ex:[['tutoyer','to use tu with someone'],['vouvoyer','to use vous'],['On peut se tutoyer ?','Shall we use tu?']] },
+      ],
+      callout:'Using tu with a stranger, a shopkeeper or a teacher reads as rude or oddly familiar. Start with vous and let the other person offer tu.',
+      culture:'The switch is a small social event. "On se tutoie ?" is asked, agreed to, and remembered — some French colleagues use vous with each other for years.',
+      quiz:[
+        { q:'You meet your friend\'s grandmother. Which?', o:['tu','vous','either','on'], a:1, why:'vous — an adult you do not know.' },
+        { q:'Talking to three friends at once?', o:['tu','vous','tu for each','il'], a:1, why:'vous is also the plural, however close you are.' },
+        { q:'What does "vouvoyer" mean?', o:['to speak loudly','to address someone as vous','to travel','to answer'], a:1, why:'To use vous with someone.' },
+      ] },
+  ],
+
+  2: [
+    { id:'fg2-1', title:'être and avoir in full', sub:'The two verbs everything else is built on.',
+      lede:'These two are irregular, unavoidable, and the foundation of the past tense you will meet next level. They are worth over-learning.',
+      rules:[
+        { r:'être — to be.', ex:[['je suis fatigué','I am tired'],['tu es prêt','you are ready'],['nous sommes en retard','we are late'],['ils sont là','they are here']] },
+        { r:'avoir — to have.', ex:[['j\'ai faim','I am hungry (I have hunger)'],['tu as raison','you are right'],['nous avons le temps','we have time'],['elles ont un chien','they have a dog']] },
+        { r:'Many English "be" states are "have" in French.', ex:[['avoir faim','to be hungry'],['avoir soif','to be thirsty'],['avoir froid','to be cold'],['avoir peur','to be afraid'],['avoir raison','to be right']] },
+        { r:'il y a — there is, there are. One phrase, both numbers.', ex:[['Il y a un chat.','There is a cat.'],['Il y a trois livres.','There are three books.']] },
+      ],
+      table:{ h:['','être','avoir'], rows:[['je / j\'','suis','ai'],['tu','es','as'],['il / elle / on','est','a'],['nous','sommes','avons'],['vous','êtes','avez'],['ils / elles','sont','ont']] },
+      callout:'"J\'ai froid" means I am cold. "Je suis froid" means you are a cold person — emotionally.',
+      quiz:[
+        { q:'"I am hungry" in French?', o:['Je suis faim','J\'ai faim','Je fais faim','J\'ai la faim'], a:1, why:'Hunger is had, not been: j\'ai faim.' },
+        { q:'"Vous ___ en retard."', o:['avez','êtes','sommes','sont'], a:1, why:'être for a state: vous êtes.' },
+        { q:'Which means "there are four chairs"?', o:['Ils sont quatre chaises','Il y a quatre chaises','Il a quatre chaises','C\'est quatre chaises'], a:1, why:'il y a covers both there is and there are.' },
+      ] },
+
+    { id:'fg2-2', title:'Asking a question three ways', sub:'Intonation, est-ce que, and inversion.',
+      lede:'French gives you three ways to ask the same question, and they differ by formality rather than by meaning. Knowing all three means you can understand anyone and be understood by everyone.',
+      rules:[
+        { r:'1 · Raise your voice. Casual, and the most common in speech.', ex:[['Tu viens ?','Are you coming?'],['Vous parlez français ?','Do you speak French?']] },
+        { r:'2 · Put est-ce que in front. Neutral, always safe.', ex:[['Est-ce que tu viens ?','Are you coming?'],['Est-ce qu\'il est là ?','Is he there?']] },
+        { r:'3 · Invert the verb and pronoun. Formal, and what you will read.', ex:[['Viens-tu ?','Are you coming?'],['Parlez-vous français ?','Do you speak French?']] },
+        { r:'A question word goes at the front — or, casually, at the end.', ex:[['Où habites-tu ?','Where do you live?'],['Tu habites où ?','Where do you live? (casual)'],['Comment ça va ?','How are you?']] },
+      ],
+      table:{ h:['','casual','neutral','formal'], rows:[['Are you coming?','Tu viens ?','Est-ce que tu viens ?','Viens-tu ?'],['Where is it?','C\'est où ?','Où est-ce que c\'est ?','Où est-ce ?']] },
+      callout:'"Est-ce que" is four words doing the work of English\'s "do". It never changes, which makes it the easiest of the three to use while you are thinking.',
+      quiz:[
+        { q:'Which is the formal question?', o:['Tu parles français ?','Est-ce que tu parles français ?','Parles-tu français ?','Français, tu parles ?'], a:2, why:'Inversion is the formal form.' },
+        { q:'"Est-ce qu\'" appears because…', o:['it is plural','the next word starts with a vowel','it is a question word','it is past tense'], a:1, why:'que elides to qu\' before a vowel.' },
+        { q:'Most common in everyday speech?', o:['Inversion','est-ce que','Rising intonation','None of them'], a:2, why:'A statement said as a question is by far the most common.' },
+      ] },
+
+    { id:'fg2-3', title:'aller, and the future without a future tense', sub:'je vais manger — I am going to eat.',
+      lede:'aller is irregular and worth learning on its own, but its real power is that it builds the future the way English does: go plus a verb.',
+      rules:[
+        { r:'aller — to go.', ex:[['je vais','I go'],['tu vas','you go'],['il va','he goes'],['nous allons','we go'],['vous allez','you go'],['ils vont','they go']] },
+        { r:'aller + infinitive = going to do something.', ex:[['Je vais manger.','I am going to eat.'],['Nous allons partir.','We are going to leave.'],['Il va pleuvoir.','It is going to rain.']] },
+        { r:'à contracts with le and les.', ex:[['à + le → au','au marché — to the market'],['à + les → aux','aux États-Unis — to the United States'],['à la gare','to the station (no change)'],['à l\'école','to school (no change)']] },
+        { r:'"Comment ça va ?" is this verb — how does it go.', ex:[['Ça va bien.','It goes well.'],['Comment allez-vous ?','How are you? (formal)']] },
+      ],
+      table:{ h:['','aller'], rows:[['je','vais'],['tu','vas'],['il / elle / on','va'],['nous','allons'],['vous','allez'],['ils / elles','vont']] },
+      callout:'"Je vais à Paris" is I am going to Paris. "Je vais aller à Paris" is I am going to go to Paris — both exist, and the second is not a mistake.',
+      quiz:[
+        { q:'"Nous ___ au marché."', o:['allons','allez','vont','va'], a:0, why:'nous allons.' },
+        { q:'"à + le" becomes…', o:['à le','au','aux','del'], a:1, why:'It contracts to au.' },
+        { q:'How do you say "I am going to work"?', o:['Je travaille','Je vais travailler','Je suis travailler','J\'ai travailler'], a:1, why:'aller + infinitive: je vais travailler.' },
+      ] },
+
+    { id:'fg2-4', title:'Saying what is yours', sub:'mon, ma, mes — and the trap in them.',
+      lede:'A possessive in French agrees with the thing owned, not with the owner. "Son livre" is his book or her book — French does not tell you which, and does not consider that a problem.',
+      rules:[
+        { r:'my: mon (m), ma (f), mes (pl).', ex:[['mon frère','my brother'],['ma sœur','my sister'],['mes parents','my parents']] },
+        { r:'your (tu): ton, ta, tes. his/her: son, sa, ses.', ex:[['ton chien','your dog'],['ta maison','your house'],['son livre','his book OR her book'],['sa voiture','his car OR her car']] },
+        { r:'our / your (vous) / their have one form each for singular.', ex:[['notre maison','our house'],['votre nom','your name'],['leur ami','their friend'],['nos, vos, leurs','the plurals']] },
+        { r:'Before a vowel, ma and ta become mon and ton for sound.', ex:[['mon amie','my friend (f!)'],['ton école','your school (f!)']] },
+      ],
+      table:{ h:['','masculine','feminine','plural'], rows:[['my','mon','ma','mes'],['your (tu)','ton','ta','tes'],['his / her','son','sa','ses'],['our','notre','notre','nos'],['your (vous)','votre','votre','vos'],['their','leur','leur','leurs']] },
+      callout:'"Mon amie" does not make her male. The m-form is used purely so two vowels do not collide — the same reason English says "an apple".',
+      quiz:[
+        { q:'"___ sœur" (my)', o:['mon','ma','mes','mien'], a:1, why:'Sœur is feminine: ma sœur.' },
+        { q:'"Son livre" means…', o:['only his book','only her book','his or her book','their book'], a:2, why:'Agreement is with the book, not the owner.' },
+        { q:'Why "mon amie"?', o:['She is masculine','To avoid two vowels meeting','It is a mistake','It is plural'], a:1, why:'ma becomes mon before a vowel sound.' },
+      ] },
+
+    { id:'fg2-5', title:'Some, any, a bit of', sub:'du, de la, des — the partitive.',
+      lede:'English drops the article when it means "some": I eat bread. French never does. This is one of the most reliable giveaways of an English speaker.',
+      rules:[
+        { r:'du (m), de la (f), de l\' (vowel), des (plural).', ex:[['du pain','some bread'],['de la confiture','some jam'],['de l\'eau','some water'],['des pommes','some apples']] },
+        { r:'It is not optional.', ex:[['Je mange du pain.','I eat bread.'],['Elle boit de l\'eau.','She drinks water.']] },
+        { r:'After a negative, all of them become de.', ex:[['Je ne mange pas de pain.','I do not eat bread.'],['Il n\'y a pas de lait.','There is no milk.']] },
+        { r:'After a quantity, also de.', ex:[['beaucoup de sucre','a lot of sugar'],['un peu de lait','a little milk'],['un kilo de pommes','a kilo of apples']] },
+      ],
+      table:{ h:['','some','after a negative'], rows:[['masculine','du pain','pas de pain'],['feminine','de la salade','pas de salade'],['before a vowel','de l\'eau','pas d\'eau'],['plural','des œufs','pas d\'œufs']] },
+      callout:'"J\'aime le café" and "je bois du café" are different sentences. The first is coffee in general, the second is some coffee, now.',
+      quiz:[
+        { q:'"Je mange ___ fromage."', o:['le','du','de','des'], a:1, why:'Fromage is masculine: du fromage.' },
+        { q:'Negative of "Je bois du lait"?', o:['Je ne bois pas du lait','Je ne bois pas de lait','Je ne bois pas le lait','Je bois pas du lait'], a:1, why:'du becomes de after a negative.' },
+        { q:'"beaucoup ___ sucre"', o:['du','de','le','des'], a:1, why:'A quantity is followed by plain de.' },
+      ] },
+
+    { id:'fg2-6', title:'-ir and -re verbs', sub:'The two smaller families.',
+      lede:'Once -er verbs are comfortable, two smaller regular families cover most of what is left. Each has its own six endings, and both are shorter lists than they look.',
+      rules:[
+        { r:'-ir verbs like finir: -is, -is, -it, -issons, -issez, -issent.', ex:[['je finis','I finish'],['tu finis','you finish'],['il finit','he finishes'],['nous finissons','we finish'],['vous finissez','you finish'],['ils finissent','they finish']] },
+        { r:'-re verbs like attendre: -s, -s, —, -ons, -ez, -ent.', ex:[['j\'attends','I wait'],['tu attends','you wait'],['il attend','he waits'],['nous attendons','we wait'],['vous attendez','you wait'],['ils attendent','they wait']] },
+        { r:'The il form of an -re verb has no ending at all.', ex:[['il attend','he waits'],['elle vend','she sells'],['on entend','one hears']] },
+        { r:'Useful members of each family.', ex:[['finir, choisir, réussir','to finish, to choose, to succeed'],['attendre, vendre, entendre','to wait, to sell, to hear']] },
+      ],
+      table:{ h:['','finir','attendre'], rows:[['je / j\'','finis','attends'],['tu','finis','attends'],['il / elle','finit','attend'],['nous','finissons','attendons'],['vous','finissez','attendez'],['ils / elles','finissent','attendent']] },
+      callout:'"Attendre" means to wait for — the "for" is already inside it. "J\'attends le bus", never "j\'attends pour le bus".',
+      quiz:[
+        { q:'"Nous ___ à cinq heures." (finir)', o:['finis','finit','finissons','finissez'], a:2, why:'nous finissons.' },
+        { q:'"Il ___ le train." (attendre)', o:['attend','attends','attendt','attende'], a:0, why:'The il form of an -re verb takes no ending.' },
+        { q:'"J\'attends le bus" means…', o:['I wait the bus','I am waiting for the bus','I attend the bus','I stop the bus'], a:1, why:'attendre already contains "for".' },
+      ] },
+
+    { id:'fg2-7', title:'Talking about your day', sub:'Time, routine, and the verbs that carry it.',
+      lede:'Telling the time in French is arithmetic done out loud, and the twenty-four hour clock is normal in writing and in any official context.',
+      rules:[
+        { r:'Ask and answer with il est.', ex:[['Quelle heure est-il ?','What time is it?'],['Il est trois heures.','It is three o\'clock.'],['Il est midi.','It is noon.'],['Il est minuit.','It is midnight.']] },
+        { r:'Minutes are added, or taken away after the half hour.', ex:[['trois heures dix','3:10'],['trois heures et quart','3:15'],['trois heures et demie','3:30'],['quatre heures moins le quart','3:45']] },
+        { r:'The 24-hour clock is used for anything scheduled.', ex:[['quatorze heures trente','14:30'],['Le train part à 18 h 05.','The train leaves at 18:05.']] },
+        { r:'Routine verbs.', ex:[['je me lève','I get up'],['je prends le petit déjeuner','I have breakfast'],['je vais au travail','I go to work'],['je rentre','I come home']] },
+      ],
+      callout:'French writes times with an h where English uses a colon: 18 h 05, not 18:05. The h is heures.',
+      culture:'Lunch is still a real meal. Many shops outside the big cities close from noon until two, and a French school lunch break commonly runs ninety minutes or more.',
+      quiz:[
+        { q:'How do you ask the time?', o:['Quel temps est-il ?','Quelle heure est-il ?','Combien d\'heures ?','Où est l\'heure ?'], a:1, why:'Quel temps est-il asks about the weather.' },
+        { q:'"Il est trois heures et demie" is…', o:['3:15','3:30','3:45','2:30'], a:1, why:'et demie — half past.' },
+        { q:'What does the h mean in "18 h 05"?', o:['hour','heures','half','hundred'], a:1, why:'It stands for heures.' },
+      ] },
+
+    { id:'fg2-8', title:'Ordering and buying', sub:'Being polite enough, in a shop or a café.',
+      lede:'French politeness is built from a few fixed phrases, and leaving them out is noticed far more than a grammatical slip. The single most important one is saying bonjour before anything else.',
+      rules:[
+        { r:'Say bonjour first. Always, to everyone, on entering.', ex:[['Bonjour madame.','Hello (to a woman).'],['Bonjour monsieur.','Hello (to a man).']] },
+        { r:'Je voudrais is the polite "I want".', ex:[['Je voudrais un café.','I would like a coffee.'],['Je voudrais deux baguettes, s\'il vous plaît.','I would like two baguettes, please.']] },
+        { r:'Asking the price and paying.', ex:[['C\'est combien ?','How much is it?'],['Ça fait combien ?','What does that come to?'],['Je peux payer par carte ?','Can I pay by card?']] },
+        { r:'Leaving.', ex:[['C\'est tout, merci.','That is all, thank you.'],['Bonne journée !','Have a good day!'],['Au revoir, merci.','Goodbye, thank you.']] },
+      ],
+      callout:'"Je veux un café" is not rude in grammar but is in tone — it lands like "gimme a coffee". Use "je voudrais".',
+      culture:'Walking into a French bakery without saying bonjour is the fastest way to be served coldly. The greeting is not a pleasantry; it is the thing that opens the transaction.',
+      quiz:[
+        { q:'Politest way to order?', o:['Je veux un café','Donnez-moi un café','Je voudrais un café','Un café'], a:2, why:'je voudrais is the conditional, and the polite standard.' },
+        { q:'What do you say on entering a shop?', o:['Nothing','Bonjour','Merci','Pardon'], a:1, why:'Bonjour, every time, before anything else.' },
+        { q:'"Ça fait combien ?" asks…', o:['what time it is','how much it comes to','where it is','how many there are'], a:1, why:'It asks for the total.' },
+      ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- phrases */
+const FR_SPEAKING = {
+  1: [
+    { es:'Bonjour, je m\'appelle Ana.', en:'Hello, my name is Ana.', hint:'bohn-ZHOOR, zhuh mah-PELL' },
+    { es:'Comment ça va ?', en:'How are you?', hint:'koh-MAHN sah VAH' },
+    { es:'Ça va bien, merci.', en:'I am well, thank you.', hint:'sah vah bee-AHN, mair-SEE' },
+    { es:'Enchanté.', en:'Pleased to meet you.', hint:'ahn-shahn-TAY' },
+    { es:'S\'il vous plaît.', en:'Please.', hint:'seel voo PLEH' },
+    { es:'Je ne comprends pas.', en:'I do not understand.', hint:'zhuh nuh kohm-PRAHN pah' },
+    { es:'J\'ai un chien et un chat.', en:'I have a dog and a cat.', hint:'zhay uhn shee-AHN ay uhn SHAH' },
+    { es:'Au revoir, à demain.', en:'Goodbye, see you tomorrow.', hint:'oh ruh-VWAHR, ah duh-MAHN' },
+    { es:'Je suis canadienne.', en:'I am Canadian (f).', hint:'zhuh swee kah-nah-dee-EN' },
+    { es:'J\'ai dix-huit ans.', en:'I am eighteen.', hint:'zhay dee-ZWEET ahn' },
+    { es:'Parlez-vous anglais ?', en:'Do you speak English?', hint:'par-lay VOO ahn-GLEH' },
+    { es:'Répétez, s\'il vous plaît.', en:'Say that again, please.', hint:'ray-pay-TAY seel voo PLEH' },
+    { es:'Comment dit-on « dog » en français ?', en:'How do you say "dog" in French?', hint:'koh-MAHN dee-TOHN … ahn frahn-SAY' },
+    { es:'Excusez-moi, je suis désolé.', en:'Excuse me, I am sorry.', hint:'ex-kew-zay MWAH, zhuh swee day-zoh-LAY' },
+  ],
+  2: [
+    { es:'Où est la gare, s\'il vous plaît ?', en:'Where is the station, please?', hint:'oo eh lah GAHR' },
+    { es:'Je voudrais un café, s\'il vous plaît.', en:'I would like a coffee, please.', hint:'zhuh voo-DREH uhn kah-FAY' },
+    { es:'C\'est combien ?', en:'How much is it?', hint:'say kohm-bee-AHN' },
+    { es:'Je peux payer par carte ?', en:'Can I pay by card?', hint:'zhuh puh pay-YAY par KART' },
+    { es:'Tournez à droite, puis tout droit.', en:'Turn right, then straight ahead.', hint:'toor-NAY ah DRWAHT, pwee too DRWAH' },
+    { es:'J\'habite dans un petit appartement.', en:'I live in a small apartment.', hint:'zhah-BEET dahn zuhn puh-tee-tah-par-tuh-MAHN' },
+    { es:'Le matin, je bois du café.', en:'In the morning I drink coffee.', hint:'luh mah-TAHN, zhuh bwah dew kah-FAY' },
+    { es:'Qu\'est-ce que tu fais aujourd\'hui ?', en:'What are you doing today?', hint:'kess-kuh tew FEH oh-zhoor-DWEE' },
+    { es:'Je vais travailler à huit heures.', en:'I am going to work at eight.', hint:'zhuh vay trah-vah-YAY ah wee TUHR' },
+    { es:'Il n\'y a pas de lait.', en:'There is no milk.', hint:'eel nyah pah duh LEH' },
+    { es:'Nous mangeons à midi.', en:'We eat at noon.', hint:'noo mahn-ZHOHN ah mee-DEE' },
+    { es:'Quelle heure est-il ?', en:'What time is it?', hint:'kell UHR eh-TEEL' },
+    { es:'J\'attends le bus depuis dix minutes.', en:'I have been waiting for the bus for ten minutes.', hint:'zhah-TAHN luh BEWSS duh-PWEE dee mee-NEWT' },
+    { es:'C\'est tout, merci. Bonne journée !', en:'That is all, thanks. Have a good day!', hint:'say TOO, mair-SEE. bun zhoor-NAY' },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- passages */
+const FR_READING = {
+  1: [
+    { id:'fr1-1', title:'Ma famille', words:62,
+      text:['Bonjour. Je m\'appelle Léa et j\'ai huit ans. J\'habite dans une petite maison avec ma famille.','Ma mère s\'appelle Claire. Elle est médecin. Mon père s\'appelle Marc. Il est professeur et il cuisine très bien.','J\'ai un frère. Il s\'appelle Paul et il a dix ans. Nous avons un chien noir et un chat blanc.','Ma famille est petite, mais elle est très heureuse.'],
+      en:'Hello. My name is Léa and I am eight years old. I live in a small house with my family. My mother is called Claire. She is a doctor. My father is called Marc. He is a teacher and he cooks very well. I have a brother. His name is Paul and he is ten. We have a black dog and a white cat. My family is small, but it is very happy.',
+      qs:[ { q:'How old is Léa?', o:['Eight','Ten','Six'], a:0 }, { q:'What is her father\'s job?', o:['Doctor','Teacher','Cook'], a:1 }, { q:'What colour is the dog?', o:['White','Black','Grey'], a:1 } ] },
+    { id:'fr1-2', title:'Les couleurs', words:48,
+      text:['Le soleil est jaune. Le ciel est bleu. L\'herbe est verte.','Dans mon jardin il y a des fleurs. Les fleurs sont rouges et roses. Je les aime beaucoup.','Mon chat est noir et mon chien est blanc. Les deux sont très beaux.'],
+      en:'The sun is yellow. The sky is blue. The grass is green. In my garden there are flowers. The flowers are red and pink. I like them a lot. My cat is black and my dog is white. Both are very beautiful.',
+      qs:[ { q:'What colour is the grass?', o:['Blue','Green','Yellow'], a:1 }, { q:'What colours are the flowers?', o:['Red and pink','Blue and white','Yellow and green'], a:0 } ] },
+    { id:'fr1-3', title:'À l\'école', words:55,
+      text:['Je vais à l\'école tous les jours. L\'école est grande et blanche.','Dans ma classe il y a vingt élèves. Mon professeur s\'appelle Monsieur Roux. Il est très gentil.','J\'aime le français et les mathématiques. Je n\'aime pas beaucoup les devoirs.','Après l\'école, je joue avec mes amis dans le jardin.'],
+      en:'I go to school every day. The school is big and white. In my class there are twenty pupils. My teacher is called Mr Roux. He is very kind. I like French and maths. I do not much like homework. After school, I play with my friends in the garden.',
+      qs:[ { q:'How many pupils are in the class?', o:['Ten','Twenty','Thirty'], a:1 }, { q:'What does she not like?', o:['French','Homework','Her teacher'], a:1 }, { q:'What does she do after school?', o:['Homework','Sleeps','Plays with friends'], a:2 } ] },
+    { id:'fr1-4', title:'Le petit déjeuner', words:50,
+      text:['Le matin, je mange du pain avec du beurre. Je bois du chocolat chaud.','Ma mère boit du café noir. Mon père mange un œuf et une pomme.','Mon frère ne mange pas le matin. Il dit qu\'il n\'a pas faim.','À midi, nous mangeons tous ensemble.'],
+      en:'In the morning, I eat bread with butter. I drink hot chocolate. My mother drinks black coffee. My father eats an egg and an apple. My brother does not eat in the morning. He says he is not hungry. At noon, we all eat together.',
+      qs:[ { q:'What does the narrator drink?', o:['Coffee','Hot chocolate','Milk'], a:1 }, { q:'What does the father eat?', o:['Bread and butter','An egg and an apple','Nothing'], a:1 }, { q:'Why does the brother not eat?', o:['He is late','He is not hungry','He is ill'], a:1 } ] },
+  ],
+  2: [
+    { id:'fr2-1', title:'Ma journée', words:85,
+      text:['Je me lève à sept heures. Je prends une douche et je mange du pain avec de la confiture.','À huit heures, je vais à l\'école. J\'habite près de l\'école, alors je marche. Ça prend dix minutes.','Les cours commencent à huit heures et demie. À midi, je mange à la cantine avec mes amis.','L\'après-midi, nous avons deux cours. Je finis à quatre heures.','Le soir, je fais mes devoirs, puis je regarde un film avec ma sœur. Je me couche à dix heures.'],
+      en:'I get up at seven. I take a shower and eat bread with jam. At eight, I go to school. I live near the school, so I walk. It takes ten minutes. Lessons start at half past eight. At noon, I eat in the canteen with my friends. In the afternoon we have two lessons. I finish at four. In the evening I do my homework, then I watch a film with my sister. I go to bed at ten.',
+      qs:[ { q:'How does she get to school?', o:['By bus','She walks','By car'], a:1 }, { q:'When do lessons start?', o:['8:00','8:30','9:00'], a:1 }, { q:'What does she do before bed?', o:['Homework, then a film','Goes out','Eats again'], a:0 } ] },
+    { id:'fr2-2', title:'Au marché', words:78,
+      text:['Le samedi matin, ma mère et moi allons au marché. Il est dans la rue principale.','Nous achetons des pommes, du fromage et du pain. Ma mère prend aussi des fleurs.','— Bonjour madame, je voudrais un kilo de pommes, s\'il vous plaît.','— Voilà. Ça fait trois euros cinquante.','— Merci, bonne journée !','Après, nous buvons un café ensemble. J\'aime beaucoup le samedi.'],
+      en:'On Saturday morning, my mother and I go to the market. It is in the main street. We buy apples, cheese and bread. My mother also takes flowers. "Hello madam, I would like a kilo of apples, please." "Here you are. That comes to three euros fifty." "Thank you, have a good day!" Afterwards, we drink a coffee together. I like Saturdays a lot.',
+      qs:[ { q:'When do they go to the market?', o:['Saturday morning','Sunday','Every day'], a:0 }, { q:'How much are the apples?', o:['€2.50','€3.50','€5.00'], a:1 }, { q:'What do they do afterwards?', o:['Go home','Drink a coffee','Buy flowers'], a:1 } ] },
+    { id:'fr2-3', title:'Où est la gare ?', words:72,
+      text:['— Excusez-moi, monsieur. Où est la gare, s\'il vous plaît ?','— La gare ? Vous allez tout droit, puis vous tournez à gauche à la boulangerie.','— C\'est loin ?','— Non, c\'est à cinq minutes à pied. La gare est en face du marché.','— Merci beaucoup !','— De rien. Bonne journée.'],
+      en:'"Excuse me, sir. Where is the station, please?" "The station? You go straight ahead, then you turn left at the bakery." "Is it far?" "No, it is five minutes on foot. The station is opposite the market." "Thank you very much!" "You are welcome. Have a good day."',
+      qs:[ { q:'Which way at the bakery?', o:['Right','Left','Straight on'], a:1 }, { q:'How far is it?', o:['Five minutes on foot','Half an hour','Two streets'], a:0 }, { q:'What is the station opposite?', o:['The bakery','The market','The school'], a:1 } ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- word hunts */
+const FR_HUNTS = {
+  1: [
+    { theme:'Les animaux', words:['chien','chat','oiseau','poisson','vache','cheval','lapin','ours'] },
+    { theme:'Les couleurs', words:['rouge','bleu','vert','jaune','noir','blanc','rose','gris'] },
+    { theme:'La famille', words:['mere','pere','frere','soeur','fille','fils','femme','enfant'] },
+    { theme:'La nourriture', words:['pain','eau','lait','pomme','fromage','riz','poulet','cafe'] },
+  ],
+  2: [
+    { theme:'À la maison', words:['maison','cuisine','chambre','table','chaise','porte','lit','jardin','cle'] },
+    { theme:'À l\'école', words:['ecole','livre','crayon','papier','classe','question','devoirs','travail'] },
+    { theme:'En ville', words:['ville','rue','gare','magasin','marche','argent','gauche','droite'] },
+    { theme:'Le temps', words:['jour','matin','soir','nuit','demain','hier','heure','semaine'] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- dialogues */
+const FR_DIALOGUES = {
+  1: [
+    { id:'fd1-1', title:'À l\'école', scene:'First day. Léa says hello.', lines:[
+      { who:'A', es:'Bonjour ! Comment tu t\'appelles ?', en:'Hello! What is your name?' },
+      { who:'B', es:'Je m\'appelle Nat. Et toi ?', en:'My name is Nat. And you?' },
+      { who:'A', es:'Moi, c\'est Léa. Enchantée.', en:'I am Léa. Pleased to meet you.' },
+      { who:'B', es:'Enchantée, Léa.', en:'Pleased to meet you, Léa.' },
+      { who:'A', es:'Tu viens d\'où ?', en:'Where are you from?' },
+      { who:'B', es:'Je viens du Canada.', en:'I am from Canada.' },
+      { who:'A', es:'Super ! À bientôt.', en:'Great! See you soon.' },
+    ] },
+    { id:'fd1-2', title:'La famille', scene:'Two friends compare families.', lines:[
+      { who:'A', es:'Tu as des frères et sœurs ?', en:'Do you have any brothers and sisters?' },
+      { who:'B', es:'Oui, j\'ai une sœur. Elle a douze ans.', en:'Yes, I have a sister. She is twelve.' },
+      { who:'A', es:'Et tes parents ?', en:'And your parents?' },
+      { who:'B', es:'Ma mère est professeur et mon père est cuisinier.', en:'My mother is a teacher and my father is a cook.' },
+      { who:'A', es:'Vous avez un animal ?', en:'Do you have a pet?' },
+      { who:'B', es:'Oui, un chien. Il s\'appelle Max.', en:'Yes, a dog. He is called Max.' },
+    ] },
+    { id:'fd1-3', title:'Les nombres', scene:'Counting in class.', lines:[
+      { who:'A', es:'Quel âge as-tu ?', en:'How old are you?' },
+      { who:'B', es:'J\'ai onze ans. Et toi ?', en:'I am eleven. And you?' },
+      { who:'A', es:'Moi, j\'ai douze ans.', en:'I am twelve.' },
+      { who:'B', es:'Il y a combien d\'élèves dans la classe ?', en:'How many pupils are in the class?' },
+      { who:'A', es:'Il y a vingt élèves.', en:'There are twenty pupils.' },
+      { who:'B', es:'C\'est beaucoup !', en:'That is a lot!' },
+    ] },
+    { id:'fd1-4', title:'Au revoir', scene:'Leaving, politely.', lines:[
+      { who:'A', es:'Il est tard. Je dois partir.', en:'It is late. I have to go.' },
+      { who:'B', es:'Déjà ? D\'accord.', en:'Already? All right.' },
+      { who:'A', es:'Merci pour tout.', en:'Thank you for everything.' },
+      { who:'B', es:'De rien. À demain ?', en:'You are welcome. See you tomorrow?' },
+      { who:'A', es:'Oui, à demain. Bonne soirée !', en:'Yes, see you tomorrow. Have a good evening!' },
+      { who:'B', es:'Bonne soirée. Au revoir !', en:'Have a good evening. Goodbye!' },
+    ] },
+  ],
+  2: [
+    { id:'fd2-1', title:'Au café', scene:'Ordering, the polite way.', lines:[
+      { who:'A', es:'Bonjour madame. Vous désirez ?', en:'Hello madam. What would you like?' },
+      { who:'B', es:'Bonjour. Je voudrais un café, s\'il vous plaît.', en:'Hello. I would like a coffee, please.' },
+      { who:'A', es:'Un café. Avec du lait ?', en:'A coffee. With milk?' },
+      { who:'B', es:'Non merci, sans lait. Et un croissant.', en:'No thank you, without milk. And a croissant.' },
+      { who:'A', es:'Très bien. Ça fait quatre euros.', en:'Very good. That comes to four euros.' },
+      { who:'B', es:'Je peux payer par carte ?', en:'Can I pay by card?' },
+      { who:'A', es:'Bien sûr. Merci, bonne journée !', en:'Of course. Thank you, have a good day!' },
+    ] },
+    { id:'fd2-2', title:'Dans la rue', scene:'Asking the way.', lines:[
+      { who:'A', es:'Excusez-moi, où est la gare ?', en:'Excuse me, where is the station?' },
+      { who:'B', es:'Vous allez tout droit, puis à gauche.', en:'You go straight on, then left.' },
+      { who:'A', es:'C\'est loin ?', en:'Is it far?' },
+      { who:'B', es:'Non, cinq minutes à pied.', en:'No, five minutes on foot.' },
+      { who:'A', es:'Merci beaucoup !', en:'Thank you very much!' },
+      { who:'B', es:'De rien. Bonne journée.', en:'You are welcome. Have a good day.' },
+    ] },
+    { id:'fd2-3', title:'Ma journée', scene:'Talking about routine.', lines:[
+      { who:'A', es:'Tu te lèves à quelle heure ?', en:'What time do you get up?' },
+      { who:'B', es:'Je me lève à sept heures. Et toi ?', en:'I get up at seven. And you?' },
+      { who:'A', es:'Moi, à six heures et demie. Je vais au travail à pied.', en:'Me, at half past six. I walk to work.' },
+      { who:'B', es:'Tu finis quand ?', en:'When do you finish?' },
+      { who:'A', es:'Je finis à cinq heures. Après, je fais les courses.', en:'I finish at five. Afterwards, I do the shopping.' },
+      { who:'B', es:'Tu as une longue journée !', en:'You have a long day!' },
+    ] },
+    { id:'fd2-4', title:'Chez moi', scene:'Describing where you live.', lines:[
+      { who:'A', es:'Tu habites où ?', en:'Where do you live?' },
+      { who:'B', es:'J\'habite dans un appartement en ville.', en:'I live in an apartment in town.' },
+      { who:'A', es:'Il est grand ?', en:'Is it big?' },
+      { who:'B', es:'Non, il est petit, mais il y a un balcon.', en:'No, it is small, but there is a balcony.' },
+      { who:'A', es:'Tu habites avec quelqu\'un ?', en:'Do you live with someone?' },
+      { who:'B', es:'Oui, avec ma sœur. Nous avons un chat.', en:'Yes, with my sister. We have a cat.' },
+    ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- the verb trainer
+   Six persons, no vosotros problem — but on and elles both fold into forms already listed. */
+const FR_PERSONS = [
+  { k: 'j', t: 'je', en: 'I' },
+  { k: 't', t: 'tu', en: 'you' },
+  { k: 'i', t: 'il/elle/on', en: 'he/she/one' },
+  { k: 'n', t: 'nous', en: 'we' },
+  { k: 'v', t: 'vous', en: 'you (formal, plural)' },
+  { k: 's', t: 'ils/elles', en: 'they' },
+];
+const FR_PK = FR_PERSONS.map(p => p.k);
+
+const FR_TENSES = [
+  { k: 'pres', t: 'Présent', en: 'Present', level: 1, ex: 'je parle — I speak', blurb: 'Now, or usually. One French tense covers "I speak" and "I am speaking".' },
+  { k: 'pc', t: 'Passé composé', en: 'Perfect', level: 2, ex: 'j\'ai parlé — I spoke', blurb: 'The everyday past: avoir or être, plus the participle.' },
+  { k: 'imperf', t: 'Imparfait', en: 'Imperfect', level: 3, ex: 'je parlais — I used to speak', blurb: 'Backgrounds and habits: used to, was ‑ing.' },
+  { k: 'fut', t: 'Futur simple', en: 'Future', level: 3, ex: 'je parlerai — I will speak', blurb: 'Will do. Built on the whole infinitive.' },
+];
+
+/* type: er | ir | re · irr: explicit forms · aux: 'être' for the perfect · part: participle
+   futStem: irregular future stem · nous: irregular nous-stem used by the imperfect */
+const FR_VERBS = [
+  { inf:'être', en:'to be', type:'re', lvl:1, tags:['irr','core'], aux:'avoir', part:'été', futStem:'ser',
+    irr:{ pres:['suis','es','est','sommes','êtes','sont'], imperf:['étais','étais','était','étions','étiez','étaient'] } },
+  { inf:'avoir', en:'to have', type:'re', lvl:1, tags:['irr','core'], aux:'avoir', part:'eu', futStem:'aur',
+    irr:{ pres:['ai','as','a','avons','avez','ont'], imperf:['avais','avais','avait','avions','aviez','avaient'] } },
+  { inf:'aller', en:'to go', type:'er', lvl:1, tags:['irr','core'], aux:'être', part:'allé', futStem:'ir',
+    irr:{ pres:['vais','vas','va','allons','allez','vont'] } },
+  { inf:'faire', en:'to do, to make', type:'re', lvl:2, tags:['irr','core'], aux:'avoir', part:'fait', futStem:'fer',
+    irr:{ pres:['fais','fais','fait','faisons','faites','font'] } },
+  { inf:'parler', en:'to speak', type:'er', lvl:1, tags:['core'], aux:'avoir' },
+  { inf:'habiter', en:'to live (somewhere)', type:'er', lvl:1, tags:['core'], aux:'avoir' },
+  { inf:'aimer', en:'to like, to love', type:'er', lvl:1, tags:['core'], aux:'avoir' },
+  { inf:'manger', en:'to eat', type:'er', lvl:1, tags:['core'], aux:'avoir', irr:{ pres:['mange','manges','mange','mangeons','mangez','mangent'] } },
+  { inf:'travailler', en:'to work', type:'er', lvl:2, tags:['core'], aux:'avoir' },
+  { inf:'regarder', en:'to watch, to look at', type:'er', lvl:2, tags:[], aux:'avoir' },
+  { inf:'écouter', en:'to listen to', type:'er', lvl:2, tags:[], aux:'avoir' },
+  { inf:'chercher', en:'to look for', type:'er', lvl:2, tags:[], aux:'avoir' },
+  { inf:'trouver', en:'to find', type:'er', lvl:2, tags:[], aux:'avoir' },
+  { inf:'donner', en:'to give', type:'er', lvl:2, tags:[], aux:'avoir' },
+  { inf:'finir', en:'to finish', type:'ir', lvl:2, tags:['core'], aux:'avoir', part:'fini' },
+  { inf:'choisir', en:'to choose', type:'ir', lvl:2, tags:[], aux:'avoir', part:'choisi' },
+  { inf:'réussir', en:'to succeed', type:'ir', lvl:2, tags:[], aux:'avoir', part:'réussi' },
+  { inf:'attendre', en:'to wait for', type:'re', lvl:2, tags:['core'], aux:'avoir', part:'attendu' },
+  { inf:'vendre', en:'to sell', type:'re', lvl:2, tags:[], aux:'avoir', part:'vendu' },
+  { inf:'entendre', en:'to hear', type:'re', lvl:2, tags:[], aux:'avoir', part:'entendu' },
+  { inf:'prendre', en:'to take', type:'re', lvl:2, tags:['irr','core'], aux:'avoir', part:'pris',
+    irr:{ pres:['prends','prends','prend','prenons','prenez','prennent'] } },
+  { inf:'boire', en:'to drink', type:'re', lvl:2, tags:['irr'], aux:'avoir', part:'bu',
+    irr:{ pres:['bois','bois','boit','buvons','buvez','boivent'] } },
+  { inf:'voir', en:'to see', type:'re', lvl:2, tags:['irr'], aux:'avoir', part:'vu', futStem:'verr',
+    irr:{ pres:['vois','vois','voit','voyons','voyez','voient'] } },
+  { inf:'vouloir', en:'to want', type:'re', lvl:2, tags:['irr','core'], aux:'avoir', part:'voulu', futStem:'voudr',
+    irr:{ pres:['veux','veux','veut','voulons','voulez','veulent'] } },
+  { inf:'pouvoir', en:'to be able to', type:'re', lvl:2, tags:['irr','core'], aux:'avoir', part:'pu', futStem:'pourr',
+    irr:{ pres:['peux','peux','peut','pouvons','pouvez','peuvent'] } },
+  { inf:'devoir', en:'to have to, must', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'dû', futStem:'devr',
+    irr:{ pres:['dois','dois','doit','devons','devez','doivent'] } },
+  { inf:'savoir', en:'to know (a fact)', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'su', futStem:'saur',
+    irr:{ pres:['sais','sais','sait','savons','savez','savent'] } },
+  { inf:'venir', en:'to come', type:'ir', lvl:2, tags:['irr','core'], aux:'être', part:'venu', futStem:'viendr',
+    irr:{ pres:['viens','viens','vient','venons','venez','viennent'] } },
+  { inf:'dire', en:'to say', type:'re', lvl:2, tags:['irr'], aux:'avoir', part:'dit',
+    irr:{ pres:['dis','dis','dit','disons','dites','disent'] } },
+  { inf:'partir', en:'to leave', type:'ir', lvl:2, tags:['irr'], aux:'être', part:'parti',
+    irr:{ pres:['pars','pars','part','partons','partez','partent'] } },
+  { inf:'dormir', en:'to sleep', type:'ir', lvl:2, tags:['irr'], aux:'avoir', part:'dormi',
+    irr:{ pres:['dors','dors','dort','dormons','dormez','dorment'] } },
+  { inf:'lire', en:'to read', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'lu',
+    irr:{ pres:['lis','lis','lit','lisons','lisez','lisent'] } },
+  { inf:'écrire', en:'to write', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'écrit',
+    irr:{ pres:['écris','écris','écrit','écrivons','écrivez','écrivent'] } },
+];
+
+/* endings by family */
+const FR_END = {
+  er: { pres:['e','es','e','ons','ez','ent'], imperf:['ais','ais','ait','ions','iez','aient'] },
+  ir: { pres:['is','is','it','issons','issez','issent'], imperf:['issais','issais','issait','issions','issiez','issaient'] },
+  re: { pres:['s','s','','ons','ez','ent'], imperf:['ais','ais','ait','ions','iez','aient'] },
+};
+const FR_FUT_END = ['ai','as','a','ons','ez','ont'];
+const FR_AUX = {
+  avoir: ['ai', 'as', 'a', 'avons', 'avez', 'ont'],
+  être: ['suis', 'es', 'est', 'sommes', 'êtes', 'sont'],
+};
+const FR_SUBJ = ['je', 'tu', 'il', 'nous', 'vous', 'ils'];
+
+function frStem(v) { return v.inf.slice(0, -2); }
+function frPart(v) {
+  if (v.part) return v.part;
+  if (v.type === 'er') return frStem(v) + 'é';
+  if (v.type === 'ir') return frStem(v) + 'i';
+  return frStem(v) + 'u';
+}
+function frFutStem(v) {
+  if (v.futStem) return v.futStem;
+  return v.type === 're' && /e$/.test(v.inf) ? v.inf.slice(0, -1) : v.inf;
+}
+/* the plain, by-the-book form — used to mark which cells are irregular */
+/* A verb taking être in the perfect agrees with its subject, and a textbook writes that agreement
+   out in brackets: je suis allé(e), nous sommes allé(e)s. Showing it is the whole point — it is the
+   thing English speakers forget. */
+const FR_AGREE = ['(e)', '(e)', '(e)', '(e)s', '(e)(s)', '(e)s'];
+function frPerfect(v, i) {
+  const etre = v.aux === 'être';
+  return FR_AUX[etre ? 'être' : 'avoir'][i] + ' ' + frPart(v) + (etre ? FR_AGREE[i] : '');
+}
+/* -ger and -cer verbs keep their soft sound with a spelling change: the e of "mangeons" is there
+   only before a or o, so nous mangions has no e, and commencer's cedilla goes the same way. */
+function frSoften(stem, ending) {
+  if (/ge$/.test(stem) && /^[^aou]/.test(ending)) return stem.slice(0, -1) + ending;
+  if (/ç$/.test(stem) && /^[^aou]/.test(ending)) return stem.slice(0, -1) + 'c' + ending;
+  return stem + ending;
+}
+function frRegular(v, tense, pk) {
+  const i = FR_PK.indexOf(pk); if (i < 0) return '';
+  if (tense === 'fut') return frFutStem(v) + FR_FUT_END[i];
+  if (tense === 'pc') return frPerfect(v, i);
+  const set = FR_END[v.type] || FR_END.er;
+  return frSoften(frStem(v), (set[tense] || set.pres)[i]);
+}
+function frConj(v, tense, pk) {
+  const i = FR_PK.indexOf(pk); if (i < 0) return '';
+  if (v.irr && v.irr[tense] && v.irr[tense][i]) return v.irr[tense][i];
+  /* the imperfect is built from the nous form of the present, irregular or not */
+  if (tense === 'imperf' && v.irr && v.irr.pres && v.irr.pres[3] && !/^(être)$/.test(v.inf)) {
+    const nous = v.irr.pres[3].replace(/ons$/, '');
+    return frSoften(nous, FR_END.er.imperf[i]);
+  }
+  return frRegular(v, tense, pk);
+}
+
+/* ---------------------------------------------------------------- register it */
+registerCourse({
+  id: 'fr', code: 'FR', name: 'French', native: 'Français',
+  note: 'levels 1–2',
+  levels: FR_LEVELS, dict: FR_DICT, grammar: FR_GRAMMAR, speaking: FR_SPEAKING,
+  reading: FR_READING, hunts: FR_HUNTS, dialogues: FR_DIALOGUES,
+  tenses: FR_TENSES, verbs: FR_VERBS, persons: FR_PERSONS,
+  conj: frConj, regular: frRegular,
+  subjects: FR_SUBJ,
+  voice: ['fr-fr', 'fr-ca', 'fr-', 'fr'],
+  recog: 'fr-FR',
+  gender: { title: 'Le ou la ?', a: ['le', 'masculine'], b: ['la', 'feminine'], plural: false },
+  letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  romanised: false,
+});
+
 /* =========================== APP =========================== */
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -6998,14 +7976,14 @@ const stripAccents = (s) => String(s).replace(/\u00f1/g, '\u0001').replace(/\u00
 const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f1\s]/g, '').replace(/\s+/g, ' ').trim();
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
-const BUILD = { v: 'v21', date: '11 September 2026' };
+let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
+const BUILD = { v: 'v22', date: '15 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
 
 /* ----- state ----- */
-let S = { level: 1, done: {}, found: {}, learned: {}, quiz: {}, spoken: {}, xp: 0, xpLog: {}, streak: { count: 0, last: null }, goal: 20, mistakes: [], cards: {}, listen: {} };
+let S = { level: 1, done: {}, found: {}, learned: {}, quiz: {}, spoken: {}, xp: 0, xpLog: {}, streak: { count: 0, last: null }, goal: 20, mistakes: [], cards: {}, listen: {}, lang: 'es', byLang: {} };
 function load() { try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); S = Object.assign(S, o); S.streak = Object.assign({ count: 0, last: null }, o.streak || {}); } } catch (e) {} }
 function save() { S.savedAt = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} updateStat(); Cloud.queue(); }
 load();
@@ -7111,7 +8089,15 @@ let VOICES = [], VOICE = null;
 function voiceScore(v) {
   const lang = (v.lang || '').replace('_', '-').toLowerCase(), name = v.name || '';
   let s = 0;
-  if (lang === 'es-mx') s += 100; else if (lang === 'es-us') s += 70; else if (lang === 'es-419') s += 60; else if (lang.startsWith('es-') && !['es-es'].includes(lang)) s += 45; else if (lang === 'es-es') s += 35; else if (lang.startsWith('es')) s += 20; else return -1;
+  /* every course lists the voices it wants, best first — es-MX for Spanish, fr-FR for French */
+  const want = (COURSE && COURSE.voice) || ['es-mx', 'es-us', 'es-419', 'es-', 'es'];
+  let hit = -1;
+  for (let i = 0; i < want.length; i++) {
+    const w = want[i];
+    if (w.endsWith('-') ? lang.startsWith(w) : (lang === w || (w.length === 2 && lang.startsWith(w)))) { hit = i; break; }
+  }
+  if (hit < 0) return -1;
+  s += 100 - hit * 20;
   if (FEMALE.test(name)) s += 40; else if (MALE.test(name)) s -= 40; else if (/google|microsoft/i.test(name)) s += 8;
   if (/premium/i.test(name)) s += 45; else if (/enhanced/i.test(name)) s += 35; else if (/natural|neural/i.test(name)) s += 40; else if (/online/i.test(name)) s += 25;
   if (/compact|eloquence|espeak/i.test(name)) s -= 60;
@@ -7171,7 +8157,8 @@ function fillVoicePick(sel) {
   sel.innerHTML = VOICES.length ? VOICES.map(v => `<option value="${esc(v.voiceURI)}" ${VOICE && v.voiceURI === VOICE.voiceURI ? 'selected' : ''}>${esc(voiceLabel(v))}</option>`).join('') : '<option>No Spanish voices found</option>';
 }
 function voicePickHTML() {
-  const note = VOICE ? (/es-mx|es-us|es-419/i.test(VOICE.lang) ? 'Latin American Spanish — the closest engine to Guatemalan Spanish (there is no dedicated Guatemalan voice yet)' : 'Closest Spanish voice on this device') : 'Voices load when the page is ready';
+  const cname = COURSE ? COURSE.name : 'Spanish';
+  const note = VOICE ? (/es-mx|es-us|es-419/i.test(VOICE.lang) ? 'Latin American Spanish — the closest engine to Guatemalan Spanish (there is no dedicated Guatemalan voice yet)' : 'Closest ' + cname + ' voice on this device') : 'Voices load when the page is ready';
   const hq = EN_VOICE && /premium|enhanced|natural|neural|online/i.test(EN_VOICE.name);
   const enNote = EN_VOICE ? ((/en-us/i.test(EN_VOICE.lang) ? 'American English' : 'Closest English voice on this device') + (hq ? ' — a high-quality (★) voice' : ' — a basic voice. For a more human one on a Mac, download “Ava (Premium)”, “Zoe (Premium)” or “Samantha (Enhanced)” in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices, then reload; on Windows, Edge offers “Microsoft Aria/Jenny Online (Natural)”')) : 'Loads when the page is ready';
   return `<div class="voicepick"><span class="label">Spanish voice · ${esc(leadName())}</span><select class="select" data-es aria-label="Choose the Spanish voice"></select><span class="small">${esc(note)}. On a Mac, "Paulina" (Spanish – Mexico) is the closest female voice to Guatemalan Spanish — add it in System Settings › Accessibility › Spoken Content › System Voice › Manage Voices if it is missing.</span>
@@ -7183,7 +8170,7 @@ function wireVoicePicks(root) {
 }
 function makeUtter(text, slow) {
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = VOICE ? VOICE.lang : 'es-MX';
+  u.lang = VOICE ? VOICE.lang : ((COURSE && COURSE.recog) || 'es-MX');
   if (VOICE) u.voice = VOICE;
   u.rate = slow ? 0.6 : 0.85; u.pitch = 1.05;
   return u;
@@ -7395,7 +8382,7 @@ function listen(onResult, onError) {
   if (!SR) { onError(micHelp('recognition')); return null; }
   Player.stop();
   const r = new SR();
-  r.lang = 'es-MX'; r.interimResults = false; r.maxAlternatives = IS_IOS ? 1 : 3; r.continuous = false;
+  r.lang = (COURSE && COURSE.recog) || 'es-MX'; r.interimResults = false; r.maxAlternatives = IS_IOS ? 1 : 3; r.continuous = false;
   if (IS_IOS) { setTimeout(() => { try { r.stop(); } catch (e) {} }, 7000); }
   r.onresult = (e) => { const alts = Array.from(e.results[0]).map(a => a.transcript); onResult(alts); };
   r.onerror = (e) => onError(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? (IS_SAFARI ? 'Safari could not use speech recognition. Turn on Dictation in System Settings › Keyboard and allow the microphone for this site, then try again.' : 'Microphone access was blocked. Allow the microphone and try again.') : e.error === 'no-speech' ? 'No speech heard. Try again and speak a little louder.' : e.error === 'network' ? 'Speech recognition needs an internet connection. Check the connection and try again.' : 'Could not listen: ' + e.error);
@@ -7765,9 +8752,14 @@ function renderSettings() {
       <a href="#collection">Collection <span class="arr">→</span></a>
       <a href="#owner">Owner view and test tools <span class="arr">→</span></a>
     </section>
+    ${!multilingual() ? '' : `<section class="hsec" id="langSec">
+      <div class="hhead"><div><span class="eyebrow">Language</span><h2>What you are learning</h2><p>Your streak, XP, ${COIN_NAME} and everyone in the casita follow you between languages. Lessons, words and the mistakes queue stay with the language they belong to, so nothing is mixed up and nothing is lost.</p></div></div>
+      <div class="hbody">${languageBoxHTML()}</div>
+    </section>`}
     <p class="small muted buildstamp">Version <b>${esc(BUILD.v)}</b> · built ${esc(BUILD.date)} · ${learnedCount()} words · ${S.xp || 0} XP total · <a href="#settings" data-whatsnew>What changed</a></p>
   </div>`;
   document.querySelectorAll('[data-cloudstate]').forEach(paintCloudPill);
+  wireLanguage(app);
   app.querySelectorAll('.levelrow button').forEach(b => b.addEventListener('click', () => { S.level = Number(b.dataset.level); save(); renderSettings(); }));
   app.querySelectorAll('[data-goal]').forEach(b => b.addEventListener('click', () => { S.goal = Number(b.dataset.goal); save(); renderSettings(); }));
   app.querySelectorAll('[data-theme]').forEach(b => b.addEventListener('click', () => { setTheme(b.dataset.theme); renderSettings(); }));
@@ -7846,6 +8838,28 @@ function askAccount() {
     el.innerHTML = `<div class="pic">${companion(CAST_LEAD, 92)}</div><div>${accountHTML({ title: '¡Hola! Save your progress', blurb: 'A name and a PIN. Same two on any device and your streak, coins and outfits follow you.', later: true, hint: '' })}</div>`;
   document.body.appendChild(el); stackToasts();
   wireAccount(el, () => { el.remove(); stackToasts(); render(); });
+}
+/* ---------- switching language ----------
+   Putting one course away and taking out another. XP, quetzalitos, the streak and the casita stay
+   where they are — they belong to the learner, not to the language. */
+function switchLanguage(id) {
+  if (!COURSES[id] || id === S.lang) return;
+  const from = COURSE;
+  setCourse(id);
+  if (typeof resetForms === 'function') resetForms();
+  if (typeof _GP !== 'undefined') _GP = null;
+  logAct('lang', COURSE.name);
+  Cloud.lastSent = '';
+  save();
+  location.hash = '#home';
+  render();
+  toast(from ? `${COURSE.name} it is. Your ${from.name} is exactly where you left it.` : COURSE.name);
+}
+function languageBoxHTML() {
+  return `<div class="langbox">${courseList().map(c => courseRow(c, c.id === S.lang)).join('')}</div>`;
+}
+function wireLanguage(root) {
+  (root || document).querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => switchLanguage(b.dataset.lang)));
 }
 function accountNudgeHTML() {
   if (S.acct || ON_CLAUDE || S.test || !Cloud.on() || (S.xp || 0) < 30) return '';
@@ -8661,7 +9675,7 @@ function renderTranslate() {
   let asked = 0, right = 0, cur = null;
   main.innerHTML = `
     <div class="row between"><span class="label">Build it yourself</span>
-      <div class="seg"><button type="button" data-dir="es" class="${dir === 'es' ? 'on' : ''}">EN → ES</button><button type="button" data-dir="en" class="${dir === 'en' ? 'on' : ''}">ES → EN</button></div>
+      <div class="seg"><button type="button" data-dir="es" class="${dir === 'es' ? 'on' : ''}">${transLabels().to}</button><button type="button" data-dir="en" class="${dir === 'en' ? 'on' : ''}">${transLabels().from}</button></div>
     </div>
     <p class="small muted">Typing it out is what makes it stick — recognising the right answer in a list is much easier than producing it. Accents are optional here; you will be told when one is missing.</p>
     <div id="tBody"></div>`;
@@ -9188,7 +10202,7 @@ function ownerCard(row) {
     <div class="ohead">
       <div class="who">${p.buddy ? `<span class="mascot" style="width:56px;height:56px">${companionSVG(p.buddy, { stage: p.stage || 1, worn: {} })}</span>` : ''}
         <div><b>${esc(row.name || p.name || 'Learner')}</b> ${p.acct || /^a_/.test(row.id) ? '<span class="pill ok">account</span>' : '<span class="pill">this device only</span>'}<br><span class="small muted">${esc(row.id)} · last seen ${fmtWhen(row.updated_at)} · ${esc(p.v || '')}${p.full ? ' · full copy saved' : ''}</span>${p.email ? `<br><span class="small omail">${esc(p.email)}</span>` : ''}</div></div>
-      <div class="obadges"><span class="pill">Level ${p.level ?? '—'}</span><span class="pill">♥ ${p.streak ?? 0}-day streak</span><span class="pill">${p.xp ?? 0} XP</span></div>
+      <div class="obadges"><span class="pill ok">${esc(courseName(p.lang || 'es'))}</span><span class="pill">Level ${p.level ?? '—'}</span><span class="pill">♥ ${p.streak ?? 0}-day streak</span><span class="pill">${p.xp ?? 0} XP</span></div>
     </div>
     <div class="ogrid">
       <div><span class="label">Today</span><div class="big-stat">${p.xpToday ?? 0}<small>/${p.goal ?? 20} XP</small></div><span class="small muted">${(p.xpToday ?? 0) >= (p.goal ?? 20) ? 'goal reached' : 'goal not reached yet'}</span></div>
@@ -9393,6 +10407,7 @@ function applyAnim() { document.documentElement.classList.toggle('noanim', S.ani
 
 /* ----- boot ----- */
 applyAnim();
+initCourses();      /* which language is out on the table — must run before the first render */
 initCloud();
 initPWA();
 startClock();

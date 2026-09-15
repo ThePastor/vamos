@@ -1,7 +1,7 @@
 {
-  "name": "Vamos — Learn Spanish",
+  "name": "Vamos — Learn a language",
   "short_name": "Vamos",
-  "description": "Spanish from the very first word to real fluency, one small step a day. Companions that grow, and practice that comes back until it sticks.",
+  "description": "From the very first word to real fluency, one small step a day. Companions that grow, and practice that comes back until it sticks.",
   "id": "/vamos/",
   "start_url": "./?source=pwa#home",
   "scope": "./",
