@@ -5563,7 +5563,7 @@ function buildCheckpoint(lv) {
   pickN(vs, 2).forEach(v => {
     const t = ts[Math.floor(Math.random() * ts.length)];
     const k = PK[Math.floor(Math.random() * PK.length)];
-    qs.push({ kind: 'conj', inf: v.inf, en: v.en, tense: t.k, person: k, answer: conj(v, t.k, k) });
+    qs.push({ kind: 'conj', inf: v.inf, en: v.en, tense: t.k, person: k, answer: courseConj(v, t.k, k) });
   });
   return shuffle(qs.filter(q => q.kind !== 'conj' || q.answer)).slice(0, 12);
 }
@@ -5579,7 +5579,8 @@ function buildPlacement() {
   });
   [2, 4].forEach(lv => {
     const v = pickN(verbsForLevel(lv), 1)[0], t = pickN(tensesForLevel(lv), 1)[0], k = PK[Math.floor(Math.random() * PK.length)];
-    if (v && t) qs.push({ level: lv, kind: 'conj', inf: v.inf, en: v.en, tense: t.k, person: k, answer: conj(v, t.k, k) });
+    const a = v && t ? courseConj(v, t.k, k) : '';
+    if (a) qs.push({ level: lv, kind: 'conj', inf: v.inf, en: v.en, tense: t.k, person: k, answer: a });
   });
   return qs.sort((a, b) => a.level - b.level);
 }
@@ -5597,6 +5598,7 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v25', 'Japanese is finished — all six levels, from hiragana to reading Kawabata in the original, by way of keigo, the passive and Kansai-ben. The verb trainer gains five shapes above tense (ている, たい, potential, passive, causative), and a verb that genuinely has no form in a column now says so instead of inventing one.'],
   ['v24', 'The language you are learning now sits in the header, on every screen - phone, tablet and computer. Tap it and the whole app changes over; each language keeps its own lessons and its own level, while your XP, your streak and your casita come with you.'],
   ['v23', 'French is finished — all six levels, from the alphabet to reading Camus in the original. And <b>Japanese</b> arrives beside it: kana from the first lesson, the reading always printed next to the writing, and a verb trainer cut for a language that does not conjugate for person.'],
   ['v22', 'More than one language. A course is now something the app switches on, and <b>French</b> is the first one beside Spanish — its own words, lessons, dialogues, passages, hunts and verb trainer. Your streak, XP, quetzalitos and everyone in the casita follow you between languages; lessons and words stay with the language they belong to.'],
@@ -5604,10 +5606,6 @@ const WHATS_NEW = [
   ['v20', 'Updates that ask first. When a newer version has finished downloading, a card asks before refreshing instead of changing the app under you — and afterwards a short note says what changed, with the full list a tap away from the version in the footer.'],
   ['v19', 'The daily crossword explains itself, starts each word off with its first letter and has a <b>Pista</b> button for when one will not come. Culture notes and examples travel across Latin America.'],
   ['v18.1', 'More time in every timed game, and a <b>Con calma / Normal / Rápido</b> setting so the pace is yours — Rápido is the old speed.'],
-  ['v18', 'An <b>All rights reserved</b> page, opened from the copyright line at the bottom of every screen.'],
-  ['v17.3', 'A light and dark switch in the header — on phones and tablets too, where the old text toggle was hidden.'],
-  ['v17.2', 'The Owner page can be claimed once. The first passcode set is the only one, and nobody else can set another.'],
-  ['v17.1', 'Added to a home screen, the app keeps its own name and the line at the foot of the page.'],
 ];
 const verNum = (v) => String(v).replace(/^v/i, '').split('.').map((n) => Number(n) || 0);
 /* true when a is a later version than b: v19 > v18.1 > v18 */
@@ -9434,7 +9432,7 @@ const JA_VERBS = [
   { inf:'いる', rom:'iru', en:'to exist (people, animals)', type:'ru', lvl:1, tags:['core'], stem:['い','i'], neg:['いない','inai'], past:['いた','ita'] },
   { inf:'まつ', rom:'matsu', en:'to wait', type:'u', lvl:2, tags:[], stem:['まち','machi'], neg:['またない','matanai'], past:['まった','matta'] },
   { inf:'あう', rom:'au', en:'to meet', type:'u', lvl:2, tags:[], stem:['あい','ai'], neg:['あわない','awanai'], past:['あった','atta'] },
-  { inf:'べんきょうする', rom:'benkyō suru', en:'to study', type:'irr', lvl:2, tags:['core'], stem:['べんきょうし','benkyōshi'], neg:['べんきょうしない','benkyō shinai'], past:['べんきょうした','benkyō shita'] },
+  { inf:'べんきょうする', rom:'benkyō suru', en:'to study', type:'irr', lvl:2, tags:['core'], stem:['べんきょうし','benkyō shi'], neg:['べんきょうしない','benkyō shinai'], past:['べんきょうした','benkyō shita'] },
 ];
 
 /* kana (rōmaji) — the shape a textbook prints */
@@ -9475,6 +9473,1070 @@ registerCourse({
   games: { genero: false, crucigrama: false },
 });
 
+/* =========================== JAPANESE, LEVELS 3 TO 6 ===========================
+   part24 lays the course down and registers it; this fills in the upper levels by mutating the
+   same objects, exactly as part23 does for French. The registered course holds references, so
+   there is nothing to re-register.
+
+   Level 3 is where Japanese stops being a set of sentences and becomes a language: the て form
+   arrives, and almost everything above it is built on top of that one shape.
+
+   Three things had to be worked out for the verb trainer rather than copied from a Romance course:
+
+   · The forms worth drilling are not tenses. Japanese marks tense in two places only — past and
+     non-past — so the columns above those are the shapes a learner actually reaches for: ている,
+     たい, the potential, the passive and the causative. Each of those is itself a ru-verb, so the
+     same four rows (polite, polite negative, plain, plain negative) still fill the grid.
+
+   · The て form is derived, not stored. Plain past ends in た or だ, and the て form is that same
+     shape with the vowel changed — たべた → たべて, のんだ → のんで, いった → いって. One rule
+     covers every verb in the course, irregulars included, so no verb had to gain a field.
+
+   · Where a rule produces something no Japanese speaker says, the verb carries an override and the
+     trainer marks the cell irregular. ある has no passive and する's potential is できる, not
+     される — those are facts about the words, not holes in the pattern. */
+
+/* ---------------------------------------------------------------- the forms above tense */
+JA_TENSES.push(
+  { k: 'teiru', t: '〜ている te-iru', en: 'Doing / been done', level: 3, ex: 'たべています — I am eating',
+    blurb: 'Right now, or the state something has been left in. 知っている is "I know", not "I am knowing".' },
+  { k: 'tai', t: '〜たい tai', en: 'Want to', level: 3, ex: 'たべたいです — I want to eat',
+    blurb: 'Your own wish. It behaves like an い-adjective, so the negative is たくない, not たいじゃない.' },
+  { k: 'pot', t: '可能形 kanō-kei', en: 'Can, be able to', level: 4, ex: 'たべられます — I can eat',
+    blurb: 'Able to. What is possible takes が, not を — 日本語が話せます.' },
+  { k: 'pass', t: '受身 ukemi', en: 'Passive', level: 5, ex: 'たべられます — it is eaten',
+    blurb: 'Done to you — often unwelcome. 雨に降られた, "I was rained on", is a complete sentence.' },
+  { k: 'caus', t: '使役 shieki', en: 'Causative', level: 5, ex: 'たべさせます — I make/let them eat',
+    blurb: 'Make or let. Which one it is comes from the situation and from に versus を.' },
+);
+
+/* ---------------------------------------------------------------- deriving the shapes
+   Every form above is built out of what part24 already stores: the dictionary form, the ます-stem,
+   the plain negative and the plain past. */
+
+const JA_U2E = { 'う':'え', 'く':'け', 'ぐ':'げ', 'す':'せ', 'つ':'て', 'ぬ':'ね', 'ぶ':'べ', 'む':'め', 'る':'れ' };
+
+/* plain past → て form. た becomes て and だ becomes で, in the kana and in the reading alike. */
+function jaTe(v) {
+  return [v.past[0].replace(/[た](?=$)/, 'て').replace(/[だ](?=$)/, 'で'),
+          v.past[1].replace(/ta$/, 'te').replace(/da$/, 'de')];
+}
+/* plain negative minus ない — the stem the passive and the causative are built on */
+function jaAStem(v) {
+  return [v.neg[0].replace(/ない$/, ''), v.neg[1].replace(/nai$/, '')];
+}
+/* the dictionary form with its last kana moved along the え row */
+function jaEStem(v) {
+  const last = v.inf.slice(-1);
+  /* まつ → まて, so the reading has to lose the whole tsu, not just its vowel */
+  const rom = /tsu$/.test(v.rom) ? v.rom.replace(/tsu$/, 'te') : v.rom.replace(/u$/, 'e');
+  return [v.inf.slice(0, -1) + (JA_U2E[last] || last), rom];
+}
+
+/* Potential, passive and causative are all ru-verbs once built, so one helper turns any of them
+   into the four rows of the grid. */
+function jaRuFour(kana, rom, pk, past) {
+  const s = [kana.replace(/る$/, ''), rom.replace(/ru$/, '')];
+  if (pk === 'ma') return jaBoth(s[0] + (past ? 'ました' : 'ます'), s[1] + (past ? 'mashita' : 'masu'));
+  if (pk === 'mn') return jaBoth(s[0] + (past ? 'ませんでした' : 'ません'), s[1] + (past ? 'masen deshita' : 'masen'));
+  if (pk === 'pa') return past ? jaBoth(s[0] + 'た', s[1] + 'ta') : jaBoth(kana, rom);
+  return past ? jaBoth(s[0] + 'なかった', s[1] + 'nakatta') : jaBoth(s[0] + 'ない', s[1] + 'nai');
+}
+
+/* the dictionary form of each derived shape, before the four rows are cut from it */
+function jaPotential(v) {
+  if (v.pot) return v.pot;
+  if (v.type === 'ru') return [v.stem[0] + 'られる', v.stem[1] + 'rareru'];
+  const e = jaEStem(v);
+  return [e[0] + 'る', e[1] + 'ru'];
+}
+function jaPassive(v) {
+  if (v.pass) return v.pass;
+  if (v.type === 'ru') return [v.stem[0] + 'られる', v.stem[1] + 'rareru'];
+  const a = jaAStem(v);
+  return [a[0] + 'れる', a[1] + 'reru'];
+}
+function jaCausative(v) {
+  if (v.caus) return v.caus;
+  if (v.type === 'ru') return [v.stem[0] + 'させる', v.stem[1] + 'saseru'];
+  const a = jaAStem(v);
+  return [a[0] + 'せる', a[1] + 'seru'];
+}
+
+/* the real conjugator, wrapping part24's two-tense one */
+function jaConj2(v, tense, pk) {
+  if (tense === 'pres' || tense === 'past') return jaConj(v, tense, pk);
+  if ((v.no || []).indexOf(tense) >= 0) return '';
+  if (tense === 'teiru') {
+    const te = jaTe(v);
+    if (pk === 'ma') return jaBoth(te[0] + 'います', te[1] + ' imasu');
+    if (pk === 'mn') return jaBoth(te[0] + 'いません', te[1] + ' imasen');
+    if (pk === 'pa') return jaBoth(te[0] + 'いる', te[1] + ' iru');
+    return jaBoth(te[0] + 'いない', te[1] + ' inai');
+  }
+  if (tense === 'tai') {
+    /* たい is an い-adjective, so the polite forms add です rather than changing the ending */
+    const s = v.stem;
+    if (pk === 'ma') return jaBoth(s[0] + 'たいです', s[1] + 'tai desu');
+    if (pk === 'mn') return jaBoth(s[0] + 'たくないです', s[1] + 'takunai desu');
+    if (pk === 'pa') return jaBoth(s[0] + 'たい', s[1] + 'tai');
+    return jaBoth(s[0] + 'たくない', s[1] + 'takunai');
+  }
+  /* a verb that simply has no form here — ある is not done to anything, and nothing is made
+     to exist. The trainer already skips an empty answer and asks something else instead. */
+  if ((v.no || []).indexOf(tense) >= 0) return '';
+  const f = tense === 'pot' ? jaPotential(v) : tense === 'pass' ? jaPassive(v) : jaCausative(v);
+  /* わかる is its own potential, and it is a う-verb, so it takes う-verb endings */
+  if (f[0] === v.inf) return jaConj(v, 'pres', pk);
+  return jaRuFour(f[0], f[1], pk, false);
+}
+
+/* What the cell would hold if the verb followed the pattern — the trainer compares the two and
+   marks the difference, so できる shows up as the irregular it is. */
+function jaRegular2(v, tense, pk) {
+  if (!v.pot && !v.pass && !v.caus) return jaConj2(v, tense, pk);
+  if ((v.no || []).indexOf(tense) >= 0) return '';
+  const bare = { inf: v.inf, rom: v.rom, type: v.type, stem: v.stem, neg: v.neg, past: v.past, no: v.no };
+  return jaConj2(bare, tense, pk);
+}
+
+/* ---------------------------------------------------------------- the words that break the rules */
+(function () {
+  const by = {};
+  JA_VERBS.forEach(v => { by[v.inf] = v; });
+  /* する: できる, not されられる. Its passive and causative are regular for an irregular verb. */
+  if (by['する']) Object.assign(by['する'], { pot: ['できる', 'dekiru'], pass: ['される', 'sareru'], caus: ['させる', 'saseru'] });
+  if (by['くる']) Object.assign(by['くる'], { pot: ['こられる', 'korareru'], pass: ['こられる', 'korareru'], caus: ['こさせる', 'kosaseru'] });
+  if (by['べんきょうする']) Object.assign(by['べんきょうする'], {
+    pot: ['べんきょうできる', 'benkyō dekiru'], pass: ['べんきょうされる', 'benkyō sareru'], caus: ['べんきょうさせる', 'benkyō saseru'] });
+  /* ある is not done to anything and nothing is made to exist; only the potential has a real form. */
+  /* ある exists; it is not done to anything, nothing makes it exist, and あっている is not a
+     thing anyone says. Only the potential — ありえる, "it is possible" — is real. */
+  if (by['ある']) Object.assign(by['ある'], { pot: ['ありえる', 'arieru'], no: ['teiru', 'pass', 'caus'] });
+  /* いる is already a state, so it has no ている of its own */
+  if (by['いる']) Object.assign(by['いる'], { no: ['teiru'] });
+  /* わかる already means "can be understood", so it has no separate potential. */
+  /* わかる already means "can be grasped", so it is its own potential and has no passive */
+  if (by['わかる']) Object.assign(by['わかる'], { pot: ['わかる', 'wakaru'], no: ['pass'] });
+})();
+
+/* ---------------------------------------------------------------- more verbs */
+JA_VERBS.push(
+  { inf:'つかう', rom:'tsukau', en:'to use', type:'u', lvl:3, tags:[], stem:['つかい','tsukai'], neg:['つかわない','tsukawanai'], past:['つかった','tsukatta'] },
+  { inf:'おしえる', rom:'oshieru', en:'to teach, to tell', type:'ru', lvl:3, tags:['core'], stem:['おしえ','oshie'], neg:['おしえない','oshienai'], past:['おしえた','oshieta'] },
+  { inf:'おぼえる', rom:'oboeru', en:'to remember, to learn by heart', type:'ru', lvl:3, tags:[], stem:['おぼえ','oboe'], neg:['おぼえない','oboenai'], past:['おぼえた','oboeta'] },
+  { inf:'わすれる', rom:'wasureru', en:'to forget', type:'ru', lvl:3, tags:[], stem:['わすれ','wasure'], neg:['わすれない','wasurenai'], past:['わすれた','wasureta'] },
+  { inf:'あそぶ', rom:'asobu', en:'to play, to hang out', type:'u', lvl:3, tags:[], stem:['あそび','asobi'], neg:['あそばない','asobanai'], past:['あそんだ','asonda'] },
+  { inf:'いそぐ', rom:'isogu', en:'to hurry', type:'u', lvl:3, tags:[], stem:['いそぎ','isogi'], neg:['いそがない','isoganai'], past:['いそいだ','isoida'] },
+  { inf:'しぬ', rom:'shinu', en:'to die', type:'u', lvl:3, tags:['irr'], stem:['しに','shini'], neg:['しなない','shinanai'], past:['しんだ','shinda'] },
+  { inf:'もつ', rom:'motsu', en:'to hold, to carry', type:'u', lvl:3, tags:[], stem:['もち','mochi'], neg:['もたない','motanai'], past:['もった','motta'] },
+  { inf:'つくる', rom:'tsukuru', en:'to make', type:'u', lvl:3, tags:['core'], stem:['つくり','tsukuri'], neg:['つくらない','tsukuranai'], past:['つくった','tsukutta'] },
+  { inf:'しる', rom:'shiru', en:'to get to know', type:'u', lvl:3, tags:['core'], stem:['しり','shiri'], neg:['しらない','shiranai'], past:['しった','shitta'] },
+  { inf:'あける', rom:'akeru', en:'to open (something)', type:'ru', lvl:3, tags:[], stem:['あけ','ake'], neg:['あけない','akenai'], past:['あけた','aketa'] },
+  { inf:'しめる', rom:'shimeru', en:'to close (something)', type:'ru', lvl:3, tags:[], stem:['しめ','shime'], neg:['しめない','shimenai'], past:['しめた','shimeta'] },
+  { inf:'はたらく', rom:'hataraku', en:'to work', type:'u', lvl:4, tags:['core'], stem:['はたらき','hataraki'], neg:['はたらかない','hatarakanai'], past:['はたらいた','hataraita'] },
+  { inf:'えらぶ', rom:'erabu', en:'to choose', type:'u', lvl:4, tags:[], stem:['えらび','erabi'], neg:['えらばない','erabanai'], past:['えらんだ','eranda'] },
+  { inf:'きめる', rom:'kimeru', en:'to decide', type:'ru', lvl:4, tags:['core'], stem:['きめ','kime'], neg:['きめない','kimenai'], past:['きめた','kimeta'] },
+  { inf:'つたえる', rom:'tsutaeru', en:'to convey, to pass on', type:'ru', lvl:4, tags:[], stem:['つたえ','tsutae'], neg:['つたえない','tsutaenai'], past:['つたえた','tsutaeta'] },
+  { inf:'かんがえる', rom:'kangaeru', en:'to think over, to consider', type:'ru', lvl:4, tags:['core'], stem:['かんがえ','kangae'], neg:['かんがえない','kangaenai'], past:['かんがえた','kangaeta'] },
+  { inf:'たのむ', rom:'tanomu', en:'to ask a favour, to order', type:'u', lvl:4, tags:[], stem:['たのみ','tanomi'], neg:['たのまない','tanomanai'], past:['たのんだ','tanonda'] },
+  { inf:'なおす', rom:'naosu', en:'to fix, to correct', type:'u', lvl:4, tags:[], stem:['なおし','naoshi'], neg:['なおさない','naosanai'], past:['なおした','naoshita'] },
+  { inf:'おこる', rom:'okoru', en:'to get angry, to tell off', type:'u', lvl:4, tags:[], stem:['おこり','okori'], neg:['おこらない','okoranai'], past:['おこった','okotta'] },
+  { inf:'ほめる', rom:'homeru', en:'to praise', type:'ru', lvl:5, tags:[], stem:['ほめ','home'], neg:['ほめない','homenai'], past:['ほめた','hometa'] },
+  { inf:'しらべる', rom:'shiraberu', en:'to look into, to check', type:'ru', lvl:5, tags:['core'], stem:['しらべ','shirabe'], neg:['しらべない','shirabenai'], past:['しらべた','shirabeta'] },
+  { inf:'くらべる', rom:'kuraberu', en:'to compare', type:'ru', lvl:5, tags:[], stem:['くらべ','kurabe'], neg:['くらべない','kurabenai'], past:['くらべた','kurabeta'] },
+  { inf:'みとめる', rom:'mitomeru', en:'to acknowledge, to admit', type:'ru', lvl:5, tags:[], stem:['みとめ','mitome'], neg:['みとめない','mitomenai'], past:['みとめた','mitometa'] },
+  { inf:'すすめる', rom:'susumeru', en:'to recommend, to advance', type:'ru', lvl:5, tags:[], stem:['すすめ','susume'], neg:['すすめない','susumenai'], past:['すすめた','susumeta'] },
+  { inf:'あつかう', rom:'atsukau', en:'to handle, to deal with', type:'u', lvl:6, tags:[], stem:['あつかい','atsukai'], neg:['あつかわない','atsukawanai'], past:['あつかった','atsukatta'] },
+  { inf:'あじわう', rom:'ajiwau', en:'to savour, to experience', type:'u', lvl:6, tags:[], stem:['あじわい','ajiwai'], neg:['あじわわない','ajiwawanai'], past:['あじわった','ajiwatta'] },
+);
+
+/* ================================ LEVEL 3 ================================
+   The て form, and the six things it unlocks. */
+JA_GRAMMAR[3] = [
+  { id:'jg3-1', title:'The て form', sub:'One shape, and half the grammar above it.',
+    lede:'Almost everything from here on hangs off the て form. Learn to make it from any verb and the rest of this level is vocabulary; guess at it and nothing above will hold. The good news is that you already know it — the て form is the plain past with its last vowel changed.',
+    rules:[
+      { r:'Plain past ends in た or だ. Change that vowel and you have the て form.', ok:true,
+        ex:[['たべた → たべて','tabeta → tabete'],['のんだ → のんで','nonda → nonde'],['いった → いって','itta → itte'],['した → して','shita → shite']] },
+      { r:'る-verbs: drop る, add て.', ex:[['たべる → たべて','taberu → tabete'],['みる → みて','miru → mite'],['おきる → おきて','okiru → okite']] },
+      { r:'う-verbs split by their last kana.',
+        ex:[['く → いて','かく → かいて kaite'],['ぐ → いで','いそぐ → いそいで isoide'],['う・つ・る → って','かう → かって katte'],['む・ぶ・ぬ → んで','のむ → のんで nonde'],['す → して','はなす → はなして hanashite']] },
+      { r:'Three to memorise outright.', ex:[['する → して','shite'],['くる → きて','kite'],['いく → いって','itte — not いいて']] },
+    ],
+    table:{ h:['ending','て form','example'], rows:[['る (ru-verb)','〜て','たべる → たべて'],['く','〜いて','かく → かいて'],['ぐ','〜いで','いそぐ → いそいで'],['う・つ・る','〜って','まつ → まって'],['む・ぶ・ぬ','〜んで','あそぶ → あそんで'],['す','〜して','はなす → はなして']] },
+    callout:'いく is the one that catches everyone. By the rule it would be いいて; it is いって. Learn it as an exception and move on.',
+    culture:'Japanese children learn this as a song — うつる promises って, むぶぬ promises んで. Say the groups aloud a few times and your mouth will remember them before your head does.',
+    quiz:[
+      { q:'The て form of のむ is…', o:['のみて','のんで','のって','のいで'], a:1, why:'む → んで.' },
+      { q:'The て form of いく is…', o:['いいて','いきて','いって','いんで'], a:2, why:'The one irregular in the group.' },
+      { q:'You can always build the て form from…', o:['the ます form','the plain past','the dictionary form alone','the negative'], a:1, why:'た → て, だ → で.' },
+    ] },
+
+  { id:'jg3-2', title:'Joining sentences with て', sub:'And then, and then, and then.',
+    lede:'English joins actions with "and". Japanese puts every verb but the last into the て form and lets the final verb carry the tense for all of them. Once you can do this your sentences stop being a list of full stops.',
+    rules:[
+      { r:'Chain actions in order. Only the last verb is marked for tense.',
+        ex:[['おきて、あさごはんをたべて、学校にいきます。','Okite, asagohan o tabete, gakkō ni ikimasu — I get up, eat breakfast and go to school.'],['きのう、うちにかえって、テレビをみました。','Kinō, uchi ni kaette, terebi o mimashita — Yesterday I went home and watched television.']] },
+      { r:'〜てから — after doing. Stronger than plain て: it insists on the order.',
+        ex:[['ごはんをたべてから、でかけます。','Gohan o tabete kara, dekakemasu — I go out after eating.'],['しゅくだいをしてから、あそびます。','Shukudai o shite kara, asobimasu — I play after doing my homework.']] },
+      { r:'い-adjectives join with 〜くて, な-adjectives and nouns with 〜で.',
+        ex:[['ちいさくて、かわいいです。','Chiisakute, kawaii desu — It is small and cute.'],['しずかで、きれいなまちです。','Shizuka de, kirei na machi desu — It is a quiet, pretty town.'],['がくせいで、二十さいです。','Gakusei de, nijussai desu — He is a student and twenty.']] },
+      { r:'て also gives a reason, softly — cause first, result after.',
+        ex:[['あたまがいたくて、やすみました。','Atama ga itakute, yasumimashita — I had a headache, so I rested.'],['おくれて、すみません。','Okurete, sumimasen — Sorry for being late.']] },
+    ],
+    callout:'The て chain cannot cross a change of subject halfway. If the person changes, start a new sentence or use から.',
+    quiz:[
+      { q:'Which verb in a て chain shows the tense?', o:['The first','The last','All of them','None'], a:1, why:'The final verb carries it for the whole chain.' },
+      { q:'"Small and cute" is…', o:['ちいさいとかわいい','ちいさくてかわいい','ちいさいでかわいい','ちいさかわいい'], a:1, why:'い-adjectives join with くて.' },
+      { q:'〜てから means…', o:['before doing','after doing','while doing','instead of doing'], a:1, why:'It fixes the order.' },
+    ] },
+
+  { id:'jg3-3', title:'〜ている', sub:'Happening now — and states that simply are.',
+    lede:'て plus いる does two jobs that English keeps apart. It makes a progressive, "I am eating"; and with certain verbs it makes a state, "I am married", "I know". The second group is the one that catches learners, because the English is not a continuous tense at all.',
+    rules:[
+      { r:'With most verbs: happening right now.',
+        ex:[['いま、ごはんをたべています。','Ima, gohan o tabete imasu — I am eating now.'],['なにをしていますか。','Nani o shite imasu ka? — What are you doing?'],['あめがふっています。','Ame ga futte imasu — It is raining.']] },
+      { r:'With change-of-state verbs: the state that resulted.',
+        ex:[['けっこんしています。','Kekkon shite imasu — I am married. (not "getting married")'],['しっています。','Shitte imasu — I know.'],['もっています。','Motte imasu — I have it.']] },
+      { r:'しる is the classic trap: the negative goes back to the plain form.', ok:true,
+        ex:[['しっています。','Shitte imasu — I know.'],['しりません。','Shirimasen — I do not know. (never しっていません)']] },
+      { r:'Habits, over a long stretch of time.',
+        ex:[['大学で日本語をべんきょうしています。','Daigaku de nihongo o benkyō shite imasu — I study Japanese at university.'],['ぎんこうではたらいています。','Ginkō de hataraite imasu — I work at a bank.']] },
+      { r:'In speech the い is usually swallowed.',
+        ex:[['なにしてる？','Nani shiteru? — Whatcha doing?'],['たべてる。','Tabeteru — Eating.']] },
+    ],
+    callout:'"Do you know Tanaka?" is 田中さんを知っていますか — and the answer, if no, is 知りません. Getting that pair right marks you out immediately.',
+    quiz:[
+      { q:'けっこんしています means…', o:['I am getting married','I am married','I will marry','I was married'], a:1, why:'A resulting state, not a process.' },
+      { q:'"I do not know" is…', o:['しっていません','しりません','しらないです','both b and c'], a:3, why:'しりません is standard; しらないです is the casual equivalent.' },
+      { q:'なにしてる is short for…', o:['なにします','なにしている','なにした','なにしたい'], a:1, why:'The い drops in speech.' },
+    ] },
+
+  { id:'jg3-4', title:'May I? You may not.', sub:'〜てもいいですか and 〜てはいけません.',
+    lede:'Permission in Japanese is built straight onto the て form, and so is its refusal. Both are everywhere — on signs, in classrooms, at a friend\'s door — and neither has anything to learn beyond the て form you already have.',
+    rules:[
+      { r:'〜てもいいですか — may I?',
+        ex:[['ここにすわってもいいですか。','Koko ni suwatte mo ii desu ka? — May I sit here?'],['しゃしんをとってもいいですか。','Shashin o totte mo ii desu ka? — May I take a photo?'],['はい、どうぞ。','Hai, dōzo — Yes, please do.']] },
+      { r:'〜てはいけません — you must not. Firm, and what signs use.',
+        ex:[['ここでたばこをすってはいけません。','Koko de tabako o sutte wa ikemasen — You must not smoke here.'],['入ってはいけません。','Haitte wa ikemasen — No entry.']] },
+      { r:'In speech ては shortens to ちゃ, では to じゃ.',
+        ex:[['たべちゃだめ。','Tabecha dame — Don\'t eat that.'],['のんじゃだめだよ。','Nonja dame da yo — You mustn\'t drink that.']] },
+      { r:'A softer no: ちょっと… and a trailing pause. Saying いいえ outright is rare.',
+        ex:[['すみません、ちょっと…','Sumimasen, chotto… — Sorry, that\'s a bit…'],['ちょっとむずかしいですね。','Chotto muzukashii desu ne — That\'s a little difficult.']] },
+    ],
+    culture:'ちょっと followed by nothing is a complete refusal, and everyone hears it as one. Pressing for the rest of the sentence is the mistake; there is no rest of the sentence.',
+    quiz:[
+      { q:'"May I sit here?" is…', o:['すわってもいいですか','すわってはいけません','すわりたいです','すわっています'], a:0, why:'〜てもいいですか asks permission.' },
+      { q:'たべちゃだめ is short for…', o:['たべてもいい','たべてはだめ','たべたい','たべている'], a:1, why:'ては → ちゃ.' },
+      { q:'"ちょっと…" with nothing after it means…', o:['a little','wait a moment','no','yes'], a:2, why:'It is a complete, polite refusal.' },
+    ] },
+
+  { id:'jg3-5', title:'Please do, please don\'t', sub:'〜てください and 〜ないでください.',
+    lede:'Requests are the other half of the て form\'s work. One shape asks for something to be done, its mirror asks for it to be left alone, and a third softens either one until it barely sounds like a request at all.',
+    rules:[
+      { r:'〜てください — please do.',
+        ex:[['もういちどいってください。','Mō ichido itte kudasai — Please say that once more.'],['ちょっとまってください。','Chotto matte kudasai — Please wait a moment.']] },
+      { r:'〜ないでください — please do not. Built on the plain negative, not the て form.',
+        ex:[['わすれないでください。','Wasurenai de kudasai — Please do not forget.'],['しんぱいしないでください。','Shinpai shinai de kudasai — Please do not worry.']] },
+      { r:'Softer still: 〜ていただけませんか. Longer means politer, reliably.',
+        ex:[['おしえていただけませんか。','Oshiete itadakemasen ka? — Might I trouble you to tell me?'],['てつだってくれませんか。','Tetsudatte kuremasen ka? — Could you help me?']] },
+      { r:'Between friends, just the て form.',
+        ex:[['まって。','Matte — Wait.'],['みて、あれ。','Mite, are — Look at that.']] },
+    ],
+    callout:'〜てください is polite but still an instruction. To a teacher or a stranger, reach for 〜ていただけませんか instead.',
+    quiz:[
+      { q:'"Please do not forget" is…', o:['わすれてください','わすれないでください','わすれません','わすれたいです'], a:1, why:'Plain negative + でください.' },
+      { q:'Which is politest?', o:['まって','まってください','まっていただけませんか','まて'], a:2, why:'Length is politeness.' },
+      { q:'〜てください is built on…', o:['the plain negative','the て form','the ます stem','the past'], a:1, why:'て + ください.' },
+    ] },
+
+  { id:'jg3-6', title:'The plain style', sub:'When to drop ます, and what happens when you do.',
+    lede:'Everything so far has been in the polite ます style. Japanese also has a plain style — the one in novels, newspapers, diaries, thoughts, and conversation with anyone close to you. It is not rude; it is a different setting. You need both, and you need to know which room you are in.',
+    rules:[
+      { r:'The four plain forms you already store.', ok:true,
+        ex:[['たべる','taberu — eat'],['たべない','tabenai — do not eat'],['たべた','tabeta — ate'],['たべなかった','tabenakatta — did not eat']] },
+      { r:'です becomes だ — and often nothing at all.',
+        ex:[['学生だ。','Gakusei da — I am a student.'],['学生？','Gakusei? — Student?'],['きれいだね。','Kirei da ne — Pretty, isn\'t it.']] },
+      { r:'い-adjectives take no だ.',
+        ex:[['あついね。','Atsui ne — Hot, isn\'t it. (never あついだ)'],['たかかった。','Takakatta — It was expensive.']] },
+      { r:'Casual questions drop か and rise at the end.',
+        ex:[['もうたべた？','Mō tabeta? — Eaten already?'],['いく？','Iku? — Coming?']] },
+      { r:'Plain forms are also required inside a sentence, whatever the style outside it.',
+        ex:[['たべると思います。','Taberu to omoimasu — I think I will eat.'],['たべる時に','taberu toki ni — when eating']] },
+    ],
+    table:{ h:['','polite','plain'], rows:[['eat','たべます','たべる'],['do not eat','たべません','たべない'],['ate','たべました','たべた'],['did not eat','たべませんでした','たべなかった'],['is a student','学生です','学生だ']] },
+    callout:'The last rule is the load-bearing one. Even in the politest speech, a clause inside another clause goes plain — 田中さんが来ると思います, never 来ますと思います.',
+    culture:'Which style you use is a statement about the relationship, so switching is a social act. A Japanese friend saying "敬語はいいよ" — drop the polite forms — is an invitation, and a warm one.',
+    quiz:[
+      { q:'The plain form of たべませんでした is…', o:['たべない','たべなかった','たべた','たべなくて'], a:1, why:'Past negative plain.' },
+      { q:'Which is wrong?', o:['あついだ','あつい','あつかった','あつくない'], a:0, why:'い-adjectives never take だ.' },
+      { q:'Inside 〜と思います the verb must be…', o:['polite','plain','either','past'], a:1, why:'Subordinate clauses are always plain.' },
+    ] },
+
+  { id:'jg3-7', title:'Adjectives, properly', sub:'い and な, past, negative, and turning them into adverbs.',
+    lede:'Level 1 met adjectives standing still. They also have to move — into the past, into the negative, in front of a noun, and into adverbs. The two families behave differently and mixing them up is the commonest error at this level.',
+    rules:[
+      { r:'い-adjectives change their own ending.',
+        ex:[['たかい','takai — expensive'],['たかくない','takakunai — not expensive'],['たかかった','takakatta — was expensive'],['たかくなかった','takakunakatta — was not expensive']] },
+      { r:'な-adjectives leave the word alone and change です.',
+        ex:[['しずかです','shizuka desu — is quiet'],['しずかじゃありません','shizuka ja arimasen — is not quiet'],['しずかでした','shizuka deshita — was quiet']] },
+      { r:'Before a noun, な-adjectives take な; い-adjectives take nothing.',
+        ex:[['しずかなまち','shizuka na machi — a quiet town'],['たかいほん','takai hon — an expensive book']] },
+      { r:'Adverbs: い → く, な → に.',
+        ex:[['はやく walk → はやくあるきます','hayaku arukimasu — walk quickly'],['しずかに読みます','shizuka ni yomimasu — read quietly'],['きれいに書きます','kirei ni kakimasu — write neatly']] },
+      { r:'いい is irregular throughout — it changes to よ before anything.', ok:true,
+        ex:[['いい','ii — good'],['よくない','yokunai — not good'],['よかった','yokatta — was good, thank goodness'],['よく','yoku — well, often']] },
+      { r:'きれい and ゆうめい end in い but are な-adjectives. There is no rule; they are simply learnt.',
+        ex:[['きれいな人','kirei na hito — a beautiful person'],['ゆうめいなまち','yūmei na machi — a famous town']] },
+    ],
+    callout:'よかった on its own means "thank goodness" — the past tense of "good" used as relief. You will hear it constantly.',
+    quiz:[
+      { q:'"Was not expensive" is…', o:['たかくなかった','たかいじゃなかった','たかくないでした','たかかったない'], a:0, why:'い-adjectives conjugate themselves.' },
+      { q:'きれい is…', o:['an い-adjective','a な-adjective','a noun only','a verb'], a:1, why:'It ends in い but behaves as a な-adjective.' },
+      { q:'The adverb from はやい is…', o:['はやいに','はやく','はやくて','はやに'], a:1, why:'い → く.' },
+    ] },
+];
+
+/* ---------------------------------------------------------------- level 3 words */
+JA_DICT.push(
+  { es:'つかう', en:'to use', pos:'verb', def:'tsukau · To use. Also "to spend" money.', ex:'このペンをつかってもいいですか。', exEn:'Kono pen o tsukatte mo ii desu ka? — May I use this pen?', lvl:3, theme:'どうし' },
+  { es:'おしえる', en:'to teach, to tell', pos:'verb', def:'oshieru · To teach — and to tell someone a fact they asked for.', ex:'みちをおしえてください。', exEn:'Michi o oshiete kudasai — Please tell me the way.', lvl:3, theme:'どうし' },
+  { es:'おぼえる', en:'to remember, to memorise', pos:'verb', def:'oboeru · To commit to memory. 覚えている is "I remember"; 覚えた is "I learnt it".', ex:'かんじを百おぼえました。', exEn:'Kanji o hyaku oboemashita — I learnt a hundred kanji.', lvl:3, theme:'どうし' },
+  { es:'わすれる', en:'to forget', pos:'verb', def:'wasureru · To forget. 忘れないで is one of the most-used requests in the language.', ex:'かさをわすれました。', exEn:'Kasa o wasuremashita — I forgot my umbrella.', lvl:3, theme:'どうし' },
+  { es:'あそぶ', en:'to play, to hang out', pos:'verb', def:'asobu · Not only children\'s play — adults 遊ぶ when they go out together.', ex:'こんどあそびましょう。', exEn:'Kondo asobimashō — Let\'s hang out sometime.', lvl:3, theme:'どうし' },
+  { es:'いそぐ', en:'to hurry', pos:'verb', def:'isogu · To hurry. 急いで! is "quick!".', ex:'いそいでください。', exEn:'Isoide kudasai — Please hurry.', lvl:3, theme:'どうし' },
+  { es:'もつ', en:'to hold, to have', pos:'verb', def:'motsu · To hold in the hand; 持っている is "to own".', ex:'かばんをもっています。', exEn:'Kaban o motte imasu — I am carrying a bag.', lvl:3, theme:'どうし' },
+  { es:'つくる', en:'to make', pos:'verb', def:'tsukuru · To make, to build, to cook.', ex:'ははがごはんをつくっています。', exEn:'Haha ga gohan o tsukutte imasu — My mother is cooking.', lvl:3, theme:'どうし' },
+  { es:'しる', en:'to know', pos:'verb', def:'shiru · To come to know. The state is 知っている; the negative is 知りません.', ex:'その人をしっています。', exEn:'Sono hito o shitte imasu — I know that person.', lvl:3, theme:'どうし' },
+  { es:'あける', en:'to open', pos:'verb', def:'akeru · To open something. The door opening by itself is 開く aku.', ex:'まどをあけてもいいですか。', exEn:'Mado o akete mo ii desu ka? — May I open the window?', lvl:3, theme:'どうし' },
+  { es:'しめる', en:'to close', pos:'verb', def:'shimeru · To close something.', ex:'ドアをしめてください。', exEn:'Doa o shimete kudasai — Please close the door.', lvl:3, theme:'どうし' },
+  { es:'しんぱい', en:'worry', pos:'noun', def:'shinpai · Worry. 心配しないで — don\'t worry.', ex:'しんぱいしないでください。', exEn:'Shinpai shinai de kudasai — Please do not worry.', lvl:3, theme:'きもち' },
+  { es:'だいじょうぶ', en:'all right, fine', pos:'na-adj', def:'daijōbu · Fine, safe, no problem — and also a polite "no thank you".', ex:'だいじょうぶですか。', exEn:'Daijōbu desu ka? — Are you all right?', lvl:3, theme:'きもち' },
+  { es:'たのしい', en:'fun, enjoyable', pos:'i-adj', def:'tanoshii · Enjoyable. About the experience, not the person.', ex:'きのうはたのしかったです。', exEn:'Kinō wa tanoshikatta desu — Yesterday was fun.', lvl:3, theme:'きもち' },
+  { es:'うれしい', en:'glad, happy', pos:'i-adj', def:'ureshii · Glad — a feeling in the moment, about something that happened.', ex:'あえてうれしいです。', exEn:'Aete ureshii desu — I am glad to meet you.', lvl:3, theme:'きもち' },
+  { es:'さびしい', en:'lonely', pos:'i-adj', def:'sabishii · Lonely, and also said of a place that is too quiet.', ex:'ひとりはさびしいです。', exEn:'Hitori wa sabishii desu — Being alone is lonely.', lvl:3, theme:'きもち' },
+  { es:'いそがしい', en:'busy', pos:'i-adj', def:'isogashii · Busy. The standard polite excuse.', ex:'今週はいそがしいです。', exEn:'Konshū wa isogashii desu — I am busy this week.', lvl:3, theme:'きもち' },
+  { es:'しずか', en:'quiet', pos:'na-adj', def:'shizuka · Quiet. A な-adjective: 静かな部屋.', ex:'しずかなへやですね。', exEn:'Shizuka na heya desu ne — What a quiet room.', lvl:3, theme:'ようす' },
+  { es:'にぎやか', en:'lively, bustling', pos:'na-adj', def:'nigiyaka · Lively in a good way — a market, a festival.', ex:'まちはにぎやかです。', exEn:'Machi wa nigiyaka desu — The town is lively.', lvl:3, theme:'ようす' },
+  { es:'べんり', en:'convenient', pos:'na-adj', def:'benri · Convenient, handy. Its opposite is 不便 fuben.', ex:'このアプリはべんりです。', exEn:'Kono apuri wa benri desu — This app is handy.', lvl:3, theme:'ようす' },
+  { es:'ゆうめい', en:'famous', pos:'na-adj', def:'yūmei · Famous. Ends in い but takes な.', ex:'ゆうめいなおてらです。', exEn:'Yūmei na otera desu — It is a famous temple.', lvl:3, theme:'ようす' },
+  { es:'きれい', en:'pretty, clean', pos:'na-adj', def:'kirei · Beautiful and clean at once — a な-adjective despite the い.', ex:'へやをきれいにしました。', exEn:'Heya o kirei ni shimashita — I made the room tidy.', lvl:3, theme:'ようす' },
+  { es:'たいへん', en:'tough, awful', pos:'na-adj', def:'taihen · Hard going. 大変ですね is the standard sympathetic reply.', ex:'それはたいへんですね。', exEn:'Sore wa taihen desu ne — That sounds rough.', lvl:3, theme:'ようす' },
+  { es:'とき', en:'when, time', pos:'noun', def:'toki · The time when. The clause before it goes plain: 食べる時.', ex:'ひまなときにれんらくします。', exEn:'Hima na toki ni renraku shimasu — I will get in touch when I am free.', lvl:3, theme:'じかん' },
+  { es:'まえ', en:'before, in front of', pos:'noun', def:'mae · Before, and physically in front. 前に with a dictionary form.', ex:'ねるまえに本をよみます。', exEn:'Neru mae ni hon o yomimasu — I read a book before sleeping.', lvl:3, theme:'じかん' },
+  { es:'あと', en:'after', pos:'noun', def:'ato · After. 〜たあとで takes the plain past.', ex:'たべたあとでさんぽします。', exEn:'Tabeta ato de sanpo shimasu — I take a walk after eating.', lvl:3, theme:'じかん' },
+  { es:'しゅくだい', en:'homework', pos:'noun', def:'shukudai · Homework. You 宿題をする it.', ex:'しゅくだいをしてから、あそびます。', exEn:'Shukudai o shite kara, asobimasu — I play after doing my homework.', lvl:3, theme:'がっこう' },
+  { es:'しけん', en:'exam', pos:'noun', def:'shiken · Exam. テスト is the smaller, everyday one.', ex:'らいしゅうしけんがあります。', exEn:'Raishū shiken ga arimasu — There is an exam next week.', lvl:3, theme:'がっこう' },
+  { es:'きょうしつ', en:'classroom', pos:'noun', def:'kyōshitsu · Classroom.', ex:'きょうしつでまっています。', exEn:'Kyōshitsu de matte imasu — I am waiting in the classroom.', lvl:3, theme:'がっこう' },
+  { es:'べんきょう', en:'study', pos:'noun', def:'benkyō · Study. 勉強する is the verb; it also means "a good lesson learnt".', ex:'べんきょうしています。', exEn:'Benkyō shite imasu — I am studying.', lvl:3, theme:'がっこう' },
+  { es:'しごと', en:'work, job', pos:'noun', def:'shigoto · Work, and the job itself.', ex:'しごとはなんですか。', exEn:'Shigoto wa nan desu ka? — What do you do?', lvl:3, theme:'しごと' },
+  { es:'かいしゃ', en:'company', pos:'noun', def:'kaisha · A company. 会社員 kaishain is an employee.', ex:'かいしゃではたらいています。', exEn:'Kaisha de hataraite imasu — I work at a company.', lvl:3, theme:'しごと' },
+  { es:'びょういん', en:'hospital', pos:'noun', def:'byōin · Hospital. Note the long ō — 美容院 biyōin is a hair salon.', ex:'びょういんにいきました。', exEn:'Byōin ni ikimashita — I went to the hospital.', lvl:3, theme:'まち' },
+  { es:'ゆうびんきょく', en:'post office', pos:'noun', def:'yūbinkyoku · Post office.', ex:'ゆうびんきょくはどこですか。', exEn:'Yūbinkyoku wa doko desu ka? — Where is the post office?', lvl:3, theme:'まち' },
+  { es:'こうえん', en:'park', pos:'noun', def:'kōen · Park.', ex:'こうえんであそんでいます。', exEn:'Kōen de asonde imasu — They are playing in the park.', lvl:3, theme:'まち' },
+  { es:'としょかん', en:'library', pos:'noun', def:'toshokan · Library.', ex:'としょかんでべんきょうします。', exEn:'Toshokan de benkyō shimasu — I study at the library.', lvl:3, theme:'まち' },
+  { es:'ちかてつ', en:'subway', pos:'noun', def:'chikatetsu · Underground railway. Literally "underground iron".', ex:'ちかてつでいきます。', exEn:'Chikatetsu de ikimasu — I go by subway.', lvl:3, theme:'まち' },
+  { es:'しんごう', en:'traffic light', pos:'noun', def:'shingō · Traffic light. A useful landmark when giving directions.', ex:'つぎのしんごうをみぎです。', exEn:'Tsugi no shingō o migi desu — Right at the next light.', lvl:3, theme:'まち' },
+  { es:'みぎ', en:'right', pos:'noun', def:'migi · Right-hand side.', ex:'みぎにまがってください。', exEn:'Migi ni magatte kudasai — Please turn right.', lvl:3, theme:'ばしょ' },
+  { es:'ひだり', en:'left', pos:'noun', def:'hidari · Left-hand side.', ex:'ひだりにあります。', exEn:'Hidari ni arimasu — It is on the left.', lvl:3, theme:'ばしょ' },
+  { es:'まっすぐ', en:'straight ahead', pos:'adverb', def:'massugu · Straight on.', ex:'まっすぐいってください。', exEn:'Massugu itte kudasai — Please go straight on.', lvl:3, theme:'ばしょ' },
+  { es:'となり', en:'next door, beside', pos:'noun', def:'tonari · Immediately next to, of things of the same kind.', ex:'ぎんこうのとなりです。', exEn:'Ginkō no tonari desu — It is next to the bank.', lvl:3, theme:'ばしょ' },
+  { es:'ちかく', en:'near, nearby', pos:'noun', def:'chikaku · The vicinity. 駅の近く — near the station.', ex:'えきのちかくにすんでいます。', exEn:'Eki no chikaku ni sunde imasu — I live near the station.', lvl:3, theme:'ばしょ' },
+  { es:'もういちど', en:'once more', pos:'phrase', def:'mō ichido · One more time. The phrase that saves every conversation.', ex:'もういちどおねがいします。', exEn:'Mō ichido onegaishimasu — Once more, please.', lvl:3, theme:'べんり' },
+  { es:'ゆっくり', en:'slowly', pos:'adverb', def:'yukkuri · Slowly, unhurriedly — and "take your time".', ex:'ゆっくりはなしてください。', exEn:'Yukkuri hanashite kudasai — Please speak slowly.', lvl:3, theme:'べんり' },
+  { es:'たぶん', en:'probably', pos:'adverb', def:'tabun · Probably. Usually paired with でしょう at the end.', ex:'たぶんあめでしょう。', exEn:'Tabun ame deshō — It will probably rain.', lvl:3, theme:'べんり' },
+  { es:'ぜんぜん', en:'not at all', pos:'adverb', def:'zenzen · Not at all — it expects a negative after it.', ex:'ぜんぜんわかりません。', exEn:'Zenzen wakarimasen — I do not understand at all.', lvl:3, theme:'べんり' },
+);
+
+JA_SPEAKING[3] = [
+  { es:'ちょっとまってください。', en:'Please wait a moment.', hint:'chotto matte kudasai' },
+  { es:'いま、ごはんをたべています。', en:'I am eating right now.', hint:'ima, gohan o tabete imasu' },
+  { es:'ここにすわってもいいですか。', en:'May I sit here?', hint:'koko ni suwatte mo ii desu ka' },
+  { es:'しゃしんをとってもいいですか。', en:'May I take a photo?', hint:'shashin o totte mo ii desu ka' },
+  { es:'ゆっくりはなしてください。', en:'Please speak slowly.', hint:'yukkuri hanashite kudasai' },
+  { es:'わすれないでください。', en:'Please do not forget.', hint:'wasurenai de kudasai' },
+  { es:'おきて、あさごはんをたべて、でかけます。', en:'I get up, eat breakfast and go out.', hint:'okite, asagohan o tabete, dekakemasu' },
+  { es:'すみません、しりません。', en:'Sorry, I do not know.', hint:'sumimasen, shirimasen' },
+  { es:'えきのちかくにすんでいます。', en:'I live near the station.', hint:'eki no chikaku ni sunde imasu' },
+  { es:'つぎのしんごうをみぎにまがってください。', en:'Please turn right at the next light.', hint:'tsugi no shingō o migi ni magatte kudasai' },
+  { es:'しゅくだいをしてから、あそびます。', en:'I play after doing my homework.', hint:'shukudai o shite kara, asobimasu' },
+  { es:'それはたいへんですね。', en:'That sounds rough.', hint:'sore wa taihen desu ne' },
+];
+
+JA_READING[3] = [
+  { id:'jr3-1', title:'みちをきく', words:96,
+    text:['— すみません、ゆうびんきょくはどこですか。','— ゆうびんきょくですか。この道をまっすぐいってください。','— はい。','— つぎのしんごうをみぎにまがって、すこしあるくと、ひだりにあります。','— あるいてどのくらいかかりますか。','— そうですね、五分ぐらいです。','— わかりました。どうもありがとうございます。','— いいえ。きをつけてください。'],
+    en:'"Sumimasen, yūbinkyoku wa doko desu ka?" "Yūbinkyoku desu ka. Kono michi o massugu itte kudasai." "Hai." "Tsugi no shingō o migi ni magatte, sukoshi aruku to, hidari ni arimasu." "Aruite dono kurai kakarimasu ka?" "Sō desu ne, gofun gurai desu." "Wakarimashita. Dōmo arigatō gozaimasu." "Iie. Ki o tsukete kudasai." — "Excuse me, where is the post office?" "The post office? Go straight along this road." "Right." "Turn right at the next traffic light, walk a little, and it is on the left." "How long does it take on foot?" "Let me see — about five minutes." "I understand. Thank you very much." "Not at all. Take care."',
+    qs:[ { q:'Which way at the light?', o:['Left','Right','Straight on'], a:1 }, { q:'How long on foot?', o:['Five minutes','Fifteen minutes','Half an hour'], a:0 }, { q:'Which side is it on at the end?', o:['Left','Right','Both'], a:0 } ] },
+  { id:'jr3-2', title:'あたらしいアルバイト', words:104,
+    text:['先月からコンビニではたらいています。学校のちかくなので、べんりです。','しごとは六時からです。あさはやくおきなければなりませんが、なれました。','はじめのしゅうはたいへんでした。レジのつかいかたがわからなくて、しんぱいでした。','でも、てんちょうがゆっくりおしえてくれました。','いまはおきゃくさんとはなすのがたのしいです。','日本語もすこしじょうずになったと思います。'],
+    en:'Sengetsu kara konbini de hataraite imasu. Gakkō no chikaku na node, benri desu. Shigoto wa rokuji kara desu. Asa hayaku okinakereba narimasen ga, naremashita. Hajime no shū wa taihen deshita. Reji no tsukaikata ga wakaranakute, shinpai deshita. Demo, tenchō ga yukkuri oshiete kuremashita. Ima wa okyakusan to hanasu no ga tanoshii desu. Nihongo mo sukoshi jōzu ni natta to omoimasu. — Since last month I have been working at a convenience store. It is near the school, so it is handy. Work starts at six. I have to get up early in the morning, but I am used to it. The first week was hard. I did not understand how to use the till and I was worried. But the manager taught me slowly. Now I enjoy talking with the customers. I think my Japanese has got a little better too.',
+    qs:[ { q:'Why is the job convenient?', o:['Good pay','It is near the school','Short hours'], a:1 }, { q:'What was hard at first?', o:['The customers','The till','The uniform'], a:1 }, { q:'Who helped?', o:['A friend','The manager','A teacher'], a:1 } ] },
+  { id:'jr3-3', title:'おふろ', words:92,
+    text:['日本のおふろはからだをあらうところではありません。あらってから入るところです。','だから、おふろのおゆはかぞくぜんいんでつかいます。','せんとうという大きなおふろもあります。しらない人といっしょに入ります。','はじめてのがいこく人はびっくりしますが、すぐになれます。','ゆっくりおゆに入って、一日のつかれをとる。それが日本のおふろです。'],
+    en:'Nihon no ofuro wa karada o arau tokoro de wa arimasen. Aratte kara hairu tokoro desu. Dakara, ofuro no oyu wa kazoku zen\'in de tsukaimasu. Sentō to iu ōkina ofuro mo arimasu. Shiranai hito to issho ni hairimasu. Hajimete no gaikokujin wa bikkuri shimasu ga, sugu ni naremasu. Yukkuri oyu ni haitte, ichinichi no tsukare o toru. Sore ga Nihon no ofuro desu. — A Japanese bath is not a place to wash your body. It is a place you get into after washing. That is why the whole family uses the same bathwater. There are also large baths called sentō. You get in together with people you do not know. Foreigners are startled the first time, but they get used to it quickly. Get into the hot water slowly and take the day\'s tiredness away. That is the Japanese bath.',
+    qs:[ { q:'When do you wash?', o:['In the bath','Before getting in','After getting out'], a:1 }, { q:'Why can the family share the water?', o:['It is cheap','Everyone is already clean','It is changed each time'], a:1 }, { q:'What is a sentō?', o:['A small home bath','A large public bath','A shower room'], a:1 } ] },
+];
+
+JA_HUNTS[3] = [
+  { theme:'てフォーム · Te forms', words:['tabete','nonde','itte','kite','shite','matte','yonde','kaite'] },
+  { theme:'きもち · Feelings', words:['tanoshii','ureshii','sabishii','isogashii','shinpai','daijoubu','taihen','kirei'] },
+  { theme:'まち · Around town', words:['byouin','kouen','toshokan','chikatetsu','shingou','tonari','chikaku','migi'] },
+  { theme:'がっこう · School', words:['shukudai','shiken','kyoushitsu','benkyou','sensei','gakusei','oshieru','oboeru'] },
+];
+
+JA_DIALOGUES[3] = [
+  { id:'jd3-1', title:'いま、なにしてる？', scene:'A phone call between friends.', lines:[
+    { who:'A', es:'もしもし。いま、なにしてる？', en:'Hello. What are you doing right now? (Moshi moshi. Ima, nani shiteru?)' },
+    { who:'B', es:'としょかんでべんきょうしてる。しけんがあるから。', en:'Studying at the library. Because I have an exam. (Toshokan de benkyō shiteru. Shiken ga aru kara.)' },
+    { who:'A', es:'そっか。じゃあ、おわってからあそばない？', en:'I see. Shall we hang out after you finish? (Sokka. Jā, owatte kara asobanai?)' },
+    { who:'B', es:'いいね。六時ごろでもいい？', en:'Sounds good. Is around six all right? (Ii ne. Rokuji goro demo ii?)' },
+    { who:'A', es:'うん。こうえんでまってる。', en:'Sure. I\'ll be waiting in the park. (Un. Kōen de matteru.)' },
+    { who:'B', es:'わかった。おくれないでね。', en:'Got it. Don\'t be late. (Wakatta. Okurenai de ne.)' },
+  ] },
+  { id:'jd3-2', title:'びょういんで', scene:'At the clinic reception.', lines:[
+    { who:'A', es:'どうしましたか。', en:'What seems to be the matter? (Dō shimashita ka?)' },
+    { who:'B', es:'きのうから、あたまがいたくて、ねつもあります。', en:'Since yesterday I have had a headache, and a temperature too. (Kinō kara, atama ga itakute, netsu mo arimasu.)' },
+    { who:'A', es:'そうですか。ここにすわってまっていてください。', en:'I see. Please sit here and wait. (Sō desu ka. Koko ni suwatte matte ite kudasai.)' },
+    { who:'B', es:'どのくらいかかりますか。', en:'How long will it take? (Dono kurai kakarimasu ka?)' },
+    { who:'A', es:'三十分ぐらいです。しんぱいしないでください。', en:'About thirty minutes. Please do not worry. (Sanjuppun gurai desu. Shinpai shinai de kudasai.)' },
+    { who:'B', es:'わかりました。ありがとうございます。', en:'Understood. Thank you. (Wakarimashita. Arigatō gozaimasu.)' },
+  ] },
+  { id:'jd3-3', title:'すみません、ちょっと', scene:'An invitation that is being declined.', lines:[
+    { who:'A', es:'こんどのどようび、うちでパーティーをします。きませんか。', en:'We are having a party at ours on Saturday. Won\'t you come? (Kondo no doyōbi, uchi de pātī o shimasu. Kimasen ka?)' },
+    { who:'B', es:'どようびですか… ちょっと。', en:'Saturday? … That\'s a bit. (Doyōbi desu ka… chotto.)' },
+    { who:'A', es:'あ、いそがしいですか。', en:'Ah, are you busy? (A, isogashii desu ka?)' },
+    { who:'B', es:'すみません。しごとがおわらなくて。', en:'I\'m sorry. My work won\'t be finished. (Sumimasen. Shigoto ga owaranakute.)' },
+    { who:'A', es:'そうですか。たいへんですね。また、こんど。', en:'I see. That\'s rough. Another time, then. (Sō desu ka. Taihen desu ne. Mata, kondo.)' },
+    { who:'B', es:'はい、ぜひ。さそってくれてありがとうございます。', en:'Yes, definitely. Thank you for inviting me. (Hai, zehi. Sasotte kurete arigatō gozaimasu.)' },
+  ] },
+];
+
+/* ================================ LEVEL 4 ================================
+   Quoting, conditionals, and the two verbs English has no use for. */
+JA_GRAMMAR[4] = [
+  { id:'jg4-1', title:'〜と思います', sub:'Saying what you think, and what someone else said.',
+    lede:'Japanese does not have reported speech the way English does, with tenses shifting backwards. It has a quote particle, と, and everything before it stays exactly as it was said or thought. This is simpler than English — once you accept that the clause before と must be plain.',
+    rules:[
+      { r:'〜と思います — I think. The clause before と is always plain.',
+        ex:[['あした雨がふると思います。','Ashita ame ga furu to omoimasu — I think it will rain tomorrow.'],['あの店はたかいと思う。','Ano mise wa takai to omou — I think that shop is expensive.'],['行かないと思います。','Ikanai to omoimasu — I don\'t think I\'ll go.']] },
+      { r:'To say you do not think so, negate the inside — not 思いません.', ok:true,
+        ex:[['来ないと思います。','Konai to omoimasu — I don\'t think he\'ll come. ✓'],['来ると思いません。','Kuru to omoimasen — unnatural ✗']] },
+      { r:'〜と言いました — said. No tense shifting: the quote keeps its own tense.',
+        ex:[['田中さんはあした来ると言いました。','Tanaka-san wa ashita kuru to iimashita — Tanaka said he would come tomorrow.'],['「わかった」と言いました。','"Wakatta" to iimashita — He said "got it".']] },
+      { r:'〜という — called, named. It introduces a name you may not know.',
+        ex:[['「たこやき」という食べもの','"takoyaki" to iu tabemono — a food called takoyaki'],['山田という人から電話です。','Yamada to iu hito kara denwa desu — A call from someone called Yamada.']] },
+      { r:'〜でしょう / 〜だろう — probably. Softer than 思います, and what forecasts use.',
+        ex:[['あしたはくもりでしょう。','Ashita wa kumori deshō — It will be cloudy tomorrow.'],['たぶん大丈夫だろう。','Tabun daijōbu darō — It\'ll probably be fine.']] },
+    ],
+    callout:'The negative goes inside. "I don\'t think it will rain" is 降らないと思います, literally "I think it won\'t rain" — and Japanese means that quite precisely.',
+    quiz:[
+      { q:'"I don\'t think he will come" is…', o:['来ると思いません','来ないと思います','来ませんと思います','来ると思わない'], a:1, why:'Negate the inner clause.' },
+      { q:'Before と the verb must be…', o:['polite','plain','past','て form'], a:1, why:'Quoted clauses are plain.' },
+      { q:'〜という introduces…', o:['a reason','a name','a condition','a wish'], a:1, why:'"a thing called X".' },
+    ] },
+
+  { id:'jg4-2', title:'Four ways to say "if"', sub:'たら, ば, と, なら — and when each one is the right one.',
+    lede:'Japanese has four conditionals where English has one, and they are not interchangeable. The comforting part is that たら covers most of what you need; the other three are for the cases where たら would be slightly wrong.',
+    rules:[
+      { r:'〜たら — the general "if / when". Plain past + ら. Use this when unsure.',
+        ex:[['雨がふったら、行きません。','Ame ga futtara, ikimasen — If it rains, I won\'t go.'],['駅についたら、電話してください。','Eki ni tsuitara, denwa shite kudasai — Call me when you get to the station.'],['安かったら、買います。','Yasukattara, kaimasu — If it\'s cheap, I\'ll buy it.']] },
+      { r:'〜ば — the conditional proper. Good for general truths and for advice.',
+        ex:[['安ければ、買います。','Yasukereba, kaimasu — If it\'s cheap, I\'ll buy it.'],['どうすればいいですか。','Dō sureba ii desu ka? — What should I do?'],['行けばわかる。','Ikeba wakaru — You\'ll understand if you go.']] },
+      { r:'〜と — whenever this, then that. Natural law, machines, directions. Never for a request or an order.',
+        ex:[['春になると、さくらがさきます。','Haru ni naru to, sakura ga sakimasu — When spring comes, the cherries bloom.'],['右にまがると、駅があります。','Migi ni magaru to, eki ga arimasu — Turn right and there\'s the station.'],['ボタンをおすと、あきます。','Botan o osu to, akimasu — Press the button and it opens.']] },
+      { r:'〜なら — "if that\'s the case". It picks up what the other person just said.',
+        ex:[['京都ですか。京都なら、バスがべんりです。','Kyōto desu ka. Kyōto nara, basu ga benri desu — Kyoto? If it\'s Kyoto, the bus is handy.'],['行くなら、はやく行ったほうがいい。','Iku nara, hayaku itta hō ga ii — If you\'re going, you\'d better go soon.']] },
+      { r:'と cannot be followed by a wish, a request or an order. たら can.', ok:true,
+        ex:[['駅についたら、電話してください。','✓'],['駅につくと、電話してください。','✗']] },
+    ],
+    table:{ h:['form','built from','best for'], rows:[['〜たら','plain past + ら','anything; if in doubt'],['〜ば','stem + えば','general truths, advice'],['〜と','plain + と','inevitable results, directions'],['〜なら','plain + なら','picking up what was just said']] },
+    callout:'どうすればいいですか — "what should I do?" — is worth memorising whole. You will use it more than any other conditional in this lesson.',
+    quiz:[
+      { q:'Which cannot be followed by a request?', o:['たら','ば','と','なら'], a:2, why:'と states an automatic result.' },
+      { q:'"If it is Kyoto (as you say)…" uses…', o:['たら','なら','と','ば'], a:1, why:'なら picks up the other speaker.' },
+      { q:'〜たら is built from…', o:['the stem','the plain past','the て form','the negative'], a:1, why:'たべた → たべたら.' },
+    ] },
+
+  { id:'jg4-3', title:'Can and cannot', sub:'できる, the potential form, and what it does to particles.',
+    lede:'Ability has two shapes in Japanese and one surprising side effect: what you are able to do stops being an object and becomes a subject. 日本語を話します becomes 日本語が話せます, and getting that particle right is most of sounding fluent here.',
+    rules:[
+      { r:'る-verbs: drop る, add られる. In casual speech the ら is often dropped.',
+        ex:[['たべる → たべられる','taberu → taberareru — can eat'],['みる → みられる','miru → mirareru'],['たべれる','tabereru — the casual "ra-less" form, common but not written']] },
+      { r:'う-verbs: move the last kana to the え row and add る.',
+        ex:[['のむ → のめる','nomu → nomeru'],['いく → いける','iku → ikeru'],['はなす → はなせる','hanasu → hanaseru']] },
+      { r:'する → できる. くる → こられる.', ok:true,
+        ex:[['日本語ができます。','Nihongo ga dekimasu — I can speak Japanese.'],['あしたはこられません。','Ashita wa koraremasen — I can\'t come tomorrow.']] },
+      { r:'The object takes が, not を.',
+        ex:[['日本語が話せます。','Nihongo ga hanasemasu — I can speak Japanese.'],['さしみが食べられますか。','Sashimi ga taberaremasu ka? — Can you eat sashimi?']] },
+      { r:'〜ことができる — the formal equivalent, for writing and for a polite register.',
+        ex:[['ここでカードを使うことができます。','Koko de kādo o tsukau koto ga dekimasu — Cards may be used here.']] },
+    ],
+    callout:'For る-verbs the potential and the passive are the same shape — たべられる is both "can eat" and "is eaten". Context does all the work, and it is never actually ambiguous in a real sentence.',
+    culture:'The "ra-less" form 食べれる is heard everywhere and corrected in every school. Use the full form in writing; nobody will blink at either in conversation.',
+    quiz:[
+      { q:'"I can speak Japanese" is…', o:['日本語を話せます','日本語が話せます','日本語は話します','日本語で話せます'], a:1, why:'The potential takes が.' },
+      { q:'The potential of する is…', o:['される','できる','しられる','すれる'], a:1, why:'A separate verb entirely.' },
+      { q:'のむ in the potential is…', o:['のまれる','のめる','のみられる','のむことできる'], a:1, why:'む → め + る.' },
+    ] },
+
+  { id:'jg4-4', title:'Giving and receiving', sub:'あげる, くれる, もらう — direction is everything.',
+    lede:'English has one verb "give" and lets context sort out who benefited. Japanese has two, and which you choose depends entirely on whether the thing moved towards you or away. Getting this wrong is not a grammar mistake so much as a social one, which is why it is worth the effort.',
+    rules:[
+      { r:'あげる — I give to someone else, or someone gives to a third party. Never towards me.',
+        ex:[['田中さんに本をあげました。','Tanaka-san ni hon o agemashita — I gave Tanaka a book.'],['妹にプレゼントをあげる。','Imōto ni purezento o ageru — I\'ll give my sister a present.']] },
+      { r:'くれる — someone gives to me, or to someone in my circle. Always towards me.',
+        ex:[['田中さんが本をくれました。','Tanaka-san ga hon o kuremashita — Tanaka gave me a book.'],['先生がおしえてくれました。','Sensei ga oshiete kuremashita — The teacher taught me (kindly).']] },
+      { r:'もらう — I receive. Same event as くれる, told from my side.',
+        ex:[['田中さんに本をもらいました。','Tanaka-san ni hon o moraimashita — I received a book from Tanaka.'],['てつだってもらいました。','Tetsudatte moraimashita — I had them help me.']] },
+      { r:'Attached to the て form, they give the act itself a direction — and with it, gratitude.',
+        ex:[['かしてくれてありがとう。','Kashite kurete arigatō — Thanks for lending it to me.'],['作ってあげましょうか。','Tsukutte agemashō ka? — Shall I make it for you?']] },
+      { r:'Politer up: 〜くださる for a superior giving to you, 〜いただく for you receiving.',
+        ex:[['先生が書いてくださいました。','Sensei ga kaite kudasaimashita — The teacher was kind enough to write it.'],['おしえていただけませんか。','Oshiete itadakemasen ka? — Might I trouble you to tell me?']] },
+    ],
+    callout:'〜てあげる can sound like you are doing someone a favour and want it noticed. With a superior, use 〜ましょうか instead: 持ちましょうか, "shall I carry that?"',
+    quiz:[
+      { q:'"Tanaka gave me a book" is…', o:['田中さんに本をあげました','田中さんが本をくれました','田中さんが本をあげました','田中さんに本をくれました'], a:1, why:'Towards me: くれる.' },
+      { q:'もらう describes the event from…', o:['the giver\'s side','the receiver\'s side','a third party','nobody\'s'], a:1, why:'I received.' },
+      { q:'Which is risky towards a superior?', o:['〜てくれる','〜てあげる','〜ていただく','〜てもらう'], a:1, why:'It advertises the favour.' },
+    ] },
+
+  { id:'jg4-5', title:'Must, needn\'t, had better', sub:'〜なければなりません and its neighbours.',
+    lede:'Obligation in Japanese is built out of a double negative — "if you do not do it, it will not do" — which is why it is so long. Learn the whole shape as a unit, and learn the short spoken form beside it, because nobody says the long one to a friend.',
+    rules:[
+      { r:'〜なければなりません — must. Plain negative minus い, plus ければなりません.',
+        ex:[['あした早く起きなければなりません。','Ashita hayaku okinakereba narimasen — I have to get up early tomorrow.'],['薬を飲まなければなりません。','Kusuri o nomanakereba narimasen — I have to take the medicine.']] },
+      { r:'In speech: 〜なきゃ or 〜ないと, and often nothing after it.',
+        ex:[['行かなきゃ。','Ikanakya — I\'ve got to go.'],['勉強しないと。','Benkyō shinai to — I need to study.']] },
+      { r:'〜なくてもいいです — you don\'t have to.',
+        ex:[['来なくてもいいです。','Konakute mo ii desu — You don\'t have to come.'],['お金をはらわなくてもいいです。','Okane o harawanakute mo ii desu — You needn\'t pay.']] },
+      { r:'〜たほうがいい — you had better. Plain past + ほうがいい.',
+        ex:[['休んだほうがいいですよ。','Yasunda hō ga ii desu yo — You\'d better rest.'],['行かないほうがいい。','Ikanai hō ga ii — Better not go.']] },
+      { r:'〜つもりです — I intend to. Plain form + つもり.',
+        ex:[['来年、日本に行くつもりです。','Rainen, Nihon ni iku tsumori desu — I intend to go to Japan next year.']] },
+    ],
+    callout:'Note the asymmetry: "had better" is past (休んだほうがいい) when positive, and plain non-past (行かないほうがいい) when negative. There is no reason; it is just the shape.',
+    quiz:[
+      { q:'"I have to go" in casual speech is…', o:['行かなきゃ','行ってもいい','行かなくてもいい','行くつもり'], a:0, why:'The contracted obligation.' },
+      { q:'"You don\'t have to come" is…', o:['来なければなりません','来なくてもいいです','来てはいけません','来たほうがいい'], a:1, why:'なくてもいい lifts the obligation.' },
+      { q:'"You\'d better rest" uses…', o:['休むほうがいい','休んだほうがいい','休んでほうがいい','休まないほうがいい'], a:1, why:'Positive advice takes the plain past.' },
+    ] },
+
+  { id:'jg4-6', title:'Making sentences into nouns', sub:'の, こと, and the relative clause.',
+    lede:'English needs "that", "which" and "who" to hang a description on a noun. Japanese needs nothing at all — the clause simply sits in front, in plain form, and the noun follows. This one habit shortens your sentences more than any other thing in this level.',
+    rules:[
+      { r:'A clause in front of a noun describes it. No relative pronoun exists.',
+        ex:[['きのう買った本','kinō katta hon — the book I bought yesterday'],['日本語を話す人','nihongo o hanasu hito — a person who speaks Japanese'],['母が作ったケーキ','haha ga tsukutta kēki — the cake my mother made']] },
+      { r:'Inside such a clause, が may replace は.',
+        ex:[['父が読んでいる新聞','chichi ga yonde iru shinbun — the newspaper my father is reading']] },
+      { r:'〜の makes a verb into a noun — the doing of it.',
+        ex:[['本を読むのが好きです。','Hon o yomu no ga suki desu — I like reading books.'],['話すのがはやいですね。','Hanasu no ga hayai desu ne — You speak quickly.']] },
+      { r:'〜こと does the same, more abstractly — for facts, rules and plans.',
+        ex:[['日本語を勉強することは楽しいです。','Nihongo o benkyō suru koto wa tanoshii desu — Studying Japanese is enjoyable.'],['ここで写真をとることはできません。','Koko de shashin o toru koto wa dekimasen — Photography is not permitted here.']] },
+      { r:'Perception takes の, never こと.', ok:true,
+        ex:[['田中さんが走っているのを見ました。','Tanaka-san ga hashitte iru no o mimashita — I saw Tanaka running.']] },
+    ],
+    callout:'The clause goes in front, always. English "the book that I bought" reverses in Japanese to "I-bought book" — 買った本. Once that click happens, long Japanese sentences stop being frightening.',
+    quiz:[
+      { q:'"The book I bought yesterday" is…', o:['本をきのう買った','きのう買った本','本がきのう買った','買った本きのう'], a:1, why:'The clause precedes the noun.' },
+      { q:'Japanese relative clauses use…', o:['という','が','no relative pronoun','こと'], a:2, why:'There is none.' },
+      { q:'"I saw him running" takes…', o:['こと','の','という','ば'], a:1, why:'Direct perception takes の.' },
+    ] },
+];
+
+/* ---------------------------------------------------------------- level 4 words */
+JA_DICT.push(
+  { es:'はたらく', en:'to work', pos:'verb', def:'hataraku · To work. 仕事をする is the job; 働く is the doing.', ex:'かいしゃではたらいています。', exEn:'Kaisha de hataraite imasu — I work at a company.', lvl:4, theme:'しごと' },
+  { es:'えらぶ', en:'to choose', pos:'verb', def:'erabu · To pick out from among several.', ex:'どれをえらびますか。', exEn:'Dore o erabimasu ka? — Which will you choose?', lvl:4, theme:'どうし' },
+  { es:'きめる', en:'to decide', pos:'verb', def:'kimeru · To decide. 決まる kimaru is "to be decided".', ex:'あしたまでにきめます。', exEn:'Ashita made ni kimemasu — I will decide by tomorrow.', lvl:4, theme:'どうし' },
+  { es:'かんがえる', en:'to think over', pos:'verb', def:'kangaeru · To consider, to weigh up — deliberate, unlike 思う.', ex:'よくかんがえてからきめます。', exEn:'Yoku kangaete kara kimemasu — I will decide after thinking it over.', lvl:4, theme:'どうし' },
+  { es:'たのむ', en:'to ask a favour, to order', pos:'verb', def:'tanomu · To request. Also what you do to a waiter.', ex:'コーヒーをたのみました。', exEn:'Kōhī o tanomimashita — I ordered a coffee.', lvl:4, theme:'どうし' },
+  { es:'なおす', en:'to fix, to correct', pos:'verb', def:'naosu · To repair or to correct. 治す is to cure.', ex:'まちがいをなおしてください。', exEn:'Machigai o naoshite kudasai — Please correct the mistake.', lvl:4, theme:'どうし' },
+  { es:'おこる', en:'to get angry', pos:'verb', def:'okoru · To become angry, and also to tell someone off.', ex:'ちちにおこられました。', exEn:'Chichi ni okoraremashita — I got told off by my father.', lvl:4, theme:'どうし' },
+  { es:'つたえる', en:'to pass on, to convey', pos:'verb', def:'tsutaeru · To pass a message along.', ex:'田中さんにつたえてください。', exEn:'Tanaka-san ni tsutaete kudasai — Please pass it on to Tanaka.', lvl:4, theme:'どうし' },
+  { es:'つもり', en:'intention', pos:'noun', def:'tsumori · What you intend. Takes a plain verb in front.', ex:'来年いくつもりです。', exEn:'Rainen iku tsumori desu — I intend to go next year.', lvl:4, theme:'かんがえ' },
+  { es:'よてい', en:'plan, schedule', pos:'noun', def:'yotei · A fixed plan — more settled than つもり.', ex:'よていがかわりました。', exEn:'Yotei ga kawarimashita — The plan has changed.', lvl:4, theme:'かんがえ' },
+  { es:'りゆう', en:'reason', pos:'noun', def:'riyū · Reason. 理由は〜からです is the standard frame.', ex:'りゆうをおしえてください。', exEn:'Riyū o oshiete kudasai — Please tell me the reason.', lvl:4, theme:'かんがえ' },
+  { es:'いけん', en:'opinion', pos:'noun', def:'iken · An opinion. ご意見 is the polite form on a form or a survey.', ex:'いけんがあります。', exEn:'Iken ga arimasu — I have an opinion.', lvl:4, theme:'かんがえ' },
+  { es:'きかい', en:'chance, opportunity', pos:'noun', def:'kikai · An opportunity. A different 機械 kikai is a machine.', ex:'いいきかいですね。', exEn:'Ii kikai desu ne — That is a good opportunity.', lvl:4, theme:'かんがえ' },
+  { es:'けいけん', en:'experience', pos:'noun', def:'keiken · Experience, and 経験する is to go through something.', ex:'いいけいけんになりました。', exEn:'Ii keiken ni narimashita — It turned out to be a good experience.', lvl:4, theme:'かんがえ' },
+  { es:'ほうほう', en:'method, way', pos:'noun', def:'hōhō · A method. 〜方 -kata is the everyday equivalent: 使い方.', ex:'いいほうほうがあります。', exEn:'Ii hōhō ga arimasu — There is a good way to do it.', lvl:4, theme:'かんがえ' },
+  { es:'ばあい', en:'case, situation', pos:'noun', def:'baai · In the case of. 雨の場合は — in case of rain.', ex:'あめのばあいはちゅうしです。', exEn:'Ame no baai wa chūshi desu — In case of rain it is cancelled.', lvl:4, theme:'かんがえ' },
+  { es:'たいてい', en:'usually, mostly', pos:'adverb', def:'taitei · As a rule, most of the time.', ex:'たいてい七時におきます。', exEn:'Taitei shichiji ni okimasu — I usually get up at seven.', lvl:4, theme:'ひんど' },
+  { es:'ときどき', en:'sometimes', pos:'adverb', def:'tokidoki · Now and then.', ex:'ときどきりょうりをします。', exEn:'Tokidoki ryōri o shimasu — I cook sometimes.', lvl:4, theme:'ひんど' },
+  { es:'めったに', en:'rarely', pos:'adverb', def:'mettani · Rarely — it expects a negative after it.', ex:'めったにのみません。', exEn:'Mettani nomimasen — I rarely drink.', lvl:4, theme:'ひんど' },
+  { es:'かならず', en:'without fail', pos:'adverb', def:'kanarazu · Certainly, always, without exception.', ex:'かならずれんらくします。', exEn:'Kanarazu renraku shimasu — I will be sure to get in touch.', lvl:4, theme:'ひんど' },
+  { es:'やっぱり', en:'as I thought, after all', pos:'adverb', def:'yappari · As expected — the most Japanese adverb there is. やはり is the formal spelling.', ex:'やっぱりそうでしたか。', exEn:'Yappari sō deshita ka — So it was, after all.', lvl:4, theme:'べんり' },
+  { es:'とにかく', en:'anyway, in any case', pos:'adverb', def:'tonikaku · Regardless of everything just said.', ex:'とにかくやってみます。', exEn:'Tonikaku yatte mimasu — Anyway, I will give it a try.', lvl:4, theme:'べんり' },
+  { es:'じつは', en:'actually, to tell the truth', pos:'adverb', def:'jitsu wa · The word that opens a confession or a request.', ex:'じつは、おねがいがあります。', exEn:'Jitsu wa, onegai ga arimasu — Actually, I have a favour to ask.', lvl:4, theme:'べんり' },
+  { es:'もしかしたら', en:'possibly, maybe', pos:'adverb', def:'moshikashitara · Perhaps — usually with かもしれません.', ex:'もしかしたらおくれるかもしれません。', exEn:'Moshikashitara okureru kamo shiremasen — I might possibly be late.', lvl:4, theme:'べんり' },
+  { es:'かもしれない', en:'might, may', pos:'phrase', def:'kamoshirenai · Might be. Less certain than でしょう.', ex:'あめがふるかもしれません。', exEn:'Ame ga furu kamo shiremasen — It might rain.', lvl:4, theme:'べんり' },
+  { es:'ほう', en:'side, direction, the one that', pos:'noun', def:'hō · Used for comparisons and advice: 〜のほうがいい, 〜たほうがいい.', ex:'こっちのほうがいいです。', exEn:'Kotchi no hō ga ii desu — This one is better.', lvl:4, theme:'ひかく' },
+  { es:'より', en:'than', pos:'particle', def:'yori · Than. AはBより高い — A is more expensive than B.', ex:'でんしゃよりバスがやすいです。', exEn:'Densha yori basu ga yasui desu — The bus is cheaper than the train.', lvl:4, theme:'ひかく' },
+  { es:'いちばん', en:'most, number one', pos:'adverb', def:'ichiban · The superlative. Just put it in front of the adjective.', ex:'なつがいちばんすきです。', exEn:'Natsu ga ichiban suki desu — I like summer best.', lvl:4, theme:'ひかく' },
+);
+
+JA_SPEAKING[4] = [
+  { es:'あしたは雨がふると思います。', en:'I think it will rain tomorrow.', hint:'ashita wa ame ga furu to omoimasu' },
+  { es:'日本語がすこし話せます。', en:'I can speak a little Japanese.', hint:'nihongo ga sukoshi hanasemasu' },
+  { es:'どうすればいいですか。', en:'What should I do?', hint:'dō sureba ii desu ka' },
+  { es:'駅についたら、電話してください。', en:'Call me when you get to the station.', hint:'eki ni tsuitara, denwa shite kudasai' },
+  { es:'先生がおしえてくれました。', en:'The teacher kindly taught me.', hint:'sensei ga oshiete kuremashita' },
+  { es:'てつだってもらえませんか。', en:'Could I get you to help me?', hint:'tetsudatte moraemasen ka' },
+  { es:'あした早く起きなければなりません。', en:'I have to get up early tomorrow.', hint:'ashita hayaku okinakereba narimasen' },
+  { es:'休んだほうがいいですよ。', en:'You had better rest.', hint:'yasunda hō ga ii desu yo' },
+  { es:'きのう買った本はおもしろいです。', en:'The book I bought yesterday is interesting.', hint:'kinō katta hon wa omoshiroi desu' },
+  { es:'じつは、おねがいがあります。', en:'Actually, I have a favour to ask.', hint:'jitsu wa, onegai ga arimasu' },
+  { es:'もしかしたらおくれるかもしれません。', en:'I might possibly be late.', hint:'moshikashitara okureru kamo shiremasen' },
+  { es:'来年、日本に行くつもりです。', en:'I intend to go to Japan next year.', hint:'rainen, Nihon ni iku tsumori desu' },
+];
+
+JA_READING[4] = [
+  { id:'jr4-1', title:'アルバイトのめんせつ', words:118,
+    text:['「どうしてこの仕事をえらびましたか。」','「人と話すのが好きだからです。前のアルバイトでも、おきゃくさんとよく話しました。」','「日本語はどのくらい話せますか。」','「日常会話なら大丈夫だと思います。むずかしいことばはまだですが、勉強しています。」','「そうですか。土曜日ははたらけますか。」','「はい。授業がないので、土曜日と日曜日ははたらけます。」','「わかりました。来週までにれんらくします。」','「ありがとうございます。よろしくおねがいします。」'],
+    en:'"Dōshite kono shigoto o erabimashita ka?" "Hito to hanasu no ga suki da kara desu. Mae no arubaito de mo, okyakusan to yoku hanashimashita." "Nihongo wa dono kurai hanasemasu ka?" "Nichijō kaiwa nara daijōbu da to omoimasu. Muzukashii kotoba wa mada desu ga, benkyō shite imasu." "Sō desu ka. Doyōbi wa hatarakemasu ka?" "Hai. Jugyō ga nai node, doyōbi to nichiyōbi wa hatarakemasu." "Wakarimashita. Raishū made ni renraku shimasu." "Arigatō gozaimasu. Yoroshiku onegaishimasu." — "Why did you choose this job?" "Because I like talking to people. At my previous part-time job too, I often talked with customers." "How much Japanese can you speak?" "If it is everyday conversation, I think I am fine. Difficult words are still to come, but I am studying." "I see. Can you work Saturdays?" "Yes. I have no classes, so I can work Saturday and Sunday." "Understood. I will be in touch by next week." "Thank you. I look forward to it."',
+    qs:[ { q:'Why did she choose the job?', o:['The pay','She likes talking to people','It is near home'], a:1 }, { q:'What Japanese is still hard?', o:['Everyday conversation','Difficult vocabulary','Reading'], a:1 }, { q:'Which days can she work?', o:['Weekdays','The weekend','Every day'], a:1 } ] },
+  { id:'jr4-2', title:'おみやげ', words:106,
+    text:['日本では、りょこうから帰ったら、おみやげを買ってくるのがふつうです。','会社の人や友だちにあげます。高いものでなくてもいいです。','大切なのは「行ってきました」とつたえることです。','だから、おみやげはたいてい小さいおかしで、たくさん入っています。','ぜんいんにくばれるからです。','もらった人は「ありがとうございます」と言って、そのばで食べることもあります。','おみやげは、もののやりとりというより、気もちのやりとりです。'],
+    en:'Nihon de wa, ryokō kara kaettara, omiyage o katte kuru no ga futsū desu. Kaisha no hito ya tomodachi ni agemasu. Takai mono de nakute mo ii desu. Taisetsu na no wa "itte kimashita" to tsutaeru koto desu. Dakara, omiyage wa taitei chiisai okashi de, takusan haitte imasu. Zen\'in ni kubareru kara desu. Moratta hito wa "arigatō gozaimasu" to itte, sono ba de taberu koto mo arimasu. Omiyage wa, mono no yaritori to iu yori, kimochi no yaritori desu. — In Japan it is normal to buy a souvenir when you come back from a trip. You give them to people at work and to friends. They do not have to be expensive. What matters is conveying "I went and came back". That is why souvenirs are usually small sweets, with a lot in the box — because they can be handed round to everyone. People who receive one say thank you, and sometimes eat it on the spot. A souvenir is less an exchange of things than an exchange of feeling.',
+    qs:[ { q:'What matters most about a souvenir?', o:['Its price','Conveying that you went','Its taste'], a:1 }, { q:'Why are they usually small sweets?', o:['They are cheap','There are many, to hand round','They keep well'], a:1 }, { q:'The writer calls it an exchange of…', o:['things','feeling','money'], a:1 } ] },
+  { id:'jr4-3', title:'さくらの一週間', words:112,
+    text:['三月のおわりになると、ニュースがさくらのはなしをはじめます。','どこでいつさくか、まい日はっぴょうされます。','さくらがさいたら、みんな公園に行きます。これを花見といいます。','食べものとのみものを持っていって、木の下にすわります。','でも、さくらは一週間しかもちません。','雨がふったら、その日におわってしまうこともあります。','みじかいからうつくしい、と日本人はよく言います。','ながくつづくものなら、だれもこんなに見に行かないかもしれません。'],
+    en:'Sangatsu no owari ni naru to, nyūsu ga sakura no hanashi o hajimemasu. Doko de itsu saku ka, mainichi happyō saremasu. Sakura ga saitara, minna kōen ni ikimasu. Kore o hanami to iimasu. Tabemono to nomimono o motte itte, ki no shita ni suwarimasu. Demo, sakura wa isshūkan shika mochimasen. Ame ga futtara, sono hi ni owatte shimau koto mo arimasu. Mijikai kara utsukushii, to Nihonjin wa yoku iimasu. Nagaku tsuzuku mono nara, dare mo konna ni mi ni ikanai kamo shiremasen. — At the end of March the news starts talking about the cherry blossom. Where and when it will bloom is announced every day. When the blossom opens, everyone goes to the parks. This is called hanami. People take food and drink and sit under the trees. But the blossom only lasts a week. If it rains, it can be over that same day. The Japanese often say it is beautiful because it is short. If it lasted a long time, perhaps nobody would go to see it like this.',
+    qs:[ { q:'What is announced daily?', o:['The temperature','Where and when the blossom opens','Park closures'], a:1 }, { q:'How long does the blossom last?', o:['A day','A week','A month'], a:1 }, { q:'What is the writer\'s point?', o:['Rain ruins it','Brevity is why it is beautiful','It should last longer'], a:1 } ] },
+];
+
+JA_HUNTS[4] = [
+  { theme:'じょうけん · Conditionals', words:['tattara','sureba','naraba','moshi','baai','riyuu','houhou','kimeru'] },
+  { theme:'かんがえ · Thinking', words:['omou','kangaeru','iken','tsumori','yotei','keiken','kikai','erabu'] },
+  { theme:'やりとり · Giving & receiving', words:['ageru','kureru','morau','tanomu','tsutaeru','oshieru','tetsudau','kariru'] },
+  { theme:'ひんど · How often', words:['taitei','tokidoki','mettani','kanarazu','yappari','tonikaku','jitsuwa','ichiban'] },
+];
+
+JA_DIALOGUES[4] = [
+  { id:'jd4-1', title:'どうすればいいですか', scene:'Asking a tutor for advice.', lines:[
+    { who:'A', es:'かんじがぜんぜんおぼえられません。どうすればいいですか。', en:'I can\'t remember kanji at all. What should I do? (Kanji ga zenzen oboeraremasen. Dō sureba ii desu ka?)' },
+    { who:'B', es:'まい日すこしずつやったほうがいいと思います。', en:'I think you had better do a little every day. (Mainichi sukoshi zutsu yatta hō ga ii to omoimasu.)' },
+    { who:'A', es:'どのくらいですか。', en:'How much? (Dono kurai desu ka?)' },
+    { who:'B', es:'五つでいいです。百おぼえようとしたら、つづきません。', en:'Five is enough. If you try to learn a hundred, you won\'t keep it up. (Itsutsu de ii desu. Hyaku oboeyō to shitara, tsuzukimasen.)' },
+    { who:'A', es:'なるほど。やってみます。', en:'I see. I\'ll try it. (Naruhodo. Yatte mimasu.)' },
+    { who:'B', es:'一か月つづけたら、ぜったいかわりますよ。', en:'If you keep it up for a month, it will definitely change. (Ikkagetsu tsuzuketara, zettai kawarimasu yo.)' },
+  ] },
+  { id:'jd4-2', title:'かしてくれる？', scene:'Two friends, one umbrella.', lines:[
+    { who:'A', es:'あ、雨だ。かさ、持ってる？', en:'Oh, rain. Have you got an umbrella? (A, ame da. Kasa, motteru?)' },
+    { who:'B', es:'うん、二本あるよ。一本かしてあげようか。', en:'Yeah, I\'ve got two. Shall I lend you one? (Un, nihon aru yo. Ippon kashite ageyō ka?)' },
+    { who:'A', es:'ほんと？ たすかる。', en:'Really? That\'s a help. (Honto? Tasukaru.)' },
+    { who:'B', es:'あしたかえしてくれればいいから。', en:'Just give it back tomorrow. (Ashita kaeshite kurereba ii kara.)' },
+    { who:'A', es:'ありがとう。かしてくれて、ほんとうにありがとう。', en:'Thanks. Thank you really, for lending it. (Arigatō. Kashite kurete, hontō ni arigatō.)' },
+    { who:'B', es:'おおげさだよ。かさ一本でしょ。', en:'You\'re exaggerating. It\'s one umbrella. (Ōgesa da yo. Kasa ippon desho.)' },
+  ] },
+  { id:'jd4-3', title:'よていがかわりました', scene:'A change of plan, by telephone.', lines:[
+    { who:'A', es:'もしもし、田中です。じつは、よていがかわりまして。', en:'Hello, this is Tanaka. Actually, the plan has changed. (Moshi moshi, Tanaka desu. Jitsu wa, yotei ga kawarimashite.)' },
+    { who:'B', es:'はい、どうされましたか。', en:'Yes, what has happened? (Hai, dō saremashita ka?)' },
+    { who:'A', es:'会議が三時からになりました。二時では早すぎるかもしれません。', en:'The meeting has moved to three. Two might be too early. (Kaigi ga sanji kara ni narimashita. Niji de wa hayasugiru kamo shiremasen.)' },
+    { who:'B', es:'わかりました。では、三時半にうかがいましょうか。', en:'Understood. Shall I come at half past three, then? (Wakarimashita. Dewa, sanjihan ni ukagaimashō ka?)' },
+    { who:'A', es:'そうしていただけると、たすかります。', en:'If you could do that, it would help. (Sō shite itadakeru to, tasukarimasu.)' },
+    { who:'B', es:'とんでもないです。では、のちほど。', en:'Not at all. See you later, then. (Tondemonai desu. Dewa, nochihodo.)' },
+  ] },
+];
+
+/* ================================ LEVEL 5 ================================
+   Keigo, the passive, the causative, and a newspaper. */
+JA_GRAMMAR[5] = [
+  { id:'jg5-1', title:'敬語 · The two directions of respect', sub:'Raise them, lower yourself, and never the other way round.',
+    lede:'Japanese politeness above ます is not one scale but two. 尊敬語 lifts the other person\'s actions; 謙譲語 lowers your own. Both end up meaning "please" or "I will", and using the wrong one — lifting yourself — is the single most conspicuous mistake a foreign speaker can make.',
+    rules:[
+      { r:'尊敬語 sonkeigo — for what the other person does. Special verbs first.',
+        ex:[['いらっしゃる','irassharu — go, come, be (for them)'],['めしあがる','meshiagaru — eat, drink'],['ごらんになる','goran ni naru — look at'],['おっしゃる','ossharu — say']] },
+      { r:'謙譲語 kenjōgo — for what you do, in their presence.',
+        ex:[['まいる','mairu — go, come (I)'],['いただく','itadaku — eat, drink, receive'],['はいけんする','haiken suru — look at'],['もうす','mōsu — say']] },
+      { r:'The general patterns, when there is no special verb.',
+        ex:[['お＋stem＋になる','respectful: お読みになる — you read'],['お＋stem＋する','humble: お持ちします — I\'ll carry it'],['〜られる','a lighter respectful: 読まれる']] },
+      { r:'Never raise yourself. 私がいらっしゃいます is the classic disaster.', ok:true,
+        ex:[['社長がいらっしゃいます。','Shachō ga irasshaimasu — The president is here. ✓'],['私がまいります。','Watashi ga mairimasu — I will come. ✓'],['私がいらっしゃいます。','✗']] },
+      { r:'Inside and outside: your own company is "inside", so you lower your own boss to an outsider.',
+        ex:[['田中はただいま外出しております。','Tanaka wa tadaima gaishutsu shite orimasu — Mr Tanaka [our boss] is out at the moment.']] },
+    ],
+    table:{ h:['plain','respectful (them)','humble (me)'], rows:[['行く・来る・いる','いらっしゃる','まいる・おる'],['食べる・飲む','めしあがる','いただく'],['言う','おっしゃる','もうす'],['する','なさる','いたす'],['見る','ごらんになる','はいけんする']] },
+    callout:'Dropping your own boss\'s honorific when speaking to a customer feels rude and is in fact the polite form. The customer is outside; anyone inside your organisation, president included, gets lowered.',
+    culture:'Shop and station keigo is a register of its own — いらっしゃいませ, 少々お待ちくださいませ — and nobody expects a reply in the same style. Understanding it is enough.',
+    quiz:[
+      { q:'"I will come" in humble form is…', o:['いらっしゃいます','まいります','おいでになります','こられます'], a:1, why:'まいる lowers your own action.' },
+      { q:'Talking to a customer about your own manager, you…', o:['raise him','lower him','use plain form','use ます only'], a:1, why:'Inside the company is "inside".' },
+      { q:'めしあがる is…', o:['humble','respectful','plain','casual'], a:1, why:'It lifts the other person\'s eating.' },
+    ] },
+
+  { id:'jg5-2', title:'The passive', sub:'〜られる, and the one English has no name for.',
+    lede:'The Japanese passive does the ordinary job — the thing was done — and one extra job that English cannot manage in a single verb: it says that something happened to you, and that you would rather it had not. That second use is everywhere in speech and almost never taught early enough.',
+    rules:[
+      { r:'る-verbs: stem + られる. う-verbs: the ない-stem + れる.',
+        ex:[['たべる → たべられる','taberu → taberareru'],['のむ → のまれる','nomu → nomareru'],['する → される','suru → sareru'],['くる → こられる','kuru → korareru']] },
+      { r:'Plain passive: the doer takes に.',
+        ex:[['この本は多くの人に読まれています。','Kono hon wa ōku no hito ni yomarete imasu — This book is read by many people.'],['母におこられました。','Haha ni okoraremashita — I was told off by my mother.']] },
+      { r:'The suffering passive — an intransitive verb, used against you.', ok:true,
+        ex:[['雨にふられました。','Ame ni furaremashita — I got rained on.'],['友だちに来られて、勉強できませんでした。','Tomodachi ni korarete, benkyō dekimasen deshita — A friend came round on me, and I couldn\'t study.']] },
+      { r:'For facts and reports, the doer is simply left out.',
+        ex:[['この寺は千年前に建てられました。','Kono tera wa sennen mae ni tateraremashita — This temple was built a thousand years ago.'],['会議は来週にえんきされました。','Kaigi wa raishū ni enki saremashita — The meeting has been postponed to next week.']] },
+      { r:'Identical in shape to the potential for る-verbs. Context separates them without effort.',
+        ex:[['さしみが食べられます。','Sashimi ga taberaremasu — I can eat sashimi. (が = potential)'],['ケーキが食べられました。','Kēki ga taberaremashita — The cake got eaten.']] },
+    ],
+    callout:'雨に降られた is a whole complaint in three words. There is no English sentence that carries the same shrug, and learning to use it is a real step towards sounding Japanese.',
+    quiz:[
+      { q:'"I got rained on" is…', o:['雨がふりました','雨にふられました','雨をふらせました','雨がふれました'], a:1, why:'The suffering passive.' },
+      { q:'The passive of のむ is…', o:['のめる','のまれる','のませる','のんでいる'], a:1, why:'ない-stem + れる.' },
+      { q:'In the passive, the doer takes…', o:['が','を','に','で'], a:2, why:'に marks the agent.' },
+    ] },
+
+  { id:'jg5-3', title:'The causative', sub:'Make them, let them, and the form that does both.',
+    lede:'One Japanese form covers "make someone do" and "let someone do". Which it is comes from the situation and, helpfully, from the particle: を tends towards making, に towards letting. Stack it with the passive and you get the form for being made to do something you did not want to.',
+    rules:[
+      { r:'る-verbs: stem + させる. う-verbs: the ない-stem + せる.',
+        ex:[['たべる → たべさせる','taberu → tabesaseru'],['のむ → のませる','nomu → nomaseru'],['する → させる','suru → saseru'],['くる → こさせる','kuru → kosaseru']] },
+      { r:'を leans towards making; に leans towards letting.',
+        ex:[['子どもを行かせました。','Kodomo o ikasemashita — I made the child go.'],['子どもに行かせました。','Kodomo ni ikasemashita — I let the child go.']] },
+      { r:'The causative-passive: made to do it, and not pleased about it.',
+        ex:[['むりやり飲まされました。','Muriyari nomasaremashita — I was made to drink.'],['三時間待たされた。','Sanjikan matasareta — I was kept waiting three hours.']] },
+      { r:'〜させてください — let me. The polite way to volunteer for anything.', ok:true,
+        ex:[['私にやらせてください。','Watashi ni yarasete kudasai — Please let me do it.'],['考えさせてください。','Kangaesasete kudasai — Let me think about it.']] },
+    ],
+    callout:'考えさせてください is how you buy time politely in Japanese — the exact equivalent of "let me think about it", and far better than a hesitant yes.',
+    quiz:[
+      { q:'"Please let me do it" is…', o:['やってください','やらせてください','やられてください','やらなくてください'], a:1, why:'Causative + てください.' },
+      { q:'"I was kept waiting" is…', o:['待ちました','待たれました','待たされました','待たせました'], a:2, why:'The causative-passive.' },
+      { q:'The causative of のむ is…', o:['のまれる','のませる','のめる','のんでいる'], a:1, why:'ない-stem + せる.' },
+    ] },
+
+  { id:'jg5-4', title:'It seems, apparently, I hear', sub:'そうだ, ようだ, らしい, みたい — four kinds of hedge.',
+    lede:'Japanese marks how you came by a piece of information, and marks it on the verb. Did you see it, hear it from someone, infer it, or is it simply the general opinion? Four endings answer that, and they are not interchangeable.',
+    rules:[
+      { r:'〜そうだ on the stem — it looks that way, from the appearance.',
+        ex:[['おいしそうですね。','Oishisō desu ne — That looks delicious.'],['雨がふりそうです。','Ame ga furisō desu — It looks like rain.']] },
+      { r:'〜そうだ on the plain form — I hear, I am told. A different word entirely.', ok:true,
+        ex:[['田中さんは来ないそうです。','Tanaka-san wa konai sō desu — I hear Tanaka isn\'t coming.'],['来年けっこんするそうです。','Rainen kekkon suru sō desu — Apparently they\'re marrying next year.']] },
+      { r:'〜ようだ — it seems, from what I can work out. The most reasoned of the four.',
+        ex:[['だれもいないようです。','Daremo inai yō desu — It seems nobody is in.'],['かぜをひいたようだ。','Kaze o hiita yō da — It seems I\'ve caught a cold.']] },
+      { r:'〜らしい — apparently, and it is what people say. Also "typical of".',
+        ex:[['あの店は高いらしい。','Ano mise wa takai rashii — That shop is expensive, apparently.'],['彼らしいですね。','Kare rashii desu ne — That\'s just like him.']] },
+      { r:'〜みたい — the spoken ようだ. Casual, and it attaches straight to nouns.',
+        ex:[['雨みたい。','Ame mitai — Looks like rain.'],['子どもみたいだね。','Kodomo mitai da ne — Like a child, aren\'t you.']] },
+    ],
+    table:{ h:['ending','attaches to','means'], rows:[['〜そう','stem','looks like it, from appearance'],['〜そう','plain form','I hear that'],['〜よう','plain form','it seems, reasoning'],['〜らしい','plain form','apparently, they say'],['〜みたい','plain form / noun','looks like (casual)']] },
+    callout:'降りそう is "it looks like rain"; 降るそう is "I hear it will rain". One kana apart, and completely different evidence.',
+    quiz:[
+      { q:'おいしそう means…', o:['I hear it is delicious','It looks delicious','It is delicious','It was delicious'], a:1, why:'そう on the stem is appearance.' },
+      { q:'"I hear he isn\'t coming" is…', o:['来なさそうです','来ないそうです','来ないようです','来ないみたい'], a:1, why:'そう on the plain form is hearsay.' },
+      { q:'Which attaches directly to a noun?', o:['そう (appearance)','みたい','よう','らしい'], a:1, why:'雨みたい.' },
+    ] },
+
+  { id:'jg5-5', title:'Written Japanese', sub:'だ・である, compound kanji, and how a headline works.',
+    lede:'Newspapers, essays and reports are not written in the language you have been speaking. The style is plainer, denser and more Chinese: だ or である instead of です, compound kanji instead of native verbs, and headlines with the verbs taken out altogether.',
+    rules:[
+      { r:'である style — the register of essays and reports. Neither polite nor casual: impersonal.',
+        ex:[['これは大きな問題である。','Kore wa ōkina mondai de aru — This is a serious problem.'],['原因は明らかではない。','Gen\'in wa akiraka de wa nai — The cause is not clear.']] },
+      { r:'Compound kanji replace everyday verbs. Same meaning, higher register.',
+        ex:[['決める → 決定する','kimeru → kettei suru — to decide'],['始める → 開始する','hajimeru → kaishi suru — to begin'],['増える → 増加する','fueru → zōka suru — to increase']] },
+      { r:'Headlines drop the verb and mark the tense with a kanji.',
+        ex:[['首相、来月訪米へ','Shushō, raigetsu hōbei e — PM to visit US next month (へ = will)'],['地震で三人死亡','Jishin de sannin shibō — Three dead in earthquake']] },
+      { r:'The passive carries facts with no author.',
+        ex:[['新しい法律が可決された。','Atarashii hōritsu ga kaketsu sareta — A new law has been passed.']] },
+      { r:'Connectives do the arguing.',
+        ex:[['しかし','shikashi — however'],['ただし','tadashi — provided that'],['一方','ippō — meanwhile, on the other hand'],['したがって','shitagatte — therefore']] },
+    ],
+    callout:'A headline ending in へ has not lost a word; へ is the verb. "首相、訪米へ" is a complete sentence meaning the prime minister is going to America.',
+    quiz:[
+      { q:'である is…', o:['polite','casual','impersonal written style','honorific'], a:2, why:'The register of essays and reports.' },
+      { q:'決定する is 決める…', o:['in the past','in a higher register','in the negative','in the passive'], a:1, why:'A Sino-Japanese compound for the same act.' },
+      { q:'In a headline, へ means…', o:['to a place only','will, is going to','from','and'], a:1, why:'It stands in for the verb.' },
+    ] },
+
+  { id:'jg5-6', title:'Making an argument', sub:'Conceding, qualifying, and disagreeing without a collision.',
+    lede:'Japanese argument is built to leave both people a way out. You concede first, qualify second, and put your own position last and softly. The connectives below are the machinery, and the order they come in matters as much as the words.',
+    rules:[
+      { r:'Concede, then turn. たしかに…しかし is the standard pair.',
+        ex:[['たしかにそうですが、一方で問題もあります。','Tashika ni sō desu ga, ippō de mondai mo arimasu — That is certainly so, but on the other hand there are problems.']] },
+      { r:'Soften the claim itself.',
+        ex:[['〜のではないでしょうか','no de wa nai deshō ka — might it not be that…'],['〜と思われます','to omowaremasu — it is thought that'],['〜かもしれませんが','kamo shiremasen ga — it may be that, but']] },
+      { r:'Structure the case out loud.',
+        ex:[['まず','mazu — first'],['つぎに','tsugi ni — next'],['さらに','sara ni — furthermore'],['最後に','saigo ni — finally']] },
+      { r:'Disagree without saying no.',
+        ex:[['おっしゃることはわかりますが…','Ossharu koto wa wakarimasu ga… — I see what you mean, but…'],['そういう見方もありますね。','Sō iu mikata mo arimasu ne — That is one way of seeing it.']] },
+      { r:'Close by leaving it open, not by winning.',
+        ex:[['もうすこし考えてみます。','Mō sukoshi kangaete mimasu — I will give it more thought.'],['けんとうさせていただきます。','Kentō sasete itadakimasu — Allow me to consider it.']] },
+    ],
+    callout:'けんとうします — "I will consider it" — is very often a refusal. It is not a lie; it is a way of declining that costs neither side anything.',
+    quiz:[
+      { q:'〜のではないでしょうか is…', o:['a firm claim','a softened claim','a question about facts','a refusal'], a:1, why:'It hedges the assertion.' },
+      { q:'たしかに opens…', o:['a refusal','a concession','a summary','a question'], a:1, why:'Concede, then turn.' },
+      { q:'けんとうします often means…', o:['yes','no','later','I do not understand'], a:1, why:'A no that costs nobody face.' },
+    ] },
+];
+
+JA_DICT.push(
+  { es:'しらべる', en:'to look into, to check', pos:'verb', def:'shiraberu · To investigate or look something up.', ex:'ネットでしらべました。', exEn:'Netto de shirabemashita — I looked it up online.', lvl:5, theme:'どうし' },
+  { es:'くらべる', en:'to compare', pos:'verb', def:'kuraberu · To compare. AとBをくらべる.', ex:'二つをくらべてみましょう。', exEn:'Futatsu o kurabete mimashō — Let us compare the two.', lvl:5, theme:'どうし' },
+  { es:'みとめる', en:'to admit, to acknowledge', pos:'verb', def:'mitomeru · To grant that something is so.', ex:'まちがいをみとめました。', exEn:'Machigai o mitomemashita — He admitted the mistake.', lvl:5, theme:'どうし' },
+  { es:'すすめる', en:'to recommend', pos:'verb', def:'susumeru · To recommend, and 進める to move a thing forward.', ex:'この本をすすめます。', exEn:'Kono hon o susumemasu — I recommend this book.', lvl:5, theme:'どうし' },
+  { es:'ほめる', en:'to praise', pos:'verb', def:'homeru · To praise. Its passive ほめられる is how you say you were praised.', ex:'先生にほめられました。', exEn:'Sensei ni homeraremashita — I was praised by the teacher.', lvl:5, theme:'どうし' },
+  { es:'けいご', en:'honorific language', pos:'noun', def:'keigo · The polite registers taken together — 尊敬語 and 謙譲語.', ex:'けいごはむずかしいです。', exEn:'Keigo wa muzukashii desu — Keigo is difficult.', lvl:5, theme:'ことば' },
+  { es:'もんだい', en:'problem, question', pos:'noun', def:'mondai · A problem, and an exam question.', ex:'大きなもんだいです。', exEn:'Ōkina mondai desu — It is a serious problem.', lvl:5, theme:'ぎろん' },
+  { es:'げんいん', en:'cause', pos:'noun', def:'gen\'in · The cause of something. Its pair is 結果 kekka, the result.', ex:'げんいんはまだわかりません。', exEn:'Gen\'in wa mada wakarimasen — The cause is not yet known.', lvl:5, theme:'ぎろん' },
+  { es:'けっか', en:'result', pos:'noun', def:'kekka · The result. 〜した結果 is "as a result of".', ex:'けっかをはっぴょうします。', exEn:'Kekka o happyō shimasu — The results will be announced.', lvl:5, theme:'ぎろん' },
+  { es:'えいきょう', en:'influence, effect', pos:'noun', def:'eikyō · Influence. 影響を与える to have an effect; 影響を受ける to be affected.', ex:'大きなえいきょうがありました。', exEn:'Ōkina eikyō ga arimashita — It had a large effect.', lvl:5, theme:'ぎろん' },
+  { es:'しゃかい', en:'society', pos:'noun', def:'shakai · Society. 社会人 shakaijin is an adult in working life.', ex:'しゃかいのもんだいです。', exEn:'Shakai no mondai desu — It is a social problem.', lvl:5, theme:'ぎろん' },
+  { es:'せいふ', en:'government', pos:'noun', def:'seifu · The government.', ex:'せいふがはっぴょうしました。', exEn:'Seifu ga happyō shimashita — The government announced it.', lvl:5, theme:'ニュース' },
+  { es:'けいざい', en:'economy', pos:'noun', def:'keizai · The economy. 経済的 keizaiteki is "economical".', ex:'けいざいのニュースをよみます。', exEn:'Keizai no nyūsu o yomimasu — I read the economic news.', lvl:5, theme:'ニュース' },
+  { es:'かんきょう', en:'environment', pos:'noun', def:'kankyō · Environment — both the natural one and your surroundings.', ex:'かんきょうをまもります。', exEn:'Kankyō o mamorimasu — We protect the environment.', lvl:5, theme:'ニュース' },
+  { es:'ぞうか', en:'increase', pos:'noun', def:'zōka · An increase. 増加する is the written verb for 増える.', ex:'じんこうがぞうかしています。', exEn:'Jinkō ga zōka shite imasu — The population is increasing.', lvl:5, theme:'ニュース' },
+  { es:'ひつよう', en:'necessary', pos:'na-adj', def:'hitsuyō · Necessary. 必要がある is "there is a need to".', ex:'その説明はひつようです。', exEn:'Sono setsumei wa hitsuyō desu — That explanation is necessary.', lvl:5, theme:'ぎろん' },
+  { es:'たしかに', en:'certainly, admittedly', pos:'adverb', def:'tashika ni · The word that opens a concession before you disagree.', ex:'たしかにそうですが…', exEn:'Tashika ni sō desu ga… — That is certainly so, but…', lvl:5, theme:'ぎろん' },
+  { es:'いっぽう', en:'on the other hand', pos:'adverb', def:'ippō · Meanwhile, on the other hand. 一方で in the middle of an argument.', ex:'いっぽうで、もんだいもあります。', exEn:'Ippō de, mondai mo arimasu — On the other hand, there are problems too.', lvl:5, theme:'ぎろん' },
+  { es:'けんとう', en:'consideration', pos:'noun', def:'kentō · Consideration. 検討します is very often a polite refusal.', ex:'けんとうさせていただきます。', exEn:'Kentō sasete itadakimasu — Allow me to consider it.', lvl:5, theme:'ぎろん' },
+);
+
+JA_SPEAKING[5] = [
+  { es:'社長はただいまいらっしゃいません。', en:'The president is not in at the moment.', hint:'shachō wa tadaima irasshaimasen' },
+  { es:'私がまいります。', en:'I will come.', hint:'watashi ga mairimasu' },
+  { es:'お荷物をお持ちします。', en:'I will carry your bag.', hint:'onimotsu o omochi shimasu' },
+  { es:'雨にふられて、ぬれました。', en:'I got rained on and got wet.', hint:'ame ni furarete, nuremashita' },
+  { es:'三時間も待たされました。', en:'I was kept waiting three whole hours.', hint:'sanjikan mo matasaremashita' },
+  { es:'考えさせてください。', en:'Please let me think about it.', hint:'kangaesasete kudasai' },
+  { es:'田中さんは来ないそうです。', en:'I hear Tanaka is not coming.', hint:'Tanaka-san wa konai sō desu' },
+  { es:'たしかにそうですが、一方で問題もあります。', en:'That is certainly so, but there are problems too.', hint:'tashika ni sō desu ga, ippō de mondai mo arimasu' },
+  { es:'おっしゃることはわかりますが…', en:'I see what you mean, but…', hint:'ossharu koto wa wakarimasu ga…' },
+  { es:'げんいんはまだ明らかではありません。', en:'The cause is not yet clear.', hint:'gen\'in wa mada akiraka de wa arimasen' },
+];
+
+JA_READING[5] = [
+  { id:'jr5-1', title:'人口がへる国', words:126,
+    text:['日本の人口は二〇〇八年をピークにへりつづけている。','原因は一つではない。子どもを産む人がへり、同時に高齢者がふえた。','その結果、はたらく人の数が少なくなり、経済への影響が心配されている。','政府はいくつかの対策をとってきたが、大きな変化はまだ見られない。','一方で、外国から来てはたらく人は年々ふえている。','ただし、ことばと制度のかべは高く、じゅうぶんな支援があるとは言えない。','人口がへること自体を止めるのはむずかしいだろう。','問題は、へっていく社会をどう設計しなおすかである。'],
+    en:'Nihon no jinkō wa nisen hachinen o pīku ni heritsuzukete iru. Gen\'in wa hitotsu de wa nai. Kodomo o umu hito ga heri, dōji ni kōreisha ga fueta. Sono kekka, hataraku hito no kazu ga sukunaku nari, keizai e no eikyō ga shinpai sarete iru. Seifu wa ikutsuka no taisaku o totte kita ga, ōkina henka wa mada mirarenai. Ippō de, gaikoku kara kite hataraku hito wa nennen fuete iru. Tadashi, kotoba to seido no kabe wa takaku, jūbun na shien ga aru to wa ienai. Jinkō ga heru koto jitai o tomeru no wa muzukashii darō. Mondai wa, hette iku shakai o dō sekkei shinaosu ka de aru. — Japan\'s population has been falling since its peak in 2008. The cause is not a single one. Fewer people are having children, and at the same time the number of elderly has risen. As a result the working population has shrunk, and the effect on the economy is a matter of concern. The government has taken several measures, but no large change is yet visible. On the other hand, the number of people coming from abroad to work rises year by year. However, the barriers of language and of the system are high, and it cannot be said that there is adequate support. Stopping the decline itself is probably difficult. The question is how to redesign a shrinking society.',
+    qs:[ { q:'When did the population peak?', o:['1998','2008','2018'], a:1 }, { q:'What does the writer say about government measures?', o:['They worked','No large change is visible yet','There have been none'], a:1 }, { q:'What does the writer say the real question is?', o:['How to stop the decline','How to redesign a shrinking society','How to attract more workers'], a:1 } ] },
+  { id:'jr5-2', title:'コンビニの二十四時間', words:118,
+    text:['日本のコンビニは長いあいだ、二十四時間あいているのがあたりまえだった。','しかし、はたらく人が集まらなくなり、この習慣が見直されている。','ある店主は本部に営業時間をみじかくしたいとつたえた。','はじめは認められなかったが、ニュースで取り上げられ、議論が広がった。','たしかに、夜あいている店はべんりである。','ただし、そのべんりさはだれかの深夜労働の上に成り立っている。','消費者としては考えさせられる問題だ。','便利とは、だれかが払ったコストの別の名前なのかもしれない。'],
+    en:'Nihon no konbini wa nagai aida, nijūyojikan aite iru no ga atarimae datta. Shikashi, hataraku hito ga atsumaranaku nari, kono shūkan ga minaosarete iru. Aru tenshu wa honbu ni eigyō jikan o mijikaku shitai to tsutaeta. Hajime wa mitomerarenakatta ga, nyūsu de toriagerare, giron ga hirogatta. Tashika ni, yoru aite iru mise wa benri de aru. Tadashi, sono benrisa wa dareka no shin\'ya rōdō no ue ni naritatte iru. Shōhisha to shite wa kangaesaserareru mondai da. Benri to wa, dareka ga haratta kosuto no betsu no namae na no kamo shirenai. — For a long time it was taken for granted that Japanese convenience stores were open twenty-four hours. But workers have become hard to find, and the practice is being reconsidered. One store owner told head office he wanted to shorten his opening hours. At first he was not permitted to, but the case was picked up by the news and the debate spread. Certainly, a shop that is open at night is convenient. However, that convenience rests on somebody\'s night-shift labour. As a consumer it is a problem that makes you think. "Convenient" may be another name for a cost somebody else has paid.',
+    qs:[ { q:'Why is the practice being reconsidered?', o:['Costs rose','Workers are hard to find','Customers complained'], a:1 }, { q:'What happened to the owner at first?', o:['He was permitted','He was not permitted','He was dismissed'], a:1 }, { q:'What is the writer\'s conclusion?', o:['Convenience is free','Convenience is a cost somebody else pays','Shops should close'], a:1 } ] },
+  { id:'jr5-3', title:'ことばと敬語', words:120,
+    text:['敬語はむずかしいと、日本人自身がよく言う。','じっさい、正しく使えない若い人はふえていると言われている。','しかし、これは新しい心配ではない。','百年前の新聞にも、同じことが書かれている。','ことばは変わるものであり、変わったことをなげく声もまた古くからある。','大切なのは、相手との距離をどう示すかという感覚であろう。','形をまちがえても、その気もちがつたわれば、たいていゆるされる。','逆に、形だけ正しくて心がなければ、かえって冷たくきこえる。'],
+    en:'Keigo wa muzukashii to, Nihonjin jishin ga yoku iu. Jissai, tadashiku tsukaenai wakai hito wa fuete iru to iwarete iru. Shikashi, kore wa atarashii shinpai de wa nai. Hyakunen mae no shinbun ni mo, onaji koto ga kakarete iru. Kotoba wa kawaru mono de ari, kawatta koto o nageku koe mo mata furuku kara aru. Taisetsu na no wa, aite to no kyori o dō shimesu ka to iu kankaku de arō. Katachi o machigaete mo, sono kimochi ga tsutawareba, taitei yurusareru. Gyaku ni, katachi dake tadashikute kokoro ga nakereba, kaette tsumetaku kikoeru. — Japanese people themselves often say that keigo is difficult. In fact it is said that the number of young people who cannot use it correctly is rising. But this is not a new worry. The same thing is written in newspapers from a hundred years ago. Language is a thing that changes, and voices lamenting that it has changed are equally old. What matters is probably the sense of how to show distance from the other person. Even if you get the form wrong, if the feeling comes across you are usually forgiven. Conversely, if only the form is correct and there is no heart in it, it sounds colder than before.',
+    qs:[ { q:'Is the worry about keigo new?', o:['Yes','No — it is a century old','It began last year'], a:1 }, { q:'What does the writer say matters?', o:['Perfect forms','The sense of distance from the other person','Speaking slowly'], a:1 }, { q:'Correct form with no feeling sounds…', o:['polite','colder','warmer'], a:1 } ] },
+];
+
+JA_HUNTS[5] = [
+  { theme:'けいご · Honorifics', words:['keigo','irassharu','meshiagaru','mairu','itadaku','ossharu','nasaru','haiken'] },
+  { theme:'ニュース · In the news', words:['seifu','keizai','kankyou','shakai','zouka','mondai','genin','kekka'] },
+  { theme:'ぎろん · Argument', words:['tashikani','ippou','shikashi','tadashi','hitsuyou','iken','kentou','eikyou'] },
+];
+
+JA_DIALOGUES[5] = [
+  { id:'jd5-1', title:'おそれいります', scene:'A visitor at a company reception.', lines:[
+    { who:'A', es:'いらっしゃいませ。どちらさまでしょうか。', en:'Welcome. May I ask who you are? (Irasshaimase. Dochirasama deshō ka?)' },
+    { who:'B', es:'みどり商事の山田ともうします。三時にお約束をいただいております。', en:'My name is Yamada, of Midori Trading. I have an appointment at three. (Midori Shōji no Yamada to mōshimasu. Sanji ni oyakusoku o itadaite orimasu.)' },
+    { who:'A', es:'山田さまですね。おそれいりますが、少々お待ちくださいませ。', en:'Mr Yamada. I am sorry to trouble you — please wait just a moment. (Yamada-sama desu ne. Osoreirimasu ga, shōshō omachi kudasaimase.)' },
+    { who:'B', es:'はい、けっこうです。', en:'Yes, that is fine. (Hai, kekkō desu.)' },
+    { who:'A', es:'お待たせいたしました。田中がまいりますので、こちらへどうぞ。', en:'Thank you for waiting. Tanaka is on his way — this way, please. (Omatase itashimashita. Tanaka ga mairimasu node, kochira e dōzo.)' },
+    { who:'B', es:'おそれいります。', en:'Thank you. (Osoreirimasu.)' },
+  ] },
+  { id:'jd5-2', title:'それも一つの見方ですね', scene:'A disagreement in a seminar.', lines:[
+    { who:'A', es:'この対策はじゅうぶんだと思われますか。', en:'Do you think this measure is sufficient? (Kono taisaku wa jūbun da to omowaremasu ka?)' },
+    { who:'B', es:'たしかに効果はあるでしょう。しかし、一方でコストの問題があります。', en:'It will certainly have an effect. But on the other hand there is the question of cost. (Tashika ni kōka wa aru deshō. Shikashi, ippō de kosuto no mondai ga arimasu.)' },
+    { who:'A', es:'おっしゃることはわかりますが、何もしないよりはいいのではないでしょうか。', en:'I see what you mean, but might it not be better than doing nothing? (Ossharu koto wa wakarimasu ga, nani mo shinai yori wa ii no de wa nai deshō ka?)' },
+    { who:'B', es:'それも一つの見方ですね。ただし、順番は考えるひつようがあると思います。', en:'That is one way of seeing it. However, I think the order needs thinking about. (Sore mo hitotsu no mikata desu ne. Tadashi, junban wa kangaeru hitsuyō ga aru to omoimasu.)' },
+    { who:'A', es:'なるほど。では、その点をもうすこし検討しましょう。', en:'I see. Then let us consider that point a little further. (Naruhodo. Dewa, sono ten o mō sukoshi kentō shimashō.)' },
+    { who:'B', es:'ありがとうございます。よろしくおねがいします。', en:'Thank you. I appreciate it. (Arigatō gozaimasu. Yoroshiku onegaishimasu.)' },
+  ] },
+];
+
+/* ================================ LEVEL 6 ================================
+   Register, dialect, what is left unsaid, and a page of literature. */
+JA_GRAMMAR[6] = [
+  { id:'jg6-1', title:'Who is speaking', sub:'Register, sentence-final particles, and the words that give you away.',
+    lede:'Japanese carries an unusual amount of information about the speaker in the sentence itself — age, gender, region, and how close the two of you are. None of it is optional, and a foreigner who speaks entirely in textbook forms sounds like nobody in particular. This lesson is about sounding like someone.',
+    rules:[
+      { r:'Pronouns place you before you have said anything else.',
+        ex:[['わたくし','watakushi — formal, either'],['わたし','watashi — neutral; standard for women'],['ぼく','boku — men, softer'],['おれ','ore — men, casual, can be rough'],['うち','uchi — women, casual, Kansai-flavoured']] },
+      { r:'Sentence-final particles carry the tone.',
+        ex:[['よ','yo — I am telling you something new'],['ね','ne — seeking agreement, softening'],['な','na — to oneself, or masculine'],['わ','wa — feminine in Tokyo, neutral in Kansai'],['ぞ・ぜ','zo, ze — assertive, masculine']] },
+      { r:'よ and ね are not decoration. Leaving them out sounds abrupt; overusing よ sounds bossy.', ok:true,
+        ex:[['あしたテストだよ。','Ashita tesuto da yo — There\'s a test tomorrow, you know.'],['あしたテストだね。','Ashita tesuto da ne — There\'s a test tomorrow, isn\'t there.'],['あしたテストだ。','Ashita tesuto da — flat, like a note to yourself.']] },
+      { r:'The same thought, four registers.',
+        ex:[['お読みになりましたか。','have you read it — honorific'],['読みましたか。','— polite'],['読んだ？','— casual'],['読んだか？','— blunt, masculine']] },
+      { r:'Softeners do real work at the end of a sentence.',
+        ex:[['〜けど','kedo — but, trailing off'],['〜んです','n desu — explaining, softening'],['〜かな','ka na — I wonder'],['〜でしょう','deshō — isn\'t it, I suppose']] },
+    ],
+    callout:'Pick one register and stay in it for the length of a conversation. Sliding between おれ and わたくし in the same exchange is more noticeable than any grammatical slip.',
+    culture:'The "women\'s language" of textbooks — わ, かしら, のよ — is now heard mostly in fiction and from older speakers. Real speech is far more mixed, and many young women use ぼく-adjacent casual forms without comment.',
+    quiz:[
+      { q:'Ending a statement with よ…', o:['asks for agreement','tells the listener something new','is a question','is formal'], a:1, why:'ね asks for agreement; よ informs.' },
+      { q:'おれ is…', o:['formal','feminine','casual, masculine','regional only'], a:2, why:'Casual, sometimes rough.' },
+      { q:'A sentence with no final particle sounds…', o:['polite','warm','flat','rude'], a:2, why:'Like a note to yourself.' },
+    ] },
+
+  { id:'jg6-2', title:'関西弁', sub:'Kansai-ben — not wrong, just elsewhere.',
+    lede:'Standard Japanese is the Tokyo dialect with a government behind it. Kansai — Osaka, Kyoto, Kobe — has its own, spoken by more than twenty million people, and it is the dialect you will meet most in comedy, on television and in half the anime you watch. Understanding it is a real skill; speaking it is a choice.',
+    rules:[
+      { r:'The copula: だ becomes や.',
+        ex:[['そうや。','Sō ya — That\'s right. (そうだ)'],['ほんまやで。','Honma ya de — It\'s true, I tell you.']] },
+      { r:'Negatives take へん or ん instead of ない.',
+        ex:[['わからへん。','Wakarahen — I don\'t get it. (わからない)'],['行かへん。','Ikahen — I\'m not going.']] },
+      { r:'Vocabulary differs, not just endings.',
+        ex:[['ほんま','honma — really (ほんとう)'],['あかん','akan — no good (だめ)'],['めっちゃ','metcha — very (とても)'],['おおきに','ōkini — thanks (ありがとう)'],['しんどい','shindoi — exhausting']] },
+      { r:'The pitch accent is different, and that is what really marks it.',
+        ex:[['はし','Tokyo and Osaka accent the opposite syllables — the same word, an opposite tune.']] },
+      { r:'なんでやねん — the standard retort of Kansai comedy, and now of everyone.',
+        ex:[['なんでやねん！','Nande ya nen! — What on earth?! / Give over!']] },
+    ],
+    callout:'Kansai-ben carries warmth and humour for Japanese listeners, which is exactly why a foreigner speaking it gets a delighted reaction. Learn to hear it first; pick it up naturally if you end up living there.',
+    culture:'Manzai, the two-hander comedy of Osaka, is performed in Kansai-ben, and its rhythm — one straight man, one fool — has shaped how the whole country jokes.',
+    quiz:[
+      { q:'In Kansai-ben, だ becomes…', o:['や','ね','の','で'], a:0, why:'そうや.' },
+      { q:'わからへん means…', o:['I understand','I don\'t understand','Do you understand?','I understood'], a:1, why:'へん is the negative.' },
+      { q:'あかん means…', o:['good','no good','maybe','thanks'], a:1, why:'The Kansai だめ.' },
+    ] },
+
+  { id:'jg6-3', title:'What is not said', sub:'察し, 建前 and 本音.',
+    lede:'A great deal of Japanese conversation happens in the space the sentence leaves open. Refusals trail off, agreements are not quite agreements, and the listener is expected to do half the work. This is not evasiveness; it is a different division of labour between speaker and hearer.',
+    rules:[
+      { r:'察し sasshi — the listener reads what was left out. Finishing the sentence for them is the rude move.',
+        ex:[['それはちょっと…','Sore wa chotto… — That\'s a bit… (= no)'],['考えておきます。','Kangaete okimasu — I\'ll think about it. (usually = no)']] },
+      { r:'建前 tatemae is the position taken in public; 本音 honne is what is actually thought. Both are sincere in their place.',
+        ex:[['ぜひ今度お食事でも。','Zehi kondo oshokuji demo — We must have dinner sometime. (a warm goodbye, not a plan)']] },
+      { r:'Subjects are dropped whenever they can be recovered.',
+        ex:[['行く？ — うん、行く。','Iku? — Un, iku. Nobody says "I" or "you" at all.']] },
+      { r:'Reading which "yes" you were given.',
+        ex:[['はい','hai — I am following you, not necessarily I agree'],['そうですね…','sō desu ne… with a pause — often the opposite of agreement'],['むずかしいですね','muzukashii desu ne — it is not going to happen']] },
+      { r:'Softening is not weakness. The hedges do the real negotiating.', ok:true,
+        ex:[['ちょっとむずかしいかもしれませんが…','Chotto muzukashii kamo shiremasen ga… — a firm no, politely delivered.']] },
+    ],
+    callout:'If a Japanese colleague says 難しいですね about your proposal, the proposal is dead. Pressing for a clear no puts them in the position of having to be rude, which is the one thing the whole system exists to avoid.',
+    culture:'None of this is unique to Japan — English has "we\'ll see" and "that\'s interesting". What is unusual is how much of the load the listener carries, and how consistently.',
+    quiz:[
+      { q:'"考えておきます" usually means…', o:['yes','no','I need data','let us meet again'], a:1, why:'A refusal that costs nobody face.' },
+      { q:'察し means…', o:['speaking clearly','reading what was left unsaid','apologising','interrupting'], a:1, why:'The listener does half the work.' },
+      { q:'"むずかしいですね" about your plan means…', o:['it needs work','it will not happen','it is complex','it is interesting'], a:1, why:'It is a no.' },
+    ] },
+
+  { id:'jg6-4', title:'Older Japanese in print', sub:'The forms you meet in literature, signs and set phrases.',
+    lede:'Classical Japanese is a separate language, but fragments of it survive in modern writing — in titles, proverbs, signs and the fixed phrases everyone uses. You do not need to read Genji; you do need to recognise these when they appear, because they appear constantly.',
+    rules:[
+      { r:'〜ず — a literary negative, still alive in set phrases.',
+        ex:[['知らず知らずのうちに','shirazu shirazu no uchi ni — without realising'],['言わずと知れた','iwazu to shireta — needless to say']] },
+      { r:'〜べき — should, ought. Formal, and common in writing.',
+        ex:[['言うべきではない。','Iu beki de wa nai — It ought not to be said.'],['注目すべき結果','chūmoku subeki kekka — a noteworthy result']] },
+      { r:'〜ぬ for ない, and なり for だ, in older text and in signs.',
+        ex:[['分からぬ','wakaranu — do not know'],['命なりけり','inochi nari keri — it is life itself']] },
+      { r:'四字熟語 yojijukugo — four-character idioms, doing the work of a proverb.',
+        ex:[['一期一会','ichigo ichie — once in a lifetime, this meeting only'],['十人十色','jūnin toiro — ten people, ten colours'],['自業自得','jigō jitoku — you brought it on yourself']] },
+      { r:'Proverbs you will actually hear.',
+        ex:[['猿も木から落ちる','saru mo ki kara ochiru — even monkeys fall from trees'],['出る杭は打たれる','deru kui wa utareru — the nail that sticks up gets hammered down'],['七転び八起き','nanakorobi yaoki — fall seven times, get up eight']] },
+    ],
+    callout:'一期一会 comes from the tea ceremony: this gathering will never happen again in exactly this way, so attend to it. It is written on scrolls, on shop walls, and on a great many farewell cards.',
+    quiz:[
+      { q:'〜べき means…', o:['can','ought to','want to','must not'], a:1, why:'Should, in a formal register.' },
+      { q:'出る杭は打たれる is about…', o:['carpentry','standing out','patience','luck'], a:1, why:'Conformity, and its enforcement.' },
+      { q:'一期一会 comes from…', o:['Buddhism','the tea ceremony','a novel','a newspaper'], a:1, why:'One meeting, once only.' },
+    ] },
+
+  { id:'jg6-5', title:'The sound of things', sub:'Onomatopoeia, and why Japanese cannot do without it.',
+    lede:'Japanese has thousands of sound-and-manner words, and they are not childish or optional — they appear in novels, in medical consultations and in the news. A doctor will ask whether the pain is ずきずき or しくしく, and the answer changes the diagnosis. This is the layer of the language that stays hardest longest.',
+    rules:[
+      { r:'擬音語 giongo — actual sounds.',
+        ex:[['ざあざあ','zāzā — heavy rain'],['ごろごろ','gorogoro — thunder, or something rolling'],['パリパリ','paripari — crisp, crunchy']] },
+      { r:'擬態語 gitaigo — states and manners with no sound at all. The larger and stranger family.',
+        ex:[['きらきら','kirakira — sparkling'],['ぼんやり','bon\'yari — vacantly, hazily'],['そわそわ','sowasowa — restless, fidgety'],['しっかり','shikkari — firmly, properly']] },
+      { r:'They attach to する or to と, or simply stand as adverbs.',
+        ex:[['どきどきする','dokidoki suru — heart pounding'],['にっこりと笑う','nikkori to warau — to smile broadly'],['ゆっくり歩く','yukkuri aruku — to walk slowly']] },
+      { r:'Pain has its own vocabulary, and a doctor needs the right one.', ok:true,
+        ex:[['ずきずき','zukizuki — throbbing'],['しくしく','shikushiku — a dull persistent ache'],['ちくちく','chikuchiku — prickling'],['きりきり','kirikiri — sharp, twisting']] },
+      { r:'Voiced pairs are heavier or coarser than their unvoiced partners.',
+        ex:[['からから / がらがら','karakara dry / garagara rattling, empty'],['ころころ / ごろごろ','korokoro small rolling / gorogoro large rolling']] },
+    ],
+    callout:'Learn ten of these properly and your Japanese will jump in a way that another fifty kanji will not. They are the difference between correct and alive.',
+    culture:'Manga is where most Japanese first meet the full range, written large across the panel — which is why the same words turn up in adult conversation with no sense of being childish.',
+    quiz:[
+      { q:'擬態語 describe…', o:['sounds','states and manners','actions only','emotions only'], a:1, why:'Manner words with no sound.' },
+      { q:'ずきずき describes…', o:['a dull ache','a throbbing pain','a prickle','no pain'], a:1, why:'Throbbing.' },
+      { q:'Adding a voiced consonant usually makes the word…', o:['lighter','heavier or coarser','politer','past tense'], a:1, why:'からから → がらがら.' },
+    ] },
+];
+
+JA_DICT.push(
+  { es:'ほんま', en:'really (Kansai)', pos:'adverb', def:'honma · The Kansai ほんとう. ほんまに for "really, truly".', ex:'ほんまにおいしいわ。', exEn:'Honma ni oishii wa — It\'s really good.', lvl:6, theme:'かんさいべん' },
+  { es:'あかん', en:'no good (Kansai)', pos:'phrase', def:'akan · The Kansai だめ. Also a refusal on its own.', ex:'それはあかんで。', exEn:'Sore wa akan de — That\'s no good.', lvl:6, theme:'かんさいべん' },
+  { es:'めっちゃ', en:'really, very (Kansai)', pos:'adverb', def:'metcha · Very. Now heard all over Japan, not only in Kansai.', ex:'めっちゃおもろい。', exEn:'Metcha omoroi — Dead funny.', lvl:6, theme:'かんさいべん' },
+  { es:'しんどい', en:'exhausting, rough', pos:'i-adj', def:'shindoi · Physically or mentally draining. Kansai in origin, national now.', ex:'今日はしんどかった。', exEn:'Kyō wa shindokatta — Today was rough.', lvl:6, theme:'かんさいべん' },
+  { es:'たてまえ', en:'the public position', pos:'noun', def:'tatemae · What is said in public, as distinct from 本音.', ex:'それはたてまえでしょう。', exEn:'Sore wa tatemae deshō — That is the official line, surely.', lvl:6, theme:'しゃかい' },
+  { es:'ほんね', en:'what one really thinks', pos:'noun', def:'honne · The real opinion, kept for people you trust.', ex:'ほんねを聞かせてください。', exEn:'Honne o kikasete kudasai — Tell me what you really think.', lvl:6, theme:'しゃかい' },
+  { es:'えんりょ', en:'holding back, reserve', pos:'noun', def:'enryo · Restraint out of consideration. ご遠慮なく — please don\'t hold back.', ex:'えんりょしないでください。', exEn:'Enryo shinai de kudasai — Please don\'t hold back.', lvl:6, theme:'しゃかい' },
+  { es:'めんどうくさい', en:'a hassle', pos:'i-adj', def:'mendōkusai · Too much bother. Contracted to めんどくさい in speech.', ex:'めんどくさいなあ。', exEn:'Mendokusai nā — What a hassle.', lvl:6, theme:'はなしことば' },
+  { es:'なつかしい', en:'nostalgic, fondly missed', pos:'i-adj', def:'natsukashii · Said of a thing that brings back good memories — an exclamation, not a description.', ex:'わあ、なつかしい！', exEn:'Wā, natsukashii! — Oh, that takes me back!', lvl:6, theme:'はなしことば' },
+  { es:'びみょう', en:'subtle, iffy', pos:'na-adj', def:'bimyō · Delicate — and in speech, "not great, but I won\'t say so".', ex:'あじはびみょうだった。', exEn:'Aji wa bimyō datta — The taste was… so-so.', lvl:6, theme:'はなしことば' },
+  { es:'いちごいちえ', en:'once in a lifetime', pos:'idiom', def:'ichigo ichie · This meeting will never come again. From the tea ceremony.', ex:'いちごいちえですね。', exEn:'Ichigo ichie desu ne — A meeting that comes once, isn\'t it.', lvl:6, theme:'よじじゅくご' },
+  { es:'ななころびやおき', en:'fall seven, rise eight', pos:'idiom', def:'nanakorobi yaoki · 七転び八起き — persistence through repeated failure.', ex:'七転び八起きですよ。', exEn:'Nanakorobi yaoki desu yo — Fall seven times, get up eight.', lvl:6, theme:'よじじゅくご' },
+);
+
+JA_SPEAKING[6] = [
+  { es:'ほんまにそうやと思うわ。', en:'I really do think so. (Kansai)', hint:'honma ni sō ya to omou wa' },
+  { es:'それはちょっと…', en:'That is a bit… (= no)', hint:'sore wa chotto…' },
+  { es:'考えておきます。', en:'I will think about it.', hint:'kangaete okimasu' },
+  { es:'わあ、なつかしい！', en:'Oh, that takes me back!', hint:'wā, natsukashii!' },
+  { es:'めんどくさいなあ。', en:'What a hassle.', hint:'mendokusai nā' },
+  { es:'知らず知らずのうちに、おぼえていました。', en:'Without realising it, I had learnt it.', hint:'shirazu shirazu no uchi ni, oboete imashita' },
+  { es:'出る杭は打たれる、と言いますね。', en:'They say the nail that sticks up gets hammered down.', hint:'deru kui wa utareru, to iimasu ne' },
+  { es:'あたまがずきずきします。', en:'My head is throbbing.', hint:'atama ga zukizuki shimasu' },
+  { es:'えんりょしないでください。', en:'Please do not hold back.', hint:'enryo shinai de kudasai' },
+  { es:'一期一会と言うでしょう。', en:'They say every meeting happens only once.', hint:'ichigo ichie to iu deshō' },
+];
+
+JA_READING[6] = [
+  { id:'jr6-1', title:'雪国 · The opening', words:88,
+    text:['川端康成の『雪国』は、日本語でもっとも有名な書きだしをもつ小説の一つである。','「国境の長いトンネルを抜けると雪国であった。」','この一文には主語がない。だれが抜けたのかは書かれていない。','しかし読者は、列車とともにトンネルを抜け、目の前が白くなるのを感じる。','英語に訳すとき、多くの訳者は「汽車が」または「私たちは」を足した。','足さなければ文にならないからである。','何を足すかで、その小説は別のものになる。','日本語の主語のなさは、あいまいさではなく、視点の自由である。'],
+    en:'Kawabata Yasunari no "Yukiguni" wa, nihongo de mottomo yūmei na kakidashi o motsu shōsetsu no hitotsu de aru. "Kunizakai no nagai tonneru o nukeru to yukiguni de atta." Kono ichibun ni wa shugo ga nai. Dare ga nuketa no ka wa kakarete inai. Shikashi dokusha wa, ressha to tomo ni tonneru o nuke, me no mae ga shiroku naru no o kanjiru. Eigo ni yakusu toki, ōku no yakusha wa "kisha ga" mata wa "watashitachi wa" o tashita. Tasanakereba bun ni naranai kara de aru. Nani o tasu ka de, sono shōsetsu wa betsu no mono ni naru. Nihongo no shugo no nasa wa, aimaisa de wa naku, shiten no jiyū de aru. — Kawabata Yasunari\'s "Snow Country" is one of the most famous opening lines in the Japanese language: "Coming out of the long tunnel at the border, it was snow country." There is no subject in that sentence. Who came out of it is not written. Yet the reader comes out of the tunnel along with the train and feels the whiteness open in front of them. Translating into English, many translators added "the train" or "we", because without something added it is not a sentence. What you add changes what the novel is. The absence of a subject in Japanese is not vagueness but freedom of viewpoint.',
+    qs:[ { q:'What is missing from the famous sentence?', o:['A verb','A subject','An object'], a:1 }, { q:'Why did translators add words?', o:['For beauty','English needs a subject','To shorten it'], a:1 }, { q:'What does the writer call the absence?', o:['Vagueness','Freedom of viewpoint','A mistake'], a:1 } ] },
+  { id:'jr6-2', title:'ことばはだれのものか', words:104,
+    text:['「ら抜きことば」は、長いあいだ「まちがい」とされてきた。','食べられる が 食べれる になるあれである。','しかし言語学者の多くは、これを変化であって誤りではないと見ている。','可能と受身を分けられるのだから、むしろ合理的だという意見もある。','では、だれが「正しい日本語」を決めるのだろうか。','国でも、辞書でもない。使っている人たちである。','ただし、多数がそうするからといって、すぐに認められるわけでもない。','ことばは、決められるものではなく、だんだんそうなっていくものらしい。'],
+    en:'"Ranuki kotoba" wa, nagai aida "machigai" to sarete kita. Taberareru ga tabereru ni naru are de aru. Shikashi gengogakusha no ōku wa, kore o henka de atte ayamari de wa nai to mite iru. Kanō to ukemi o wakerareru no da kara, mushiro gōriteki da to iu iken mo aru. Dewa, dare ga "tadashii nihongo" o kimeru no darō ka. Kuni demo, jisho demo nai. Tsukatte iru hitotachi de aru. Tadashi, tasū ga sō suru kara to itte, sugu ni mitomerareru wake demo nai. Kotoba wa, kimerareru mono de wa naku, dandan sō natte iku mono rashii. — "Ra-less speech" has long been treated as a mistake — the change from taberareru to tabereru. But most linguists see it as a change rather than an error. Since it separates the potential from the passive, there is even a view that it is the more rational form. So who decides what "correct Japanese" is? Not the state, and not the dictionary. It is the people using it. That said, the fact that a majority do something does not mean it is accepted straight away. Language, it seems, is not a thing that gets decided but a thing that gradually becomes so.',
+    qs:[ { q:'What is ら抜きことば?', o:['A dialect','Dropping ら from the potential','A kind of keigo'], a:1 }, { q:'Why do some call it rational?', o:['It is shorter','It separates potential from passive','It is older'], a:1 }, { q:'Who decides correct Japanese, per the writer?', o:['The state','The dictionary','The people using it'], a:2 } ] },
+  { id:'jr6-3', title:'たずねびと', words:96,
+    text:['祖母は九十をこえてから、同じ話をくりかえすようになった。','戦争のおわった年、駅に貼られた紙の話である。','人をさがす紙が、かべいちめんに貼られていたという。','名前と年と、さいごに見た場所だけが書かれていた。','「みんな、だれかをさがしてはった」と祖母は言う。','その「はった」がわたしには京都のことばとして聞こえて、','なぜか毎回、話の中身よりもさきに、胸にくる。','話はいつも同じで、わたしはいつもはじめて聞くようにうなずく。'],
+    en:'Sobo wa kyūjū o koete kara, onaji hanashi o kurikaesu yō ni natta. Sensō no owatta toshi, eki ni harareta kami no hanashi de aru. Hito o sagasu kami ga, kabe ichimen ni hararete ita to iu. Namae to toshi to, saigo ni mita basho dake ga kakarete ita. "Minna, dareka o sagashite hatta" to sobo wa iu. Sono "hatta" ga watashi ni wa Kyōto no kotoba to shite kikoete, naze ka maikai, hanashi no nakami yori mo saki ni, mune ni kuru. Hanashi wa itsumo onaji de, watashi wa itsumo hajimete kiku yō ni unazuku. — After she passed ninety my grandmother began repeating the same story. It is about the papers pasted up at the station the year the war ended. Notices looking for people, she says, covered the whole wall. Only a name, an age and the place they were last seen were written on them. "Everyone was looking for somebody," my grandmother says — and she says it in the Kyoto form, hatta. Somehow that word reaches me before the content of the story does, every time. The story is always the same, and every time I nod as though hearing it for the first time.',
+    qs:[ { q:'What were the papers for?', o:['Train times','Looking for missing people','News of the war'], a:1 }, { q:'What was written on them?', o:['Name, age, place last seen','Addresses','Photographs'], a:0 }, { q:'What reaches the narrator first?', o:['The content','The dialect word','The date'], a:1 } ] },
+];
+
+JA_HUNTS[6] = [
+  { theme:'かんさいべん · Kansai', words:['honma','akan','metcha','shindoi','ookini','nandeyanen','sokka','omoroi'] },
+  { theme:'ぎたいご · Manner words', words:['kirakira','dokidoki','zukizuki','sowasowa','bonyari','shikkari','yukkuri','nikkori'] },
+  { theme:'しゃかい · Unsaid things', words:['tatemae','honne','enryo','sasshi','bimyou','natsukashii','mendou','ichigoichie'] },
+];
+
+JA_DIALOGUES[6] = [
+  { id:'jd6-1', title:'なんでやねん', scene:'Two friends in Osaka, entirely casual.', lines:[
+    { who:'A', es:'なあ、きのう三時間も待たされてん。', en:'Hey, I got kept waiting three hours yesterday. (Nā, kinō sanjikan mo matasareten.)' },
+    { who:'B', es:'三時間？ なんでやねん。', en:'Three hours? You\'re having me on. (Sanjikan? Nande ya nen.)' },
+    { who:'A', es:'ほんまやで。連絡もあらへんかった。', en:'It\'s true. Not even a message. (Honma ya de. Renraku mo arahen katta.)' },
+    { who:'B', es:'それはあかんわ。めっちゃしんどかったやろ。', en:'That\'s not on. You must have been shattered. (Sore wa akan wa. Metcha shindokatta yaro.)' },
+    { who:'A', es:'まあ、もうええわ。おごってくれたし。', en:'Ah well, never mind. He paid, anyway. (Mā, mō ee wa. Ogotte kureta shi.)' },
+    { who:'B', es:'それでゆるすんかい。', en:'And that\'s you forgiven, is it. (Sore de yurusu n kai.)' },
+  ] },
+  { id:'jd6-2', title:'けんとうさせていただきます', scene:'The end of a business meeting.', lines:[
+    { who:'A', es:'では、この案でいかがでしょうか。', en:'So, how would this proposal suit you? (Dewa, kono an de ikaga deshō ka?)' },
+    { who:'B', es:'そうですねえ… 少しむずかしいかもしれません。', en:'Well now… it might be a little difficult. (Sō desu nē… sukoshi muzukashii kamo shiremasen.)' },
+    { who:'A', es:'と、おっしゃいますと。', en:'Meaning? (To, osshaimasu to.)' },
+    { who:'B', es:'いえ、けっしてわるい案ではないのですが、社内でけんとうさせていただきます。', en:'No, it is by no means a bad proposal, but allow us to consider it internally. (Ie, kesshite warui an de wa nai no desu ga, shanai de kentō sasete itadakimasu.)' },
+    { who:'A', es:'かしこまりました。お返事をお待ちしております。', en:'Understood. I shall await your reply. (Kashikomarimashita. Ohenji o omachi shite orimasu.)' },
+    { who:'B', es:'おそれいります。本日はありがとうございました。', en:'You are very kind. Thank you for today. (Osoreirimasu. Honjitsu wa arigatō gozaimashita.)' },
+  ] },
+];
+
+/* ---------------------------------------------------------------- the course is no longer partial */
+(function () {
+  const ja = COURSES['ja'];
+  if (!ja) return;
+  delete ja.note;
+  ja.conj = jaConj2;
+  ja.regular = jaRegular2;
+})();
+
 /* =========================== APP =========================== */
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -9485,7 +10547,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v24', date: '15 September 2026' };
+const BUILD = { v: 'v25', date: '15 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -11106,7 +12168,7 @@ function paintVerbTables(pool, T) {
     const rows = conjTable(v, T.k);
     return `<div class="vtable">
       <div class="vth"><b>${esc(v.inf)}</b><span class="muted small">${esc(v.en)}</span><button type="button" class="btn sm ghost" data-sayv="${esc(rows.map(r => r.form).join('. '))}">◉</button></div>
-      <table><tbody>${rows.map(r => `<tr><td class="p">${esc(r.person.t)}</td><td class="f ${isIrregularAt(v, T.k, r.k) ? 'odd' : ''}">${esc(r.form)}</td></tr>`).join('')}</tbody></table>
+      <table><tbody>${rows.map(r => `<tr><td class="p">${esc(r.person.t)}</td><td class="f ${isIrregularAt(v, T.k, r.k) ? 'odd' : ''}">${esc(r.form) || '<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table>
       ${(v.tags || []).includes('stem') && v.stem ? `<p class="small muted">Stem change ${esc(v.stem[0])} → ${esc(v.stem[1])} — never in <b>nosotros</b>, and never in <b>vos</b>.</p>` : ''}
     </div>`;
   }).join('')}</div>
@@ -11120,7 +12182,7 @@ function paintVerbDrill(pool, T) {
   const next = () => {
     const v = pool[Math.floor(Math.random() * pool.length)];
     const pk = persons[Math.floor(Math.random() * persons.length)];
-    const answer = conj(v, T.k, pk);
+    const answer = courseConj(v, T.k, pk);
     if (!answer) return next();
     cur = { v, pk, answer, person: PERSONS.find(p => p.k === pk) };
     body.innerHTML = `
