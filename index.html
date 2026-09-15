@@ -1944,7 +1944,7 @@ const BRAND = {
   signup: 'required',
   /* which courses this build offers, comma-separated ("es,fr"). Empty means Spanish alone, which
      is what a single-language build like Nat's should stay. */
-  langs: 'es,fr',
+  langs: 'es,fr,ja',
   /* SHA-256 of the owner passcode. Set it and that passcode is the only way into the Owner page,
      on every device, with no database involved. Empty: the first device to claim it wins. */
   ownerPass: '',
@@ -5550,6 +5550,7 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v23', 'French is finished — all six levels, from the alphabet to reading Camus in the original. And <b>Japanese</b> arrives beside it: kana from the first lesson, the reading always printed next to the writing, and a verb trainer cut for a language that does not conjugate for person.'],
   ['v22', 'More than one language. A course is now something the app switches on, and <b>French</b> is the first one beside Spanish — its own words, lessons, dialogues, passages, hunts and verb trainer. Your streak, XP, quetzalitos and everyone in the casita follow you between languages; lessons and words stay with the language they belong to.'],
   ['v21', 'An account before the app opens, on the builds that ask for one — a name, an email and a PIN — so the person who published it knows how many people are using it. Nothing is written to the database until that account exists.'],
   ['v20', 'Updates that ask first. When a newer version has finished downloading, a card asks before refreshing instead of changing the app under you — and afterwards a short note says what changed, with the full list a tap away from the version in the footer.'],
@@ -5559,7 +5560,6 @@ const WHATS_NEW = [
   ['v17.3', 'A light and dark switch in the header — on phones and tablets too, where the old text toggle was hidden.'],
   ['v17.2', 'The Owner page can be claimed once. The first passcode set is the only one, and nobody else can set another.'],
   ['v17.1', 'Added to a home screen, the app keeps its own name and the line at the foot of the page.'],
-  ['v17', 'One set of lessons, more than one app: a brand file carries the name, palette and cloud, so a copy can be rebranded without touching a single word of Spanish.'],
 ];
 const verNum = (v) => String(v).replace(/^v/i, '').split('.').map((n) => Number(n) || 0);
 /* true when a is a later version than b: v19 > v18.1 > v18 */
@@ -6231,9 +6231,9 @@ function renderGames(id) {
   if (id === 'mercado') return renderMercado();
   if (id === 'escucha') return renderEscucha();
   if (id === 'loteria') return renderLoteria();
-  if (id === 'genero') return renderGender('play');
-  if (id === 'rescue') return renderGender('rescue');
-  if (id === 'crucigrama') return renderCrucigrama();
+  if (id === 'genero' && gameOn('genero')) return renderGender('play');
+  if (id === 'rescue' && gameOn('genero')) return renderGender('rescue');
+  if (id === 'crucigrama' && gameOn('crucigrama')) return renderCrucigrama();
   crumb([{ t: 'Play' }]);
   const lv = LV();
   const hunts = (HUNTS[lv.id] || []), huntsDone = hunts.filter(h => S.done['h' + lv.id + '-' + h.theme]).length;
@@ -6244,14 +6244,14 @@ function renderGames(id) {
     <div class="title"><span class="label">04 · Play</span><h1>Games</h1><p>Short rounds that teach on the sly. Every game pays XP and ${COIN_NAME}, feeds your companion, and counts towards the streak.</p></div>
     <div class="side pink"><span class="label">Today</span><div class="es" style="font-size:2rem">${xpToday()}<span class="muted" style="font-size:1rem">/${S.goal} XP</span></div><span class="small muted">${COIN} ${S.coins || 0} in your purse</span></div>
   </section>
-  ${rescueBannerHTML()}
+  ${gameOn('genero') ? rescueBannerHTML() : ''}
   <section class="gamecards">
     <a class="gamecard t-pink3" href="#hunt">${mascot('mota', 72)}<div><span class="label">Vocabulary</span><h3>Word Hunt</h3><p>Find the hidden words, learn what they mean.</p><span class="gstat">${huntsDone}/${hunts.length} puzzles at level ${lv.id}</span></div><span class="arr">→</span></a>
-    <a class="gamecard t-gold" href="#games/mercado"><span class="gemoji" aria-hidden="true">🍅</span><div><span class="label">Vocabulary · speed</span><h3>Mercado</h3><p>Customers point, you tap the Spanish before they walk off.</p><span class="gstat">${m.plays ? 'best ' + m.best + ' · ' + m.plays + ' round' + (m.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
+    <a class="gamecard t-gold" href="#games/mercado"><span class="gemoji" aria-hidden="true">🍅</span><div><span class="label">Vocabulary · speed</span><h3>Mercado</h3><p>Customers point, you tap the ${esc(COURSE.name)} before they walk off.</p><span class="gstat">${m.plays ? 'best ' + m.best + ' · ' + m.plays + ' round' + (m.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
     <a class="gamecard t-sky" href="#games/escucha"><span class="gemoji" aria-hidden="true">🎧</span><div><span class="label">Listening · spelling</span><h3>Escucha y escribe</h3><p>Hear a sentence once, type it, climb the ladder.</p><span class="gstat">${e.plays ? 'best rung ' + e.best + '/' + ESCUCHA.rungs : 'new'}</span></div><span class="arr">→</span></a>
     <a class="gamecard t-sand" href="#games/loteria"><span class="gemoji" aria-hidden="true">🫘</span><div><span class="label">Listening · vocabulary</span><h3>Lotería</h3><p>The caller names a card; you find the picture on your board.</p><span class="gstat">${l.plays ? 'best ' + l.best + ' · ' + l.plays + ' board' + (l.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
-    <a class="gamecard t-lilac" href="#games/genero"><span class="gemoji" aria-hidden="true">⚖️</span><div><span class="label">Grammar · speed</span><h3>¡El o la!</h3><p>Words fall — send each one to <b>el</b> or <b>la</b>.</p><span class="gstat">${gn.plays ? 'best ' + gn.best + ' · ' + gn.plays + ' round' + (gn.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>
-    <a class="gamecard t-mint" href="#games/crucigrama"><span class="gemoji" aria-hidden="true">🧩</span><div><span class="label">Words · daily</span><h3>Crucigrama</h3><p>A little 5×5 from this week's words, clues in Spanish.</p><span class="gstat">${cwDone ? "today's is done ✓" : cw.best ? cw.best + ' solved · today is waiting' : 'new · one a day'}</span></div><span class="arr">→</span></a>
+    ${!gameOn('genero') ? '' : `<a class="gamecard t-lilac" href="#games/genero"><span class="gemoji" aria-hidden="true">⚖️</span><div><span class="label">Grammar · speed</span><h3>${esc(COURSE.gender.title)}</h3><p>Words fall — send each one to <b>${esc(COURSE.gender.a[0])}</b> or <b>${esc(COURSE.gender.b[0])}</b>.</p><span class="gstat">${gn.plays ? 'best ' + gn.best + ' · ' + gn.plays + ' round' + (gn.plays === 1 ? '' : 's') : 'new'}</span></div><span class="arr">→</span></a>`}
+    ${!gameOn('crucigrama') ? '' : `<a class="gamecard t-mint" href="#games/crucigrama"><span class="gemoji" aria-hidden="true">🧩</span><div><span class="label">Words · daily</span><h3>Crucigrama</h3><p>A little 5×5 from this week's words, clues in ${esc(COURSE.name)}.</p><span class="gstat">${cwDone ? "today's is done ✓" : cw.best ? cw.best + ' solved · today is waiting' : 'new · one a day'}</span></div><span class="arr">→</span></a>`}
     <div class="gamecard soon"><span class="gemoji" aria-hidden="true">🎲</span><div><span class="label">Coming soon</span><h3>More games</h3><p>The conjugation runner, karaoke lines and a duel for two are next on the list.</p></div></div>
   </section>`;
 }
@@ -7086,6 +7086,9 @@ function courseEnabled(id) { return brandLangs().indexOf(id) >= 0; }
 /* every course the learner can actually pick, in the order the brand lists them */
 function courseList() { return brandLangs().map(id => COURSES[id]).filter(Boolean); }
 const multilingual = () => courseList().length > 1;
+/* A game a course has no use for is hidden rather than left to fail: Japanese has no
+   articles for the gender game to ask about, and no Latin grid for the crossword. */
+function gameOn(k) { return !(COURSE && COURSE.games && COURSE.games[k] === false); }
 function courseOf(id) { return COURSES[id] || COURSES[DEFAULT_COURSE]; }
 function courseName(id) { const c = COURSES[id]; return c ? c.name : id; }
 /* has this learner put any work into that language? */
@@ -7956,7 +7959,6 @@ function frConj(v, tense, pk) {
 /* ---------------------------------------------------------------- register it */
 registerCourse({
   id: 'fr', code: 'FR', name: 'French', native: 'Français',
-  note: 'levels 1–2',
   levels: FR_LEVELS, dict: FR_DICT, grammar: FR_GRAMMAR, speaking: FR_SPEAKING,
   reading: FR_READING, hunts: FR_HUNTS, dialogues: FR_DIALOGUES,
   tenses: FR_TENSES, verbs: FR_VERBS, persons: FR_PERSONS,
@@ -7969,15 +7971,1417 @@ registerCourse({
   romanised: false,
 });
 
+/* =========================== FRENCH, LEVELS 3 TO 6 ===========================
+   The same pattern the Spanish course uses: part22 lays the course down and registers it, and this
+   fills in the upper levels by mutating the same objects — the registered course holds references,
+   so there is nothing to re-register.
+
+   Level 3 is where French stops being a phrasebook: the past tense arrives, and with it the choice
+   between avoir and être that no English speaker guesses right by instinct. */
+
+/* ---------------------------------------------------------------- more tenses */
+FR_TENSES.push(
+  { k: 'cond', t: 'Conditionnel', en: 'Conditional', level: 4, ex: 'je parlerais — I would speak', blurb: 'Would do. The future stem with imperfect endings — and the polite "je voudrais".' },
+  { k: 'pqp', t: 'Plus-que-parfait', en: 'Pluperfect', level: 4, ex: 'j\'avais parlé — I had spoken', blurb: 'Had done: the step further back, for what happened before the story started.' },
+  { k: 'subj', t: 'Subjonctif présent', en: 'Present subjunctive', level: 5, ex: 'que je parle — that I speak', blurb: 'After wishes, doubt and feeling. Built from the ils form of the present.' },
+);
+
+/* ---------------------------------------------------------------- more verbs */
+FR_VERBS.push(
+  { inf:'connaître', en:'to know (a person, a place)', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'connu',
+    irr:{ pres:['connais','connais','connaît','connaissons','connaissez','connaissent'] } },
+  { inf:'mettre', en:'to put, to put on', type:'re', lvl:3, tags:['irr'], aux:'avoir', part:'mis',
+    irr:{ pres:['mets','mets','met','mettons','mettez','mettent'] } },
+  { inf:'sortir', en:'to go out', type:'ir', lvl:3, tags:['irr'], aux:'être', part:'sorti',
+    irr:{ pres:['sors','sors','sort','sortons','sortez','sortent'] } },
+  { inf:'arriver', en:'to arrive, to happen', type:'er', lvl:3, tags:['core'], aux:'être', part:'arrivé' },
+  { inf:'rester', en:'to stay', type:'er', lvl:3, tags:[], aux:'être', part:'resté' },
+  { inf:'rentrer', en:'to go home, to come back in', type:'er', lvl:3, tags:[], aux:'être', part:'rentré' },
+  { inf:'naître', en:'to be born', type:'re', lvl:3, tags:['irr'], aux:'être', part:'né',
+    irr:{ pres:['nais','nais','naît','naissons','naissez','naissent'] } },
+  { inf:'ouvrir', en:'to open', type:'ir', lvl:3, tags:['irr'], aux:'avoir', part:'ouvert',
+    irr:{ pres:['ouvre','ouvres','ouvre','ouvrons','ouvrez','ouvrent'] } },
+  { inf:'offrir', en:'to offer, to give (a gift)', type:'ir', lvl:4, tags:['irr'], aux:'avoir', part:'offert',
+    irr:{ pres:['offre','offres','offre','offrons','offrez','offrent'] } },
+  { inf:'croire', en:'to believe, to think', type:'re', lvl:4, tags:['irr'], aux:'avoir', part:'cru',
+    irr:{ pres:['crois','crois','croit','croyons','croyez','croient'], subj:['croie','croies','croie','croyions','croyiez','croient'] } },
+  { inf:'suivre', en:'to follow, to take (a course)', type:'re', lvl:4, tags:['irr'], aux:'avoir', part:'suivi',
+    irr:{ pres:['suis','suis','suit','suivons','suivez','suivent'] } },
+  { inf:'vivre', en:'to live (be alive)', type:'re', lvl:4, tags:['irr'], aux:'avoir', part:'vécu',
+    irr:{ pres:['vis','vis','vit','vivons','vivez','vivent'] } },
+  { inf:'falloir', en:'to be necessary (il faut)', type:'re', lvl:4, tags:['irr'], aux:'avoir', part:'fallu', futStem:'faudr',
+    irr:{ pres:['—','—','faut','—','—','—'], imperf:['—','—','fallait','—','—','—'], subj:['—','—','faille','—','—','—'] } },
+  { inf:'plaire', en:'to please (ça me plaît)', type:'re', lvl:5, tags:['irr'], aux:'avoir', part:'plu',
+    irr:{ pres:['plais','plais','plaît','plaisons','plaisez','plaisent'] } },
+  { inf:'recevoir', en:'to receive', type:'re', lvl:5, tags:['irr'], aux:'avoir', part:'reçu', futStem:'recevr',
+    irr:{ pres:['reçois','reçois','reçoit','recevons','recevez','reçoivent'] } },
+  { inf:'s\'asseoir', en:'to sit down', type:'re', lvl:5, tags:['irr'], aux:'être', part:'assis',
+    irr:{ pres:['assieds','assieds','assied','asseyons','asseyez','asseyent'] } },
+);
+
+/* ---------------------------------------------------------------- more words */
+FR_DICT.push(
+  /* --- level 3 · the past, the weather, the way --- */
+  { es:'le temps', en:'weather, time', pos:'noun (m)', def:'Both the weather and time in general. "Quel temps fait-il ?" asks about the sky.', ex:'Il fait beau temps.', exEn:'The weather is fine.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'il fait beau', en:'the weather is nice', pos:'phrase', def:'Weather is something "it makes" in French.', ex:'Aujourd\'hui il fait beau.', exEn:'Today the weather is nice.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'il pleut', en:'it is raining', pos:'phrase', def:'From pleuvoir, which only ever has an "il".', ex:'Il pleut depuis ce matin.', exEn:'It has been raining since this morning.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'il neige', en:'it is snowing', pos:'phrase', def:'From neiger.', ex:'Il neige à Kamloops en janvier.', exEn:'It snows in Kamloops in January.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'le vent', en:'wind', pos:'noun (m)', def:'Wind. "Il y a du vent" is how you say it is windy.', ex:'Il y a du vent aujourd\'hui.', exEn:'It is windy today.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'le soleil', en:'sun', pos:'noun (m)', def:'Sun.', ex:'Il y a du soleil.', exEn:'It is sunny.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'chaud', en:'hot, warm', pos:'adjective', def:'Hot. "J\'ai chaud" is I am hot; "il fait chaud" is the weather is.', ex:'Il fait chaud en été.', exEn:'It is hot in summer.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'froid', en:'cold', pos:'adjective', def:'Cold, the same two ways.', ex:'J\'ai froid.', exEn:'I am cold.', lvl:3, theme:'le temps qu\'il fait' },
+  { es:'l\'hiver', en:'winter', pos:'noun (m)', def:'Winter. "En hiver" — in winter.', ex:'En hiver, il fait froid.', exEn:'In winter it is cold.', lvl:3, theme:'les saisons' },
+  { es:'l\'été', en:'summer', pos:'noun (m)', def:'Summer.', ex:'L\'été est court ici.', exEn:'Summer is short here.', lvl:3, theme:'les saisons' },
+  { es:'le printemps', en:'spring', pos:'noun (m)', def:'Spring — and the only season that takes "au": au printemps.', ex:'Au printemps, tout est vert.', exEn:'In spring, everything is green.', lvl:3, theme:'les saisons' },
+  { es:'l\'automne', en:'autumn', pos:'noun (m)', def:'Autumn.', ex:'En automne, il pleut souvent.', exEn:'In autumn it often rains.', lvl:3, theme:'les saisons' },
+  { es:'hier soir', en:'last night', pos:'phrase', def:'Yesterday evening.', ex:'Hier soir, j\'ai lu un livre.', exEn:'Last night I read a book.', lvl:3, theme:'le passé' },
+  { es:'la semaine dernière', en:'last week', pos:'phrase', def:'Last week. "Dernier" after the noun means the one just gone.', ex:'La semaine dernière, je suis allé à Vancouver.', exEn:'Last week I went to Vancouver.', lvl:3, theme:'le passé' },
+  { es:'déjà', en:'already', pos:'adverb', def:'Already. Sits between the auxiliary and the participle.', ex:'J\'ai déjà mangé.', exEn:'I have already eaten.', lvl:3, theme:'le passé' },
+  { es:'encore', en:'again, still, more', pos:'adverb', def:'Three meanings, all common. "Pas encore" is not yet.', ex:'Encore un café ?', exEn:'Another coffee?', lvl:3, theme:'le passé' },
+  { es:'depuis', en:'since, for', pos:'preposition', def:'Since. French uses the PRESENT with it: j\'habite ici depuis trois ans.', ex:'J\'attends depuis vingt minutes.', exEn:'I have been waiting for twenty minutes.', lvl:3, theme:'le passé' },
+  { es:'pendant', en:'during, for', pos:'preposition', def:'For a finished stretch of time.', ex:'J\'ai travaillé pendant deux heures.', exEn:'I worked for two hours.', lvl:3, theme:'le passé' },
+  { es:'tourner', en:'to turn', pos:'verb', def:'To turn.', ex:'Tournez à droite.', exEn:'Turn right.', lvl:3, theme:'les directions' },
+  { es:'traverser', en:'to cross', pos:'verb', def:'To cross.', ex:'Traversez la rue.', exEn:'Cross the street.', lvl:3, theme:'les directions' },
+  { es:'en face de', en:'opposite', pos:'phrase', def:'Opposite, facing.', ex:'en face de la gare', exEn:'opposite the station', lvl:3, theme:'les directions' },
+  { es:'à côté de', en:'next to', pos:'phrase', def:'Beside.', ex:'à côté de la boulangerie', exEn:'next to the bakery', lvl:3, theme:'les directions' },
+  { es:'loin', en:'far', pos:'adverb', def:'Far. "Loin de" — far from.', ex:'Ce n\'est pas loin.', exEn:'It is not far.', lvl:3, theme:'les directions' },
+  { es:'près de', en:'near', pos:'phrase', def:'Near.', ex:'J\'habite près de l\'école.', exEn:'I live near the school.', lvl:3, theme:'les directions' },
+  { es:'le pont', en:'bridge', pos:'noun (m)', def:'Bridge.', ex:'après le pont', exEn:'after the bridge', lvl:3, theme:'les directions' },
+  { es:'le coin', en:'corner', pos:'noun (m)', def:'Corner. "Au coin de la rue" — on the street corner.', ex:'au coin de la rue', exEn:'at the corner of the street', lvl:3, theme:'les directions' },
+  { es:'le corps', en:'body', pos:'noun (m)', def:'Body. The ps is silent.', ex:'tout le corps', exEn:'the whole body', lvl:3, theme:'le corps' },
+  { es:'la tête', en:'head', pos:'noun (f)', def:'Head. "J\'ai mal à la tête" — I have a headache.', ex:'J\'ai mal à la tête.', exEn:'I have a headache.', lvl:3, theme:'le corps' },
+  { es:'la main', en:'hand', pos:'noun (f)', def:'Hand.', ex:'Donne-moi la main.', exEn:'Give me your hand.', lvl:3, theme:'le corps' },
+  { es:'le pied', en:'foot', pos:'noun (m)', def:'Foot. "À pied" — on foot.', ex:'J\'y vais à pied.', exEn:'I go there on foot.', lvl:3, theme:'le corps' },
+  { es:'malade', en:'ill', pos:'adjective', def:'Ill. Same in both genders.', ex:'Je suis malade.', exEn:'I am ill.', lvl:3, theme:'le corps' },
+  { es:'fatigué', en:'tired', pos:'adjective', def:'Tired. Feminine: fatiguée.', ex:'Je suis très fatiguée.', exEn:'I am very tired.', lvl:3, theme:'le corps' },
+  { es:'content', en:'happy, pleased', pos:'adjective', def:'Pleased. Feminine: contente.', ex:'Je suis content de te voir.', exEn:'I am glad to see you.', lvl:3, theme:'les sentiments' },
+  { es:'triste', en:'sad', pos:'adjective', def:'Sad.', ex:'Elle a l\'air triste.', exEn:'She looks sad.', lvl:3, theme:'les sentiments' },
+
+  /* --- level 4 · plans, pronouns, the longer story --- */
+  { es:'peut-être', en:'maybe', pos:'adverb', def:'Perhaps. Literally "can be".', ex:'Peut-être demain.', exEn:'Maybe tomorrow.', lvl:4, theme:'les projets' },
+  { es:'bientôt', en:'soon', pos:'adverb', def:'Soon. "À bientôt" — see you soon.', ex:'Je rentre bientôt.', exEn:'I am coming home soon.', lvl:4, theme:'les projets' },
+  { es:'l\'année prochaine', en:'next year', pos:'phrase', def:'Next year. "Prochain" after the noun means the one coming.', ex:'L\'année prochaine, j\'irai en France.', exEn:'Next year I will go to France.', lvl:4, theme:'les projets' },
+  { es:'le projet', en:'plan, project', pos:'noun (m)', def:'A plan or a project.', ex:'Quels sont tes projets ?', exEn:'What are your plans?', lvl:4, theme:'les projets' },
+  { es:'le voyage', en:'journey, trip', pos:'noun (m)', def:'A trip. "Bon voyage" needs no translation.', ex:'un voyage en train', exEn:'a train journey', lvl:4, theme:'les projets' },
+  { es:'l\'avion', en:'plane', pos:'noun (m)', def:'Aeroplane. "En avion" — by plane.', ex:'Je pars en avion.', exEn:'I am leaving by plane.', lvl:4, theme:'les projets' },
+  { es:'la valise', en:'suitcase', pos:'noun (f)', def:'Suitcase. "Faire sa valise" — to pack.', ex:'Je fais ma valise.', exEn:'I am packing.', lvl:4, theme:'les projets' },
+  { es:'l\'hôtel', en:'hotel', pos:'noun (m)', def:'Hotel. The ô marks a lost s: hostel.', ex:'à l\'hôtel', exEn:'at the hotel', lvl:4, theme:'les projets' },
+  { es:'la chambre double', en:'double room', pos:'phrase', def:'A double room.', ex:'Je voudrais une chambre double.', exEn:'I would like a double room.', lvl:4, theme:'les projets' },
+  { es:'réserver', en:'to book', pos:'verb', def:'To reserve.', ex:'J\'ai réservé une table.', exEn:'I booked a table.', lvl:4, theme:'les projets' },
+  { es:'y', en:'there', pos:'pronoun', def:'Replaces a place already mentioned. Goes before the verb: j\'y vais.', ex:'J\'y vais demain.', exEn:'I am going there tomorrow.', lvl:4, theme:'les pronoms' },
+  { es:'en', en:'of it, some', pos:'pronoun', def:'Replaces "du / de la / des + noun". J\'en veux — I want some.', ex:'J\'en ai deux.', exEn:'I have two of them.', lvl:4, theme:'les pronoms' },
+  { es:'lui', en:'to him, to her', pos:'pronoun', def:'The indirect object for one person.', ex:'Je lui parle.', exEn:'I am speaking to him.', lvl:4, theme:'les pronoms' },
+  { es:'leur', en:'to them', pos:'pronoun', def:'The plural of lui. Not the same word as the possessive leur.', ex:'Je leur ai écrit.', exEn:'I wrote to them.', lvl:4, theme:'les pronoms' },
+  { es:'qui', en:'who, which (subject)', pos:'pronoun', def:'The relative that does the verb: l\'homme qui parle.', ex:'la femme qui travaille ici', exEn:'the woman who works here', lvl:4, theme:'les pronoms' },
+  { es:'que', en:'that, which (object)', pos:'pronoun', def:'The relative the verb is done to: le livre que je lis.', ex:'le film que j\'ai vu', exEn:'the film that I saw', lvl:4, theme:'les pronoms' },
+  { es:'dont', en:'of which, whose', pos:'pronoun', def:'Replaces a phrase with "de": le livre dont je parle.', ex:'la chose dont j\'ai besoin', exEn:'the thing I need', lvl:4, theme:'les pronoms' },
+  { es:'il faut', en:'it is necessary, you must', pos:'phrase', def:'The most useful impersonal in French. Followed by an infinitive.', ex:'Il faut partir maintenant.', exEn:'We have to leave now.', lvl:4, theme:'l\'obligation' },
+  { es:'avoir besoin de', en:'to need', pos:'phrase', def:'Literally "to have need of".', ex:'J\'ai besoin d\'aide.', exEn:'I need help.', lvl:4, theme:'l\'obligation' },
+  { es:'avoir envie de', en:'to feel like', pos:'phrase', def:'To want to, in the mood sense.', ex:'J\'ai envie de sortir.', exEn:'I feel like going out.', lvl:4, theme:'l\'obligation' },
+  { es:'essayer', en:'to try', pos:'verb', def:'To try. "Essayer de" + infinitive.', ex:'J\'essaie de comprendre.', exEn:'I am trying to understand.', lvl:4, theme:'l\'obligation' },
+  { es:'oublier', en:'to forget', pos:'verb', def:'To forget.', ex:'J\'ai oublié mes clés.', exEn:'I forgot my keys.', lvl:4, theme:'l\'obligation' },
+  { es:'se souvenir de', en:'to remember', pos:'verb', def:'A reflexive verb: je me souviens.', ex:'Je me souviens de ce jour.', exEn:'I remember that day.', lvl:4, theme:'l\'obligation' },
+
+  /* --- level 5 · opinion, doubt, argument --- */
+  { es:'penser', en:'to think', pos:'verb', def:'To think. "Penser que" takes the indicative; the negative takes the subjunctive.', ex:'Je pense que c\'est vrai.', exEn:'I think it is true.', lvl:5, theme:'l\'opinion' },
+  { es:'à mon avis', en:'in my opinion', pos:'phrase', def:'The standard opener for an opinion.', ex:'À mon avis, c\'est une erreur.', exEn:'In my opinion, that is a mistake.', lvl:5, theme:'l\'opinion' },
+  { es:'il me semble que', en:'it seems to me that', pos:'phrase', def:'A softer way to state a view.', ex:'Il me semble que tu as raison.', exEn:'It seems to me you are right.', lvl:5, theme:'l\'opinion' },
+  { es:'d\'ailleurs', en:'besides, incidentally', pos:'adverb', def:'A connector that adds a supporting point.', ex:'D\'ailleurs, il l\'a dit lui-même.', exEn:'Besides, he said so himself.', lvl:5, theme:'l\'opinion' },
+  { es:'cependant', en:'however', pos:'adverb', def:'However. More written than "mais".', ex:'Cependant, ce n\'est pas simple.', exEn:'However, it is not simple.', lvl:5, theme:'l\'opinion' },
+  { es:'en revanche', en:'on the other hand', pos:'phrase', def:'Marks a genuine contrast.', ex:'En revanche, c\'est moins cher.', exEn:'On the other hand, it is cheaper.', lvl:5, theme:'l\'opinion' },
+  { es:'bien que', en:'although', pos:'conjunction', def:'Although — and it always takes the subjunctive.', ex:'Bien qu\'il soit tard, je reste.', exEn:'Although it is late, I am staying.', lvl:5, theme:'l\'opinion' },
+  { es:'afin que', en:'so that', pos:'conjunction', def:'So that. Subjunctive again.', ex:'afin que tu comprennes', exEn:'so that you understand', lvl:5, theme:'l\'opinion' },
+  { es:'le doute', en:'doubt', pos:'noun (m)', def:'Doubt. "Sans doute" actually means probably, not without doubt.', ex:'Sans doute.', exEn:'Probably.', lvl:5, theme:'l\'opinion' },
+  { es:'l\'actualité', en:'current affairs, the news', pos:'noun (f)', def:'The news as a subject.', ex:'suivre l\'actualité', exEn:'to follow the news', lvl:5, theme:'les médias' },
+  { es:'le journal', en:'newspaper', pos:'noun (m)', def:'Newspaper, and the TV news. Plural: les journaux.', ex:'le journal de vingt heures', exEn:'the eight o\'clock news', lvl:5, theme:'les médias' },
+  { es:'l\'entreprise', en:'company, firm', pos:'noun (f)', def:'A business.', ex:'Il travaille dans une grande entreprise.', exEn:'He works for a big company.', lvl:5, theme:'le travail' },
+  { es:'la réunion', en:'meeting', pos:'noun (f)', def:'A meeting.', ex:'J\'ai une réunion à dix heures.', exEn:'I have a meeting at ten.', lvl:5, theme:'le travail' },
+  { es:'le chômage', en:'unemployment', pos:'noun (m)', def:'Unemployment. "Être au chômage" — to be out of work.', ex:'le taux de chômage', exEn:'the unemployment rate', lvl:5, theme:'le travail' },
+  { es:'l\'environnement', en:'the environment', pos:'noun (m)', def:'The environment.', ex:'protéger l\'environnement', exEn:'to protect the environment', lvl:5, theme:'la société' },
+  { es:'le droit', en:'right, law', pos:'noun (m)', def:'A right, and the study of law. "À droite" is unrelated.', ex:'les droits de l\'homme', exEn:'human rights', lvl:5, theme:'la société' },
+
+  /* --- level 6 · register, idiom, the wider French world --- */
+  { es:'le truc', en:'thing, thingy', pos:'noun (m)', def:'Very informal. The word French reaches for when the real one will not come.', ex:'Passe-moi ce truc.', exEn:'Pass me that thing.', lvl:6, theme:'le registre' },
+  { es:'bosser', en:'to work (slang)', pos:'verb', def:'Casual for travailler. Fine with friends, wrong in an interview.', ex:'Je bosse demain.', exEn:'I am working tomorrow.', lvl:6, theme:'le registre' },
+  { es:'ouais', en:'yeah', pos:'adverb', def:'Casual oui. Never write it in an essay.', ex:'Ouais, d\'accord.', exEn:'Yeah, okay.', lvl:6, theme:'le registre' },
+  { es:'du coup', en:'so, as a result', pos:'phrase', def:'A filler that has taken over spoken French in the last twenty years.', ex:'Du coup, je suis resté.', exEn:'So I stayed.', lvl:6, theme:'le registre' },
+  { es:'avoir le cafard', en:'to feel down', pos:'idiom', def:'Literally "to have the cockroach".', ex:'J\'ai le cafard aujourd\'hui.', exEn:'I am feeling low today.', lvl:6, theme:'les expressions' },
+  { es:'poser un lapin', en:'to stand someone up', pos:'idiom', def:'Literally "to put down a rabbit".', ex:'Il m\'a posé un lapin.', exEn:'He stood me up.', lvl:6, theme:'les expressions' },
+  { es:'coûter les yeux de la tête', en:'to cost a fortune', pos:'idiom', def:'Literally "to cost the eyes out of your head".', ex:'Ça coûte les yeux de la tête.', exEn:'That costs a fortune.', lvl:6, theme:'les expressions' },
+  { es:'avoir un chat dans la gorge', en:'to have a frog in your throat', pos:'idiom', def:'French puts a cat there instead.', ex:'J\'ai un chat dans la gorge.', exEn:'I have a frog in my throat.', lvl:6, theme:'les expressions' },
+  { es:'le magasinage', en:'shopping (Québec)', pos:'noun (m)', def:'In Québec, where "faire du shopping" is avoided.', ex:'Je fais du magasinage.', exEn:'I am going shopping.', lvl:6, theme:'le français d\'ailleurs' },
+  { es:'le char', en:'car (Québec)', pos:'noun (m)', def:'Québec for a car; in France it is a tank or a float.', ex:'Mon char est en panne.', exEn:'My car has broken down.', lvl:6, theme:'le français d\'ailleurs' },
+  { es:'la dépanneuse', en:'tow truck', pos:'noun (f)', def:'A tow truck — and in Québec "le dépanneur" is the corner shop.', ex:'Appelle la dépanneuse.', exEn:'Call the tow truck.', lvl:6, theme:'le français d\'ailleurs' },
+  { es:'l\'essence', en:'petrol', pos:'noun (f)', def:'Petrol — and also the essence of a thing.', ex:'Il faut de l\'essence.', exEn:'We need petrol.', lvl:6, theme:'le français d\'ailleurs' },
+);
+
+/* ---------------------------------------------------------------- lessons, 3 to 6 */
+FR_GRAMMAR[3] = [
+  { id:'fg3-1', title:'The past tense you will actually use', sub:'passé composé with avoir.',
+    lede:'French has several past tenses, but one does almost all the work in speech. It is built from two pieces: a helper verb in the present, and the participle of the verb you mean.',
+    rules:[
+      { r:'avoir in the present + the participle.', ex:[['j\'ai parlé','I spoke / I have spoken'],['tu as fini','you finished'],['il a attendu','he waited'],['nous avons mangé','we ate']] },
+      { r:'Participles by family: -er → é, -ir → i, -re → u.', ex:[['parler → parlé','spoken'],['finir → fini','finished'],['attendre → attendu','waited']] },
+      { r:'The common irregular participles are worth learning as a list.', ex:[['avoir → eu','had'],['être → été','been'],['faire → fait','done'],['voir → vu','seen'],['prendre → pris','taken'],['mettre → mis','put']] },
+      { r:'The negative wraps the helper, not the participle.', ex:[['je n\'ai pas mangé','I did not eat'],['il n\'a rien dit','he said nothing']] },
+    ],
+    table:{ h:['','parler','finir','attendre'], rows:[['j\'ai','parlé','fini','attendu'],['tu as','parlé','fini','attendu'],['il a','parlé','fini','attendu'],['nous avons','parlé','fini','attendu'],['vous avez','parlé','fini','attendu'],['ils ont','parlé','fini','attendu']] },
+    callout:'"J\'ai parlé" covers "I spoke", "I have spoken" and "I did speak". English has three; French has one, and it is this.',
+    quiz:[
+      { q:'"Nous ___ mangé."', o:['sommes','avons','avez','ont'], a:1, why:'nous avons mangé.' },
+      { q:'Participle of "voir"?', o:['voyé','vu','voit','vois'], a:1, why:'vu — irregular, and very common.' },
+      { q:'Negative of "j\'ai mangé"?', o:['je n\'ai mangé pas','je n\'ai pas mangé','je ne mangé pas','j\'ai pas mangé rien'], a:1, why:'ne … pas goes around the helper verb.' },
+    ] },
+
+  { id:'fg3-2', title:'The verbs that take être', sub:'A short list, and it must be learned.',
+    lede:'Most verbs form the past with avoir. A small group — almost all about coming, going and staying — uses être instead, and then the participle agrees with the subject like an adjective.',
+    rules:[
+      { r:'être in the present + the participle, which agrees.', ex:[['je suis allé(e)','I went'],['elle est partie','she left'],['nous sommes arrivés','we arrived'],['elles sont restées','they stayed']] },
+      { r:'The list is mostly pairs of opposites.', ex:[['aller / venir','to go / to come'],['arriver / partir','to arrive / to leave'],['entrer / sortir','to go in / to go out'],['monter / descendre','to go up / to go down'],['naître / mourir','to be born / to die'],['rester, tomber, retourner','to stay, to fall, to return']] },
+      { r:'Every reflexive verb takes être too.', ex:[['je me suis levé(e)','I got up'],['elle s\'est lavée','she washed'],['nous nous sommes couchés','we went to bed']] },
+      { r:'Agreement: add -e for feminine, -s for plural.', ex:[['il est né','he was born'],['elle est née','she was born'],['ils sont nés','they were born'],['elles sont nées','they were born']] },
+    ],
+    table:{ h:['','aller (être)','manger (avoir)'], rows:[['je','suis allé(e)','ai mangé'],['tu','es allé(e)','as mangé'],['il / elle','est allé(e)','a mangé'],['nous','sommes allé(e)s','avons mangé'],['vous','êtes allé(e)(s)','avez mangé'],['ils / elles','sont allé(e)s','ont mangé']] },
+    callout:'Mnemonics like DR MRS VANDERTRAMP exist for the list, but the pattern is simpler: if the verb is about the body moving from one place or state to another, it probably takes être.',
+    culture:'The agreement is silent for most verbs — "allé" and "allée" sound identical. It is a rule you write, not one you hear, which is why French dictation is a national sport.',
+    quiz:[
+      { q:'"Elle ___ partie."', o:['a','est','sont','ont'], a:1, why:'partir takes être: elle est partie.' },
+      { q:'"Nous sommes ___" (arriver, a group of women)', o:['arrivé','arrivée','arrivés','arrivées'], a:3, why:'Feminine plural: arrivées.' },
+      { q:'Which takes avoir?', o:['venir','manger','rester','naître'], a:1, why:'manger is an ordinary avoir verb.' },
+    ] },
+
+  { id:'fg3-3', title:'Reflexive verbs', sub:'Things you do to yourself.',
+    lede:'French marks a lot of everyday actions as done to oneself: you wash yourself, you get yourself up, you call yourself a name. The pronoun is not optional and changes with the person.',
+    rules:[
+      { r:'The pronoun sits before the verb and matches the subject.', ex:[['je me lève','I get up'],['tu te lèves','you get up'],['il se lève','he gets up'],['nous nous levons','we get up'],['vous vous levez','you get up'],['ils se lèvent','they get up']] },
+      { r:'Many are simply the daily routine.', ex:[['se réveiller','to wake up'],['se laver','to wash'],['s\'habiller','to get dressed'],['se coucher','to go to bed'],['se dépêcher','to hurry']] },
+      { r:'In the past they take être, and the participle usually agrees.', ex:[['je me suis levé(e)','I got up'],['elle s\'est habillée','she got dressed']] },
+      { r:'The negative wraps both the pronoun and the verb.', ex:[['je ne me lève pas tôt','I do not get up early'],['il ne s\'est pas dépêché','he did not hurry']] },
+    ],
+    callout:'Some verbs change meaning entirely with the pronoun: "passer" is to pass, "se passer" is to happen. "Qu\'est-ce qui se passe ?" — what is going on?',
+    quiz:[
+      { q:'"Nous ___ levons à sept heures."', o:['nous','se','me','vous'], a:0, why:'nous nous levons — the pronoun matches the subject.' },
+      { q:'Past of "je me lève"?', o:['j\'ai me levé','je me suis levé','je me levé','je suis me levé'], a:1, why:'Reflexives take être, and the pronoun stays in front.' },
+      { q:'"Qu\'est-ce qui se passe ?" means…', o:['who is passing?','what is happening?','where is it?','what did you pass?'], a:1, why:'se passer is to happen.' },
+    ] },
+
+  { id:'fg3-4', title:'The weather, and what "il" really means', sub:'Impersonal verbs.',
+    lede:'French weather is something "it makes". The "il" in these sentences is not a person or a thing — it is a placeholder, the same one English uses in "it is raining".',
+    rules:[
+      { r:'faire carries most of the weather.', ex:[['il fait beau','the weather is nice'],['il fait mauvais','the weather is bad'],['il fait chaud','it is hot'],['il fait froid','it is cold'],['il fait vingt degrés','it is twenty degrees']] },
+      { r:'Some weather has its own verb.', ex:[['il pleut','it is raining'],['il neige','it is snowing'],['il gèle','it is freezing']] },
+      { r:'And some uses "il y a".', ex:[['il y a du vent','it is windy'],['il y a du soleil','it is sunny'],['il y a des nuages','it is cloudy']] },
+      { r:'Seasons take en, except spring.', ex:[['en hiver, en été, en automne','in winter, summer, autumn'],['au printemps','in spring']] },
+    ],
+    table:{ h:['English','French','literally'], rows:[['it is hot','il fait chaud','it makes hot'],['I am hot','j\'ai chaud','I have hot'],['the soup is hot','la soupe est chaude','the soup is hot']] },
+    callout:'Three different verbs for "hot" depending on what is hot: the weather makes it, a person has it, an object is it. Getting this wrong is the classic beginner sentence "je suis chaud", which means something else entirely.',
+    quiz:[
+      { q:'"It is windy" in French?', o:['il fait vent','il y a du vent','il vente beau','il est vent'], a:1, why:'il y a du vent.' },
+      { q:'"I am cold"?', o:['je suis froid','il fait froid','j\'ai froid','je fais froid'], a:2, why:'A person HAS cold: j\'ai froid.' },
+      { q:'Which season takes "au"?', o:['l\'hiver','l\'été','le printemps','l\'automne'], a:2, why:'au printemps — the odd one out.' },
+    ] },
+
+  { id:'fg3-5', title:'Object pronouns', sub:'Replacing the noun you already said.',
+    lede:'Once something has been named, French replaces it with a short pronoun that jumps in front of the verb. English keeps its objects after the verb; French does not, and that reordering is the thing to get used to.',
+    rules:[
+      { r:'Direct: me, te, le/la, nous, vous, les.', ex:[['Je vois Marie. → Je la vois.','I see her.'],['Tu lis le livre ? → Tu le lis ?','Are you reading it?'],['Il nous regarde.','He is watching us.']] },
+      { r:'Indirect (to someone): me, te, lui, nous, vous, leur.', ex:[['Je parle à Paul. → Je lui parle.','I speak to him.'],['J\'écris à mes parents. → Je leur écris.','I write to them.']] },
+      { r:'They go before the verb — and before the helper in the past.', ex:[['je l\'ai vu','I saw it/him'],['il nous a parlé','he spoke to us']] },
+      { r:'With an infinitive, they attach to the infinitive.', ex:[['Je vais le faire.','I am going to do it.'],['Tu peux me téléphoner ?','Can you call me?']] },
+    ],
+    callout:'A direct object placed before the verb makes the participle agree: "la lettre que j\'ai écrite". This is the rule French children spend years on, and the one adults quietly get wrong.',
+    quiz:[
+      { q:'"Je vois le chien" with a pronoun?', o:['Je vois le','Je le vois','Je vois lui','Le je vois'], a:1, why:'The pronoun goes before the verb: je le vois.' },
+      { q:'"Je parle à Marie" becomes…', o:['Je la parle','Je lui parle','Je parle la','Je leur parle'], a:1, why:'parler à takes an indirect pronoun: lui.' },
+      { q:'Where does the pronoun go in the past?', o:['after the participle','before the helper verb','at the end','it is dropped'], a:1, why:'je l\'ai vu — before the helper.' },
+    ] },
+
+  { id:'fg3-6', title:'depuis, pendant, il y a', sub:'Three ways to put a time on something.',
+    lede:'These three trip up English speakers because the tense that goes with them is not the one English uses. "I have been waiting" is a present in French, not a past.',
+    rules:[
+      { r:'depuis + the PRESENT, for something still going on.', ex:[['J\'habite ici depuis trois ans.','I have lived here for three years.'],['J\'attends depuis vingt minutes.','I have been waiting for twenty minutes.']] },
+      { r:'pendant + the past, for a finished stretch.', ex:[['J\'ai travaillé pendant deux heures.','I worked for two hours.'],['Elle a vécu à Paris pendant cinq ans.','She lived in Paris for five years.']] },
+      { r:'il y a + the past, for "ago".', ex:[['Je suis arrivé il y a une semaine.','I arrived a week ago.'],['Il est parti il y a dix minutes.','He left ten minutes ago.']] },
+      { r:'Ask with "depuis quand" or "combien de temps".', ex:[['Depuis quand tu apprends le français ?','How long have you been learning French?'],['Pendant combien de temps ?','For how long?']] },
+    ],
+    table:{ h:['','tense','meaning'], rows:[['depuis','present','started then, still going'],['pendant','past','lasted that long, finished'],['il y a','past','that long ago']] },
+    callout:'"J\'habite ici depuis trois ans" in the past — "j\'ai habité ici depuis trois ans" — says you no longer live here, which is usually not what was meant.',
+    quiz:[
+      { q:'"I have been learning French for a year."', o:['J\'ai appris le français depuis un an','J\'apprends le français depuis un an','J\'apprends le français pendant un an','J\'ai appris le français il y a un an'], a:1, why:'depuis takes the present.' },
+      { q:'"I arrived two days ago."', o:['Je suis arrivé depuis deux jours','Je suis arrivé pendant deux jours','Je suis arrivé il y a deux jours','J\'arrive il y a deux jours'], a:2, why:'il y a = ago.' },
+      { q:'Which one means a finished stretch?', o:['depuis','pendant','il y a','déjà'], a:1, why:'pendant.' },
+    ] },
+
+  { id:'fg3-7', title:'Telling a story', sub:'Putting the past together.',
+    lede:'A story in French is a chain of passé composé events with the time words holding it together. This lesson is about stitching, not about a new tense.',
+    rules:[
+      { r:'Order the events with connectors.', ex:[['d\'abord','first'],['puis / ensuite','then'],['après','afterwards'],['enfin / finalement','finally']] },
+      { r:'Anchor it in time at the start.', ex:[['hier','yesterday'],['la semaine dernière','last week'],['il y a deux jours','two days ago'],['ce matin','this morning']] },
+      { r:'Keep the helper straight as you go.', ex:[['Je me suis levé, j\'ai mangé, puis je suis parti.','I got up, I ate, then I left.']] },
+      { r:'React to a story you are being told.', ex:[['Ah bon ?','Really?'],['C\'est vrai ?','Is that true?'],['Et alors ?','And then?'],['Quelle horreur !','How awful!']] },
+    ],
+    callout:'Notice the helper changing mid-sentence: "je me suis levé, j\'ai mangé, je suis parti". Three verbs, two helpers, and no French speaker thinks about it.',
+    quiz:[
+      { q:'Which connector means "then"?', o:['d\'abord','puis','enfin','hier'], a:1, why:'puis, or ensuite.' },
+      { q:'"Je me suis levé, ___ mangé."', o:['je suis','j\'ai','je me suis','j\'étais'], a:1, why:'manger takes avoir even next to an être verb.' },
+      { q:'Someone tells you bad news. You say…', o:['Et alors ?','Quelle horreur !','D\'abord','Pendant'], a:1, why:'Quelle horreur ! — how awful.' },
+    ] },
+];
+
+FR_GRAMMAR[4] = [
+  { id:'fg4-1', title:'imparfait: the other past', sub:'What was going on, not what happened.',
+    lede:'The imperfect is not a different time from the passé composé; it is a different camera angle. One is the event, the other is the scene it happened in.',
+    rules:[
+      { r:'Take the nous form of the present, drop -ons, add the endings.', ex:[['nous parlons → parl-','je parlais, tu parlais, il parlait'],['nous finissons → finiss-','nous finissions, vous finissiez, ils finissaient'],['être is the one exception','j\'étais, tu étais, il était…']] },
+      { r:'Use it for habits and repeated actions.', ex:[['Quand j\'étais petit, je jouais au foot.','When I was small, I used to play football.'],['Tous les jours, elle prenait le bus.','Every day she took the bus.']] },
+      { r:'Use it for descriptions and states.', ex:[['Il faisait froid.','It was cold.'],['Elle était fatiguée.','She was tired.'],['Il y avait beaucoup de monde.','There were a lot of people.']] },
+      { r:'And for something interrupted.', ex:[['Je dormais quand le téléphone a sonné.','I was sleeping when the phone rang.']] },
+    ],
+    table:{ h:['','imparfait','passé composé'], rows:[['what it does','sets the scene','moves the story on'],['English','was ‑ing, used to','did, has done'],['example','il pleuvait','il est parti']] },
+    callout:'Test yourself with "was ‑ing" and "used to". If either fits the English, French wants the imperfect.',
+    quiz:[
+      { q:'"When I was young…"', o:['Quand j\'ai été jeune','Quand j\'étais jeune','Quand je suis jeune','Quand je fus jeune'], a:1, why:'A state in the past: imperfect.' },
+      { q:'"I was reading when he arrived."', o:['Je lisais quand il est arrivé','J\'ai lu quand il arrivait','Je lisais quand il arrivait','J\'ai lu quand il est arrivé'], a:0, why:'The background is imperfect, the interruption is passé composé.' },
+      { q:'Which verb is irregular in the imperfect?', o:['aller','faire','être','voir'], a:2, why:'être: j\'étais. Everything else builds from the nous form.' },
+    ] },
+
+  { id:'fg4-2', title:'The future, properly', sub:'futur simple, and when the near future is enough.',
+    lede:'You already have "je vais partir". The simple future is its written, more distant cousin — built on the infinitive, with endings borrowed from avoir.',
+    rules:[
+      { r:'Infinitive + ai, as, a, ons, ez, ont. An -re verb drops its e.', ex:[['je parlerai','I will speak'],['tu finiras','you will finish'],['il attendra','he will wait'],['nous partirons','we will leave']] },
+      { r:'A handful have an irregular stem, and they are the frequent ones.', ex:[['être → ser-','je serai'],['avoir → aur-','j\'aurai'],['aller → ir-','j\'irai'],['faire → fer-','je ferai'],['venir → viendr-','je viendrai'],['pouvoir → pourr-','je pourrai']] },
+      { r:'After "quand", French uses the future where English uses the present.', ex:[['Quand j\'aurai le temps, je t\'appellerai.','When I have time, I will call you.']] },
+      { r:'The near future is still fine, and more common in speech.', ex:[['Je vais partir.','I am going to leave.'],['Je partirai.','I will leave. (more distant, more written)']] },
+    ],
+    callout:'"Quand je serai grand" — when I am big. English switches to the present after "when"; French does not, and keeping the future there is what makes the sentence sound native.',
+    quiz:[
+      { q:'Future of "aller", je form?', o:['j\'allerai','j\'irai','je vais','j\'aurai'], a:1, why:'Irregular stem ir-: j\'irai.' },
+      { q:'"When I have time, I will call."', o:['Quand j\'ai le temps, je t\'appellerai','Quand j\'aurai le temps, je t\'appellerai','Quand j\'aurai le temps, je t\'appelle','Quand j\'ai eu le temps…'], a:1, why:'Both halves take the future in French.' },
+      { q:'"Nous ___ demain." (partir)', o:['partirons','partirez','partiront','partions'], a:0, why:'nous partirons.' },
+    ] },
+
+  { id:'fg4-3', title:'The conditional', sub:'Would — and the polite voice you have been using all along.',
+    lede:'You met the conditional in your first week without knowing it: "je voudrais" is one. It is the future stem with imperfect endings, and it softens everything it touches.',
+    rules:[
+      { r:'Future stem + ais, ais, ait, ions, iez, aient.', ex:[['je parlerais','I would speak'],['il ferait','he would do'],['nous irions','we would go'],['ils seraient','they would be']] },
+      { r:'It is how you ask for anything politely.', ex:[['Je voudrais un café.','I would like a coffee.'],['Pourriez-vous m\'aider ?','Could you help me?'],['Tu aurais une minute ?','Would you have a minute?']] },
+      { r:'And how you make a hypothesis, with si + imperfect.', ex:[['Si j\'avais le temps, je viendrais.','If I had time, I would come.'],['Si j\'étais riche, j\'achèterais une maison.','If I were rich, I would buy a house.']] },
+      { r:'Never put a conditional straight after si.', ex:[['Si j\'avais…','not "si j\'aurais"']] },
+    ],
+    table:{ h:['si clause','main clause','meaning'], rows:[['si + present','future','Si tu viens, je serai content'],['si + imperfect','conditional','Si tu venais, je serais content'],['si + pluperfect','past conditional','Si tu étais venu, j\'aurais été content']] },
+    callout:'"Si j\'aurais" is the single most mocked mistake in French — the equivalent of "if I would have" in English. The rule is absolute: never a conditional directly after si.',
+    quiz:[
+      { q:'"I would like" in French?', o:['je veux','je voudrais','je voulais','je voudrai'], a:1, why:'je voudrais — the conditional of vouloir.' },
+      { q:'"If I had time, I would come."', o:['Si j\'aurais le temps, je viendrais','Si j\'avais le temps, je viendrais','Si j\'ai le temps, je viendrais','Si j\'avais le temps, je viendrai'], a:1, why:'si + imperfect, then conditional.' },
+      { q:'The conditional is built from…', o:['the present stem','the future stem with imperfect endings','the participle','the nous form'], a:1, why:'Future stem, imperfect endings.' },
+    ] },
+
+  { id:'fg4-4', title:'y and en', sub:'Two tiny words that replace whole phrases.',
+    lede:'These two look like nothing and carry a lot. They replace a phrase you have already said, and once you use them the sentence stops sounding translated.',
+    rules:[
+      { r:'y replaces a place, or "à + thing".', ex:[['Je vais à Paris. → J\'y vais.','I am going there.'],['Tu penses à ton travail ? → Tu y penses ?','Are you thinking about it?'],['Il y a','there is — the same y']] },
+      { r:'en replaces "de + thing", including quantities.', ex:[['Je veux du pain. → J\'en veux.','I want some.'],['J\'ai trois frères. → J\'en ai trois.','I have three of them.'],['Il parle de son voyage. → Il en parle.','He is talking about it.']] },
+      { r:'Both go before the verb.', ex:[['J\'y suis allé.','I went there.'],['Il n\'en a pas.','He has none.']] },
+      { r:'A number or quantity stays behind.', ex:[['J\'en ai deux.','I have two of them.'],['Elle en veut beaucoup.','She wants a lot of it.']] },
+    ],
+    callout:'"J\'y vais" is how you say "I\'m off" — two words, and among the most useful in the language.',
+    quiz:[
+      { q:'"Je vais au marché" with a pronoun?', o:['Je le vais','J\'y vais','J\'en vais','Je vais y'], a:1, why:'y replaces a place.' },
+      { q:'"J\'ai deux chats" becomes…', o:['J\'y ai deux','J\'en ai deux','Je les ai deux','J\'ai en deux'], a:1, why:'en replaces the noun; the number stays.' },
+      { q:'en replaces a phrase starting with…', o:['à','de','en','pour'], a:1, why:'de.' },
+    ] },
+
+  { id:'fg4-5', title:'qui, que, dont, où', sub:'Joining two sentences into one.',
+    lede:'Relative pronouns let you describe something without starting a new sentence. French picks between them by the job the word does in the clause, not by whether it is a person or a thing.',
+    rules:[
+      { r:'qui — does the verb in its own clause.', ex:[['l\'homme qui parle','the man who is speaking'],['le train qui arrive','the train that is arriving']] },
+      { r:'que — has the verb done to it.', ex:[['le livre que je lis','the book that I am reading'],['la femme que j\'ai vue','the woman I saw']] },
+      { r:'dont — replaces a phrase with de.', ex:[['le film dont je parle','the film I am talking about'],['la chose dont j\'ai besoin','the thing I need']] },
+      { r:'où — a place, and also a time.', ex:[['la ville où j\'habite','the town where I live'],['le jour où il est parti','the day he left']] },
+    ],
+    table:{ h:['','job in the clause','example'], rows:[['qui','subject','la personne qui chante'],['que','object','la chanson que j\'aime'],['dont','after de','le sujet dont on parle'],['où','place or time','l\'année où je suis né']] },
+    callout:'English can drop the relative — "the book I am reading". French never can: "le livre que je lis", always.',
+    quiz:[
+      { q:'"the woman who works here"', o:['la femme que travaille ici','la femme qui travaille ici','la femme dont travaille ici','la femme où travaille ici'], a:1, why:'She does the verb: qui.' },
+      { q:'"the film that I saw"', o:['le film qui j\'ai vu','le film que j\'ai vu','le film dont j\'ai vu','le film où j\'ai vu'], a:1, why:'The film is what was seen: que.' },
+      { q:'"le sujet ___ on parle"', o:['qui','que','dont','où'], a:2, why:'parler DE quelque chose → dont.' },
+    ] },
+
+  { id:'fg4-6', title:'Making a request without sounding blunt', sub:'Softening, hedging, apologising.',
+    lede:'French politeness is largely grammatical. The same request can be an order or a courtesy depending on the tense, and choosing the wrong one is the main reason travellers get short answers.',
+    rules:[
+      { r:'Conditional instead of present.', ex:[['Je veux → Je voudrais','I want → I would like'],['Peux-tu → Pourrais-tu','Can you → Could you'],['Tu as → Tu aurais','Do you have → Would you have']] },
+      { r:'Add the softeners.', ex:[['s\'il vous plaît','please'],['excusez-moi de vous déranger','sorry to bother you'],['par hasard','by any chance']] },
+      { r:'Apologise properly.', ex:[['Je suis désolé(e).','I am sorry.'],['Je m\'excuse.','I apologise.'],['Ce n\'est pas grave.','It is no big deal.']] },
+      { r:'Say no without saying no.', ex:[['Je ne pense pas, non.','I do not think so.'],['Ça va être difficile.','That is going to be difficult.'],['Je vais voir.','I will see.']] },
+    ],
+    culture:'"Ça va être compliqué" almost never means it is complicated. It means no, said in a way that lets everyone keep their dignity.',
+    callout:'The one phrase worth memorising whole: "Excusez-moi de vous déranger, mais est-ce que vous pourriez… ?" It opens almost any door.',
+    quiz:[
+      { q:'Politest?', o:['Je veux de l\'eau','Donnez-moi de l\'eau','Je voudrais de l\'eau, s\'il vous plaît','De l\'eau'], a:2, why:'Conditional plus s\'il vous plaît.' },
+      { q:'"Ça va être compliqué" usually means…', o:['it is complicated','no','ask again later','yes, with difficulty'], a:1, why:'It is a polite refusal.' },
+      { q:'"Pourriez-vous" is which tense?', o:['present','future','conditional','imperfect'], a:2, why:'The conditional of pouvoir.' },
+    ] },
+];
+
+FR_GRAMMAR[5] = [
+  { id:'fg5-1', title:'The subjunctive, without the fear', sub:'It is a form, and it follows a list.',
+    lede:'The subjunctive is not a tense and not a mood you have to feel. It is a form that certain expressions demand, and the list of those expressions is short enough to learn.',
+    rules:[
+      { r:'Build it from the ils form of the present: drop -ent, add e, es, e, ions, iez, ent.', ex:[['ils parlent → que je parle','that I speak'],['ils finissent → que je finisse','that I finish'],['ils prennent → que je prenne','that I take']] },
+      { r:'A few are irregular and very common.', ex:[['être → que je sois','that I be'],['avoir → que j\'aie','that I have'],['aller → que j\'aille','that I go'],['faire → que je fasse','that I do'],['pouvoir → que je puisse','that I can']] },
+      { r:'After wanting, feeling, doubting — when the two subjects differ.', ex:[['Je veux que tu viennes.','I want you to come.'],['Je suis content que tu sois là.','I am glad you are here.'],['Je doute qu\'il vienne.','I doubt he will come.']] },
+      { r:'After a fixed set of conjunctions.', ex:[['bien que','although'],['pour que / afin que','so that'],['avant que','before'],['à condition que','provided that']] },
+    ],
+    table:{ h:['takes the subjunctive','takes the indicative'], rows:[['il faut que','il est clair que'],['je veux que','j\'espère que'],['je doute que','je pense que'],['bien que','parce que']] },
+    callout:'"J\'espère que tu viens" — hoping does NOT take the subjunctive in French, although wanting does. It is a list, not a logic.',
+    quiz:[
+      { q:'"Il faut que je ___" (partir)', o:['pars','parte','partirai','partais'], a:1, why:'il faut que takes the subjunctive: que je parte.' },
+      { q:'Which does NOT take the subjunctive?', o:['bien que','je veux que','j\'espère que','je doute que'], a:2, why:'espérer takes the indicative.' },
+      { q:'Subjunctive of être, je form?', o:['je suis','que je sois','que je serai','que j\'étais'], a:1, why:'que je sois.' },
+    ] },
+
+  { id:'fg5-2', title:'The three si sentences', sub:'Condition and consequence, matched properly.',
+    lede:'French hypotheticals come in three fixed shapes. Learn them as whole patterns rather than as rules and they stop being difficult.',
+    rules:[
+      { r:'Real: si + present, then future.', ex:[['Si tu viens, je serai content.','If you come, I will be happy.'],['S\'il pleut, je resterai à la maison.','If it rains, I will stay home.']] },
+      { r:'Unreal now: si + imperfect, then conditional.', ex:[['Si j\'avais de l\'argent, je voyagerais.','If I had money, I would travel.'],['Si j\'étais toi, je partirais.','If I were you, I would leave.']] },
+      { r:'Unreal past: si + pluperfect, then past conditional.', ex:[['Si tu étais venu, on aurait ri.','If you had come, we would have laughed.'],['Si j\'avais su, je ne serais pas venu.','If I had known, I would not have come.']] },
+      { r:'The pluperfect: avoir or être in the imperfect + participle.', ex:[['j\'avais parlé','I had spoken'],['il était parti','he had left']] },
+    ],
+    callout:'"Si j\'avais su" — if I had known — is a complete sentence in French, said with a shrug. It needs no second half.',
+    quiz:[
+      { q:'"If I were rich, I would buy a house."', o:['Si je suis riche, j\'achèterais','Si j\'étais riche, j\'achèterais','Si j\'aurais été riche, j\'achète','Si je serais riche, j\'achèterais'], a:1, why:'si + imperfect → conditional.' },
+      { q:'"If it rains, I will stay."', o:['S\'il pleuvait, je resterai','S\'il pleut, je resterai','S\'il pleuvrait, je reste','S\'il a plu, je resterais'], a:1, why:'si + present → future.' },
+      { q:'What follows "si" never?', o:['the present','the imperfect','the conditional','the pluperfect'], a:2, why:'Never a conditional directly after si.' },
+    ] },
+
+  { id:'fg5-3', title:'Arguing a point', sub:'Connectors that carry a paragraph.',
+    lede:'A French argument has visible joints. Written French especially expects you to signal every turn, and the connectors are worth memorising as a set.',
+    rules:[
+      { r:'Adding.', ex:[['de plus','moreover'],['en outre','furthermore'],['d\'ailleurs','besides'],['non seulement… mais aussi','not only… but also']] },
+      { r:'Contrasting.', ex:[['cependant / toutefois','however'],['en revanche','on the other hand'],['pourtant','and yet'],['malgré','despite']] },
+      { r:'Concluding.', ex:[['donc','therefore'],['par conséquent','consequently'],['en somme','all in all'],['bref','in short']] },
+      { r:'Structuring a whole answer.', ex:[['d\'une part… d\'autre part','on the one hand… on the other'],['tout d\'abord','first of all'],['enfin','finally']] },
+    ],
+    culture:'French school essays follow a thesis–antithesis–synthesis shape so standard it has a name: la dissertation. Knowing the connectors is half of passing one.',
+    callout:'"Pourtant" and "cependant" both mean however, but "pourtant" carries surprise — it marks something that ought not to follow from what came before.',
+    quiz:[
+      { q:'Which means "however"?', o:['de plus','cependant','donc','enfin'], a:1, why:'cependant, or toutefois.' },
+      { q:'"par conséquent" is used to…', o:['add a point','contrast','conclude','give an example'], a:2, why:'It introduces a consequence.' },
+      { q:'"pourtant" adds a sense of…', o:['agreement','surprise','time','place'], a:1, why:'It marks something unexpected.' },
+    ] },
+
+  { id:'fg5-4', title:'The passive, and how French avoids it', sub:'on, se, and the real passive.',
+    lede:'French can form a passive exactly as English does, but often chooses not to. Two other constructions do the job more naturally, and using them is a mark of fluency.',
+    rules:[
+      { r:'The real passive: être + participle, agreeing.', ex:[['La lettre a été écrite.','The letter was written.'],['Les portes sont fermées à six heures.','The doors are closed at six.']] },
+      { r:'More often, "on" — the everyday "someone / we / people".', ex:[['On parle français ici.','French is spoken here.'],['On m\'a dit que…','I was told that…'],['On y va ?','Shall we go?']] },
+      { r:'Or a reflexive, for things that are generally done.', ex:[['Ça se dit.','That is said / people say that.'],['Le vin blanc se boit frais.','White wine is drunk chilled.'],['Ça ne se fait pas.','That is not done.']] },
+      { r:'"On" has quietly replaced "nous" in speech.', ex:[['On va au cinéma.','We are going to the cinema.'],['Nous allons au cinéma.','The same, but more formal.']] },
+    ],
+    callout:'"On" takes a third-person singular verb however many people it means: "on est arrivés" — we arrived. The verb stays singular; the participle often does not.',
+    quiz:[
+      { q:'Most natural for "French is spoken here"?', o:['Le français est parlé ici','On parle français ici','Français se parle ici','Il parle français ici'], a:1, why:'on is the everyday choice.' },
+      { q:'"Ça ne se fait pas" means…', o:['it is not made','that is not done','it does not work','it will not happen'], a:1, why:'A reflexive standing in for a passive.' },
+      { q:'"On" takes which verb form?', o:['third singular','third plural','first plural','it varies'], a:0, why:'Always third person singular.' },
+    ] },
+
+  { id:'fg5-5', title:'Register', sub:'Three ways to ask the same thing.',
+    lede:'French is unusually stratified. The same question exists in a careful, a neutral and a casual form, and using the wrong one is noticed faster than a grammatical error.',
+    rules:[
+      { r:'The same question, three ways.', ex:[['Que faites-vous ?','careful'],['Qu\'est-ce que vous faites ?','neutral'],['Vous faites quoi ?','casual']] },
+      { r:'Spoken French drops things writing keeps.', ex:[['il ne sait pas → i\' sait pas','he does not know'],['tu as → t\'as','you have'],['je ne suis pas → j\'suis pas','I am not']] },
+      { r:'Written French keeps things speech has lost.', ex:[['nous','where speech says on'],['le passé simple','a past tense used only in writing']] },
+      { r:'Recognise the passé simple; you will read it, never say it.', ex:[['il fut','he was'],['elle alla','she went'],['ils dirent','they said']] },
+    ],
+    table:{ h:['careful','neutral','casual'], rows:[['Que veux-tu ?','Qu\'est-ce que tu veux ?','Tu veux quoi ?'],['Nous partons.','On part.','On s\'casse.'],['Je ne sais pas.','Je ne sais pas.','J\'sais pas.']] },
+    callout:'Reading a nineteenth-century novel, you will meet "il fut" and "elle alla" constantly. Nobody has said them out loud in a very long time.',
+    quiz:[
+      { q:'"Vous faites quoi ?" is…', o:['careful','neutral','casual','incorrect'], a:2, why:'Question word at the end marks casual speech.' },
+      { q:'The passé simple is used…', o:['in speech','in writing only','in questions','in the south'], a:1, why:'Literary and journalistic writing.' },
+      { q:'"T\'as" is a contraction of…', o:['tu as','tu es','ta','toi'], a:0, why:'tu as, in casual speech.' },
+    ] },
+
+  { id:'fg5-6', title:'Reading the news', sub:'The shapes a French article uses.',
+    lede:'News French has its own habits: the passive avoided, the conditional used to report claims, and long noun phrases where English would use a verb. Once you see them, the page opens up.',
+    rules:[
+      { r:'The conditional reports something not confirmed.', ex:[['Le suspect aurait pris la fuite.','The suspect reportedly fled.'],['Il y aurait vingt blessés.','There are said to be twenty injured.']] },
+      { r:'Nouns do the work of verbs.', ex:[['la hausse des prix','rising prices'],['la mise en place du dispositif','setting the scheme up']] },
+      { r:'Fixed news vocabulary.', ex:[['selon','according to'],['à la suite de','following'],['dans le cadre de','as part of'],['faire l\'objet de','to be the subject of']] },
+      { r:'The passé simple appears in reporting and history.', ex:[['Le président déclara…','The president declared…']] },
+    ],
+    callout:'That conditional is a legal shield: writing "le suspect aurait volé" rather than "a volé" is how French journalism reports an accusation without asserting it.',
+    quiz:[
+      { q:'"Il aurait quitté le pays" means…', o:['he would leave the country','he reportedly left the country','he will leave','he had to leave'], a:1, why:'The conditional marks an unconfirmed report.' },
+      { q:'"selon" means…', o:['following','according to','despite','during'], a:1, why:'according to.' },
+      { q:'Why does journalism use the conditional?', o:['politeness','to report without asserting','to sound old-fashioned','to save space'], a:1, why:'It reports a claim without endorsing it.' },
+    ] },
+];
+
+FR_GRAMMAR[6] = [
+  { id:'fg6-1', title:'Idiom', sub:'Phrases that will not translate.',
+    lede:'Every language keeps a set of fixed expressions whose words say one thing and whose meaning is another. French has a lot of them, and they are how you stop sounding like a textbook.',
+    rules:[
+      { r:'Body parts do most of the work.', ex:[['coûter les yeux de la tête','to cost a fortune'],['avoir un chat dans la gorge','to have a frog in your throat'],['se casser la tête','to go to a lot of trouble'],['avoir le bras long','to have influence']] },
+      { r:'Food does the rest.', ex:[['tomber dans les pommes','to faint'],['raconter des salades','to talk nonsense'],['avoir la pêche','to be full of energy'],['ce n\'est pas de la tarte','it is no picnic']] },
+      { r:'Animals appear where English uses different ones.', ex:[['il fait un temps de chien','the weather is foul'],['poser un lapin','to stand someone up'],['avoir d\'autres chats à fouetter','to have other fish to fry']] },
+      { r:'And a few carry real feeling.', ex:[['avoir le cafard','to feel down'],['en avoir marre','to be fed up'],['ça me prend la tête','it does my head in']] },
+    ],
+    callout:'"J\'en ai marre" is one of the most useful sentences in casual French. It is not rude, it is just tired, and everybody says it.',
+    quiz:[
+      { q:'"Tomber dans les pommes" means…', o:['to fall in the apples','to faint','to make a mistake','to fall in love'], a:1, why:'To faint.' },
+      { q:'"Poser un lapin" means…', o:['to buy a rabbit','to stand someone up','to be quiet','to rest'], a:1, why:'To fail to turn up.' },
+      { q:'"J\'en ai marre" means…', o:['I am fed up','I have a lot','I am hungry','I am late'], a:0, why:'Fed up.' },
+    ] },
+
+  { id:'fg6-2', title:'French outside France', sub:'Québec, Belgium, Switzerland, West Africa.',
+    lede:'More people speak French outside France than in it. The differences are mostly vocabulary and rhythm rather than grammar, and being aware of them stops you being surprised.',
+    rules:[
+      { r:'Québec keeps older words and refuses borrowings France accepts.', ex:[['le magasinage','shopping'],['le char','car'],['la fin de semaine','weekend (France: le week-end)'],['le courriel','email (France: le mail)']] },
+      { r:'Numbers change in Belgium and Switzerland.', ex:[['septante','70 (France: soixante-dix)'],['nonante','90 (France: quatre-vingt-dix)'],['huitante','80 (parts of Switzerland)']] },
+      { r:'West African French has its own words in daily use.', ex:[['un taxi-brousse','a bush taxi'],['essencerie','petrol station (Senegal)'],['pirogue','a dugout canoe']] },
+      { r:'And Québec swears differently — through the church.', ex:[['tabarnak, câlisse','from liturgical objects'],['in France, the swearing is anatomical','']] },
+    ],
+    culture:'Québec French is not old French preserved in amber, but it did keep things Parisian French dropped — including the "tu" question particle: "Tu viens-tu ?"',
+    callout:'A Québécois film often carries subtitles in France. The grammar is the same; the vocabulary, the vowels and the rhythm are not.',
+    quiz:[
+      { q:'"Septante" means…', o:['seven','seventy','seventeen','seventy-seven'], a:1, why:'70, in Belgium and Switzerland.' },
+      { q:'In Québec, "un char" is…', o:['a tank','a car','a float','a chair'], a:1, why:'A car.' },
+      { q:'Québec swearing draws on…', o:['anatomy','the church','animals','food'], a:1, why:'Liturgical vocabulary — the sacres.' },
+    ] },
+
+  { id:'fg6-3', title:'Humour and irony', sub:'Understatement, wordplay, and the second-degree.',
+    lede:'French humour leans on saying less than you mean and on the sound of words. "Le second degré" — reading a statement as its own opposite — is expected rather than signalled.',
+    rules:[
+      { r:'Understatement is standard praise.', ex:[['Ce n\'est pas mal.','It is rather good.'],['Ce n\'est pas bête.','That is quite clever.'],['Pas faux.','Fair point.']] },
+      { r:'The second degree: said straight, meant ironically.', ex:[['Bravo, vraiment.','after a mistake'],['C\'est malin.','That was smart. (it was not)']] },
+      { r:'Wordplay is a national habit.', ex:[['un jeu de mots','a pun'],['un calembour','a groan-worthy pun'],['une contrepèterie','swapped sounds, usually rude']] },
+      { r:'And a few set-piece replies.', ex:[['Tu m\'étonnes !','You don\'t say! (you do not surprise me)'],['Sans blague ?','No kidding?'],['N\'importe quoi.','Nonsense.']] },
+    ],
+    callout:'"Tu m\'étonnes" literally means "you astonish me" and always means the opposite. The tone carries all of it.',
+    quiz:[
+      { q:'"Ce n\'est pas mal" is…', o:['criticism','praise','neutral','a question'], a:1, why:'Understated praise.' },
+      { q:'"Tu m\'étonnes !" means…', o:['I am surprised','obviously','tell me more','stop it'], a:1, why:'It means the opposite of what it says.' },
+      { q:'"Le second degré" is…', o:['a school level','irony','a temperature','a grammar term'], a:1, why:'Reading something as its own opposite.' },
+    ] },
+
+  { id:'fg6-4', title:'Literature, and the tenses it keeps', sub:'passé simple and the literary past.',
+    lede:'To read a French novel you need two tenses nobody speaks. You will never be asked to produce them — only to recognise them — and they are regular enough to learn in an afternoon.',
+    rules:[
+      { r:'passé simple, -er verbs.', ex:[['il parla','he spoke'],['ils parlèrent','they spoke'],['elle alla','she went']] },
+      { r:'passé simple, the rest.', ex:[['il finit','he finished'],['il attendit','he waited'],['il fut','he was'],['il eut','he had'],['il fit','he did']] },
+      { r:'The literary subjunctive turns up in older texts.', ex:[['qu\'il fût','that he were'],['qu\'elle eût','that she had']] },
+      { r:'Recognise, do not produce. In speech it is the passé composé.', ex:[['written: il partit','spoken: il est parti']] },
+    ],
+    culture:'Camus opens L\'Étranger in the passé composé rather than the passé simple, and French readers notice immediately — it is what makes the narrator sound flat and present rather than literary.',
+    callout:'"Il fut" and "il fit" differ by one letter and mean "he was" and "he did". In a novel, the context always settles it; on a first reading, it rarely feels that way.',
+    quiz:[
+      { q:'"Il alla" is which tense?', o:['imperfect','passé simple','conditional','subjunctive'], a:1, why:'The literary past.' },
+      { q:'Where would you meet the passé simple?', o:['in conversation','in a novel','in a text message','in an interview'], a:1, why:'Written narrative.' },
+      { q:'Spoken equivalent of "il partit"?', o:['il partait','il est parti','il partira','il serait parti'], a:1, why:'The passé composé.' },
+    ] },
+
+  { id:'fg6-5', title:'Thinking in French', sub:'Hedging, filling, and holding the floor.',
+    lede:'The last thing to learn is what to say while you are deciding what to say. Fluent speech is full of small phrases that buy a second, and without them a pause reads as not understanding.',
+    rules:[
+      { r:'Fillers that buy time.', ex:[['euh…','er…'],['bah…','well…'],['disons que…','let us say that…'],['comment dire…','how shall I put it…']] },
+      { r:'Hedges that soften a claim.', ex:[['en quelque sorte','in a way'],['plus ou moins','more or less'],['si je peux dire','if I may say so'],['je dirais que','I would say that']] },
+      { r:'Holding the floor.', ex:[['attends, je finis','wait, let me finish'],['justement !','exactly — that is my point'],['oui, mais…','yes, but…']] },
+      { r:'Admitting you are lost, gracefully.', ex:[['Je ne suis pas sûr d\'avoir compris.','I am not sure I understood.'],['Vous pouvez reformuler ?','Could you put that another way?']] },
+    ],
+    callout:'"Comment dire…" does more than fill a pause: it tells the listener you are searching for the right word, and they will usually offer it.',
+    quiz:[
+      { q:'"Justement !" means…', o:['just now','exactly, my point','fairly','only'], a:1, why:'It seizes on what was just said as supporting you.' },
+      { q:'Which one buys thinking time?', o:['comment dire…','au revoir','merci','voilà'], a:0, why:'It signals you are searching for a word.' },
+      { q:'"Plus ou moins" means…', o:['more and more','more or less','never','at least'], a:1, why:'More or less.' },
+    ] },
+];
+
+/* ---------------------------------------------------------------- phrases, 3 to 6 */
+FR_SPEAKING[3] = [
+  { es:'Hier, je suis allé au marché.', en:'Yesterday I went to the market.', hint:'ee-YAIR, zhuh swee zah-LAY oh mar-SHAY' },
+  { es:'Qu\'est-ce que tu as fait ce week-end ?', en:'What did you do this weekend?', hint:'kess-kuh tew ah FEH suh week-END' },
+  { es:'Il fait très froid aujourd\'hui.', en:'It is very cold today.', hint:'eel feh treh FRWAH oh-zhoor-DWEE' },
+  { es:'Je me suis levée à six heures.', en:'I got up at six.', hint:'zhuh muh swee luh-VAY ah see ZUHR' },
+  { es:'J\'habite ici depuis deux ans.', en:'I have lived here for two years.', hint:'zhah-BEET ee-SEE duh-PWEE duh ZAHN' },
+  { es:'Excusez-moi, je cherche la poste.', en:'Excuse me, I am looking for the post office.', hint:'zhuh SHAIRSH lah POST' },
+  { es:'Traversez le pont, c\'est en face.', en:'Cross the bridge, it is opposite.', hint:'trah-vair-SAY luh POHN' },
+  { es:'J\'ai mal à la tête.', en:'I have a headache.', hint:'zhay mal ah lah TET' },
+  { es:'Je ne me sens pas très bien.', en:'I do not feel very well.', hint:'zhuh nuh muh SAHN pah treh bee-AHN' },
+  { es:'On s\'est bien amusés.', en:'We had a good time.', hint:'ohn seh bee-AHN nah-mew-ZAY' },
+  { es:'Il y a du vent et des nuages.', en:'It is windy and cloudy.', hint:'eel yah dew VAHN ay day new-AHZH' },
+  { es:'Je l\'ai vu la semaine dernière.', en:'I saw him last week.', hint:'zhuh lay VEW lah suh-MEN dair-nee-AIR' },
+];
+FR_SPEAKING[4] = [
+  { es:'Quand j\'étais petite, j\'habitais à la campagne.', en:'When I was little, I lived in the countryside.', hint:'kahn zhay-TEH puh-TEET' },
+  { es:'Je dormais quand tu as appelé.', en:'I was sleeping when you called.', hint:'zhuh dor-MEH kahn tew ah ah-play' },
+  { es:'L\'année prochaine, j\'irai en France.', en:'Next year I will go to France.', hint:'zhee-RAY ahn FRAHNSS' },
+  { es:'Si j\'avais le temps, je viendrais.', en:'If I had time, I would come.', hint:'see zhah-VEH luh TAHN, zhuh vee-ahn-DREH' },
+  { es:'Pourriez-vous m\'aider, s\'il vous plaît ?', en:'Could you help me, please?', hint:'poo-ree-ay VOO may-DAY' },
+  { es:'J\'y vais tout de suite.', en:'I am going there right away.', hint:'zhee VEH toot SWEET' },
+  { es:'J\'en ai besoin pour demain.', en:'I need it for tomorrow.', hint:'zhahn nay buh-ZWAHN poor duh-MAHN' },
+  { es:'C\'est le livre dont je t\'ai parlé.', en:'That is the book I told you about.', hint:'suh luh LEEVR dohn zhuh tay par-LAY' },
+  { es:'Il faut que je parte maintenant.', en:'I have to leave now.', hint:'eel foh kuh zhuh PART mant-NAHN' },
+  { es:'Je voudrais réserver une chambre.', en:'I would like to book a room.', hint:'zhuh voo-DREH ray-zair-VAY' },
+  { es:'Excusez-moi de vous déranger.', en:'Sorry to bother you.', hint:'ex-kew-zay MWAH duh voo day-rahn-ZHAY' },
+  { es:'Je lui ai écrit hier soir.', en:'I wrote to him last night.', hint:'zhuh lwee ay ay-KREE' },
+];
+FR_SPEAKING[5] = [
+  { es:'À mon avis, ce n\'est pas une bonne idée.', en:'In my opinion, that is not a good idea.', hint:'ah mohn nah-VEE' },
+  { es:'Je doute qu\'il vienne ce soir.', en:'I doubt he will come tonight.', hint:'zhuh DOOT keel vee-EN' },
+  { es:'Bien que ce soit tard, je vais rester.', en:'Although it is late, I am going to stay.', hint:'bee-AHN kuh suh SWAH tar' },
+  { es:'Si j\'avais su, je ne serais pas venu.', en:'If I had known, I would not have come.', hint:'see zhah-VEH SEW' },
+  { es:'On parle beaucoup de ça en ce moment.', en:'People are talking about that a lot right now.', hint:'ohn PARL boh-KOO duh sah' },
+  { es:'Cependant, il y a un problème.', en:'However, there is a problem.', hint:'suh-pahn-DAHN' },
+  { es:'Il me semble que tu as raison.', en:'It seems to me you are right.', hint:'eel muh SAHM-bluh kuh tew ah ray-ZOHN' },
+  { es:'D\'une part c\'est vrai, d\'autre part c\'est compliqué.', en:'On the one hand it is true, on the other it is complicated.', hint:'dewn PAR … doh-truh PAR' },
+  { es:'Je ne suis pas sûr d\'avoir compris.', en:'I am not sure I understood.', hint:'zhuh nuh swee pah SEWR' },
+  { es:'Ça ne se fait pas ici.', en:'That is not done here.', hint:'sah nuh suh FEH pah' },
+];
+FR_SPEAKING[6] = [
+  { es:'Franchement, j\'en ai marre.', en:'Honestly, I am fed up.', hint:'frahnsh-MAHN, zhahn nay MAR' },
+  { es:'Comment dire… c\'est compliqué.', en:'How shall I put it… it is complicated.', hint:'koh-mahn DEER' },
+  { es:'Ce n\'est pas mal du tout.', en:'That is not bad at all.', hint:'suh neh pah MAL dew TOO' },
+  { es:'Tu m\'étonnes !', en:'You don\'t say!', hint:'tew may-TUN' },
+  { es:'Ça coûte les yeux de la tête.', en:'That costs a fortune.', hint:'sah KOOT lay zyuh duh lah TET' },
+  { es:'Il m\'a posé un lapin.', en:'He stood me up.', hint:'eel mah poh-ZAY uhn lah-PAHN' },
+  { es:'Du coup, on est rentrés à pied.', en:'So we walked home.', hint:'dew KOO, ohn eh rahn-TRAY ah pee-AY' },
+  { es:'Bref, ça s\'est mal passé.', en:'In short, it went badly.', hint:'BREF, sah seh mal pah-SAY' },
+  { es:'J\'aurais dû t\'écouter.', en:'I should have listened to you.', hint:'zhoh-reh DEW tay-koo-TAY' },
+  { es:'N\'importe quoi !', en:'Nonsense!', hint:'nahm-port KWAH' },
+];
+
+/* ---------------------------------------------------------------- passages, 3 to 6 */
+FR_READING[3] = [
+  { id:'fr3-1', title:'Un samedi à Paris', words:95,
+    text:['Samedi dernier, je suis allée à Paris avec ma sœur. Nous avons pris le train à huit heures du matin.','D\'abord, nous avons visité le musée d\'Orsay. J\'ai beaucoup aimé les tableaux de Monet.','Ensuite, nous avons mangé dans un petit café près de la Seine. J\'ai pris une salade et ma sœur a pris une quiche.','L\'après-midi, il a commencé à pleuvoir. Nous sommes entrées dans une librairie et j\'ai acheté deux livres.','Nous sommes rentrées à sept heures, fatiguées mais contentes.'],
+    en:'Last Saturday I went to Paris with my sister. We took the train at eight in the morning. First we visited the Musée d\'Orsay. I really liked the Monet paintings. Then we ate in a little café near the Seine. I had a salad and my sister had a quiche. In the afternoon it started to rain. We went into a bookshop and I bought two books. We got home at seven, tired but happy.',
+    qs:[ { q:'How did they travel?', o:['By car','By train','On foot'], a:1 }, { q:'What happened in the afternoon?', o:['It rained','It snowed','It got hot'], a:0 }, { q:'What did the narrator buy?', o:['A painting','Two books','A quiche'], a:1 } ] },
+  { id:'fr3-2', title:'Le temps à Kamloops', words:80,
+    text:['J\'habite à Kamloops, dans l\'ouest du Canada. Ici, le temps change beaucoup selon la saison.','En hiver, il fait très froid et il neige souvent. En janvier, il fait parfois moins vingt degrés.','Au printemps, la neige fond et tout devient vert. C\'est ma saison préférée.','En été, il fait très chaud et sec. Il ne pleut presque jamais.','En automne, il y a du vent et les feuilles tombent. J\'aime beaucoup marcher à cette saison.'],
+    en:'I live in Kamloops, in western Canada. Here the weather changes a lot with the season. In winter it is very cold and it often snows. In January it is sometimes minus twenty degrees. In spring the snow melts and everything turns green. It is my favourite season. In summer it is very hot and dry. It almost never rains. In autumn it is windy and the leaves fall. I like walking a lot at that time of year.',
+    qs:[ { q:'What is the narrator\'s favourite season?', o:['Winter','Spring','Summer'], a:1 }, { q:'What is summer like?', o:['Hot and dry','Wet','Cold'], a:0 }, { q:'What happens in autumn?', o:['It snows','It is windy','It is hot'], a:1 } ] },
+  { id:'fr3-3', title:'Chez le médecin', words:88,
+    text:['— Bonjour docteur. Je ne me sens pas très bien.','— Bonjour. Qu\'est-ce qui ne va pas ?','— J\'ai mal à la tête depuis trois jours, et je suis très fatiguée.','— Vous avez de la fièvre ?','— Un peu, je crois. Hier soir, j\'avais trente-huit.','— Bon. Ce n\'est pas grave, mais il faut vous reposer. Buvez beaucoup d\'eau et restez à la maison deux jours.','— Merci beaucoup, docteur.'],
+    en:'"Hello doctor. I do not feel very well." "Hello. What is wrong?" "I have had a headache for three days, and I am very tired." "Do you have a fever?" "A little, I think. Last night I had thirty-eight." "Right. It is not serious, but you must rest. Drink plenty of water and stay at home for two days." "Thank you very much, doctor."',
+    qs:[ { q:'How long has she had a headache?', o:['One day','Three days','A week'], a:1 }, { q:'What does the doctor say to do?', o:['Rest and drink water','Take a pill','Come back tomorrow'], a:0 }, { q:'Is it serious?', o:['Yes','No','The doctor does not say'], a:1 } ] },
+];
+FR_READING[4] = [
+  { id:'fr4-1', title:'Quand j\'étais petit', words:105,
+    text:['Quand j\'étais petit, nous habitions dans un village au bord de la mer. La maison était vieille et il y avait un grand jardin derrière.','Tous les étés, mes cousins venaient passer le mois d\'août chez nous. Nous jouions dehors du matin au soir.','Ma grand-mère faisait un gâteau tous les dimanches. L\'odeur remplissait toute la maison.','Un jour d\'août, pendant que nous jouions dans le jardin, un orage est arrivé très vite. Nous sommes rentrés en courant, trempés, et ma grand-mère a beaucoup ri.','Je pense souvent à cette maison. Nous l\'avons vendue il y a dix ans.'],
+    en:'When I was little, we lived in a village by the sea. The house was old and there was a big garden behind it. Every summer, my cousins came to spend August with us. We played outside from morning until night. My grandmother made a cake every Sunday. The smell filled the whole house. One day in August, while we were playing in the garden, a storm came very quickly. We ran back inside, soaked, and my grandmother laughed a lot. I often think about that house. We sold it ten years ago.',
+    qs:[ { q:'Where was the house?', o:['In the mountains','By the sea','In a city'], a:1 }, { q:'What interrupted the game?', o:['Dinner','A storm','The cousins leaving'], a:1 }, { q:'What happened to the house?', o:['It was sold','It burned down','They still own it'], a:0 } ] },
+  { id:'fr4-2', title:'Les projets de Léa', words:96,
+    text:['L\'année prochaine, Léa ira étudier à Montréal. Elle a déjà trouvé un appartement près de l\'université.','« Je prendrai l\'avion en août », dit-elle. « J\'aurai deux valises, pas plus. »','Elle sait que l\'hiver sera difficile. « Il paraît qu\'il fait moins trente en janvier. Si j\'avais le choix, je partirais en septembre plutôt qu\'en août, mais les cours commencent tôt. »','Sa mère lui a dit : « Si tu as froid, tu rentreras. » Léa a répondu qu\'elle ne rentrerait pas.'],
+    en:'Next year, Léa will go to study in Montréal. She has already found a flat near the university. "I will fly in August," she says. "I will have two suitcases, no more." She knows winter will be hard. "Apparently it is minus thirty in January. If I had the choice, I would leave in September rather than August, but classes start early." Her mother said to her: "If you get cold, you will come home." Léa replied that she would not come home.',
+    qs:[ { q:'When is Léa leaving?', o:['August','September','January'], a:0 }, { q:'What worries her?', o:['The flat','The winter','The flight'], a:1 }, { q:'What did she say to her mother?', o:['She would come home','She would not come home','She would think about it'], a:1 } ] },
+  { id:'fr4-3', title:'À l\'hôtel', words:92,
+    text:['— Bonsoir, j\'ai une réservation au nom de Tremblay.','— Bonsoir madame. Une chambre double pour trois nuits, c\'est bien ça ?','— Oui. Est-ce que le petit déjeuner est compris ?','— Il est compris, oui, de sept heures à dix heures.','— Parfait. Est-ce qu\'il y aurait une chambre plus calme ? Celle-ci donne sur la rue.','— Je vais voir… Oui, j\'en ai une au troisième qui donne sur la cour. Je vous la donne.','— C\'est très gentil, merci.'],
+    en:'"Good evening, I have a reservation under the name Tremblay." "Good evening madam. A double room for three nights, is that right?" "Yes. Is breakfast included?" "It is included, yes, from seven to ten." "Perfect. Would there be a quieter room? This one looks onto the street." "Let me see… Yes, I have one on the third floor looking onto the courtyard. I will give you that one." "That is very kind, thank you."',
+    qs:[ { q:'How many nights?', o:['Two','Three','Four'], a:1 }, { q:'What does she ask for?', o:['A cheaper room','A quieter room','A bigger room'], a:1 }, { q:'Is breakfast included?', o:['Yes','No','Only at weekends'], a:0 } ] },
+];
+FR_READING[5] = [
+  { id:'fr5-1', title:'Faut-il interdire les voitures en ville ?', words:115,
+    text:['Depuis quelques années, plusieurs villes européennes ont réduit la place de la voiture dans leur centre. Paris, Madrid et Milan ont toutes limité la circulation.','Les partisans de ces mesures avancent trois arguments. D\'une part, l\'air devient plus respirable. D\'autre part, les commerces de proximité en profitent. Enfin, la ville redevient un lieu où l\'on marche.','Cependant, tout le monde n\'est pas d\'accord. Certains commerçants estiment que leurs clients viennent de loin et qu\'ils ne viendront plus. D\'autres soulignent que les transports publics ne desservent pas bien la banlieue.','Il semble donc que la question ne soit pas simplement écologique : elle est aussi sociale.'],
+    en:'For some years, several European cities have reduced the place of the car in their centres. Paris, Madrid and Milan have all restricted traffic. Supporters of these measures put forward three arguments. On the one hand, the air becomes more breathable. On the other, local shops benefit. Finally, the city becomes a place where people walk again. However, not everyone agrees. Some shopkeepers feel their customers come from far away and will no longer come. Others point out that public transport does not serve the suburbs well. It therefore seems the question is not simply an ecological one: it is also social.',
+    qs:[ { q:'How many arguments do supporters give?', o:['Two','Three','Four'], a:1 }, { q:'What do some shopkeepers fear?', o:['Higher rents','Losing distant customers','More traffic'], a:1 }, { q:'What is the writer\'s conclusion?', o:['It is only ecological','It is also social','It has been settled'], a:1 } ] },
+  { id:'fr5-2', title:'Le télétravail', words:108,
+    text:['Le télétravail s\'est imposé très vite, et il n\'a pas disparu depuis. Selon une étude récente, près d\'un tiers des salariés français travailleraient chez eux au moins un jour par semaine.','Les avantages sont connus : moins de transport, plus de souplesse, et souvent une meilleure concentration. Bien que ces bénéfices soient réels, ils ne concernent pas tout le monde.','En revanche, certains salariés se plaignent de l\'isolement. « Je ne vois plus personne », explique Sophie, trente-quatre ans. « Au début, j\'étais ravie. Maintenant, il me manque quelque chose. »','Les entreprises, quant à elles, hésitent encore entre le bureau et la maison.'],
+    en:'Remote work established itself very quickly, and it has not gone away since. According to a recent study, nearly a third of French employees reportedly work from home at least one day a week. The advantages are well known: less commuting, more flexibility, and often better concentration. Although these benefits are real, they do not apply to everyone. On the other hand, some employees complain of isolation. "I do not see anyone any more," explains Sophie, thirty-four. "At first I was delighted. Now something is missing." Companies, for their part, are still hesitating between the office and home.',
+    qs:[ { q:'How many employees work from home weekly?', o:['A tenth','About a third','Half'], a:1 }, { q:'What does Sophie complain about?', o:['The pay','Isolation','Her computer'], a:1 }, { q:'Why is "travailleraient" conditional?', o:['It is polite','It reports a figure without asserting it','It is future','It is a mistake'], a:1 } ] },
+  { id:'fr5-3', title:'Une lettre de motivation', words:98,
+    text:['Madame, Monsieur,','Actuellement étudiante en troisième année de langues à l\'université de Lyon, je souhaite poser ma candidature pour le poste d\'assistante que vous proposez.','Au cours de mes études, j\'ai eu l\'occasion de travailler en équipe sur plusieurs projets, et j\'ai effectué un stage de trois mois dans une maison d\'édition, où j\'étais chargée de la relecture.','Je suis disponible à partir du 1er septembre et serais ravie de vous rencontrer afin de vous exposer ma motivation.','Dans l\'attente de votre réponse, je vous prie d\'agréer, Madame, Monsieur, mes salutations distinguées.'],
+    en:'Dear Sir or Madam, Currently a third-year languages student at the University of Lyon, I would like to apply for the assistant position you are offering. During my studies I have had the chance to work in a team on several projects, and I completed a three-month placement at a publishing house, where I was responsible for proofreading. I am available from 1 September and would be delighted to meet you in order to set out my motivation. Awaiting your reply, I remain, yours faithfully.',
+    qs:[ { q:'What is she studying?', o:['Law','Languages','Publishing'], a:1 }, { q:'What did she do on her placement?', o:['Proofreading','Sales','Teaching'], a:0 }, { q:'When is she available?', o:['Immediately','1 September','Next year'], a:1 } ] },
+];
+FR_READING[6] = [
+  { id:'fr6-1', title:'Le dépanneur', words:112,
+    text:['À Montréal, on ne dit pas « l\'épicerie du coin ». On dit « le dépanneur », ou simplement « le dep ».','Le mot vient de dépanner : sortir quelqu\'un d\'embarras. C\'est exactement ce que fait ce magasin. Il est ouvert tard, il vend du lait, des chips, de la bière et des billets de loterie, et il est toujours à moins de cinq minutes à pied.','En France, le mot « dépanneuse » désigne un camion qui remorque les voitures. Un Français à Montréal qui cherche une dépanneuse risque donc de se retrouver devant un frigo de boissons gazeuses.','C\'est là tout le charme du français : la même racine, deux mondes.'],
+    en:'In Montréal, people do not say "the corner shop". They say "le dépanneur", or simply "le dep". The word comes from dépanner: to get someone out of a fix. That is exactly what the shop does. It is open late, it sells milk, crisps, beer and lottery tickets, and it is always less than five minutes\' walk away. In France, the word "dépanneuse" means a truck that tows cars. A French person in Montréal looking for a dépanneuse therefore risks ending up in front of a fridge of fizzy drinks. That is the whole charm of French: the same root, two worlds.',
+    qs:[ { q:'What is "le dep"?', o:['A tow truck','A corner shop','A café'], a:1 }, { q:'What does "dépanner" mean?', o:['To sell','To get someone out of a fix','To drive'], a:1 }, { q:'What is the writer\'s point?', o:['Québec French is wrong','The same root gives two meanings','France has no corner shops'], a:1 } ] },
+  { id:'fr6-2', title:'Le second degré', words:104,
+    text:['Un étranger en France finit toujours par tomber dans le même piège. Quelqu\'un dit quelque chose au premier degré, l\'étranger répond sérieusement, et la table rit.','Le second degré consiste à dire exactement le contraire de ce qu\'on pense, sans prévenir, sans sourire appuyé, sans guillemets dans la voix. « Bravo, vraiment », après une bêtise. « C\'est malin », devant un désastre.','Ce n\'est pas de la méchanceté. C\'est une façon de parler qui suppose que l\'autre suit. D\'ailleurs, ne pas suivre n\'est pas grave : il suffit de demander « tu es sérieux, là ? » et tout le monde repart.','Mais répondre sérieusement, ça, on ne l\'oublie jamais.'],
+    en:'A foreigner in France always ends up falling into the same trap. Someone says something at face value, the foreigner answers seriously, and the table laughs. The second degree consists of saying exactly the opposite of what you think, without warning, without an exaggerated smile, without quotation marks in the voice. "Bravo, really", after a blunder. "That was clever", in front of a disaster. It is not unkindness. It is a way of speaking that assumes the other person is following. Besides, not following is no great matter: you only have to ask "are you serious?" and everyone moves on. But answering seriously — that is never forgotten.',
+    qs:[ { q:'What is "le second degré"?', o:['A qualification','Saying the opposite of what you mean','Speaking loudly'], a:1 }, { q:'How is it signalled?', o:['With a smile','With quotation marks','It is not signalled'], a:2 }, { q:'What rescues you if you miss it?', o:['Leaving','Asking "tu es sérieux ?"','Laughing loudly'], a:1 } ] },
+  { id:'fr6-3', title:'Camus, premier paragraphe', words:90,
+    text:['« Aujourd\'hui, maman est morte. Ou peut-être hier, je ne sais pas. »','Ces deux phrases ouvrent L\'Étranger, publié en 1942. Elles ont fait couler beaucoup d\'encre, et pour une raison grammaticale autant que littéraire.','Camus écrit au passé composé, là où un roman de cette époque aurait employé le passé simple : « ma mère mourut ». Le passé simple met de la distance ; le passé composé colle au présent du narrateur.','Le résultat est un narrateur qui semble plat, immédiat, sans recul — ce qui est précisément le sujet du livre.','Un lecteur français sent cela dès la première ligne.'],
+    en:'"Today, mother died. Or maybe yesterday, I do not know." These two sentences open The Stranger, published in 1942. Much ink has been spilled over them, for a grammatical reason as much as a literary one. Camus writes in the passé composé, where a novel of that period would have used the passé simple: "ma mère mourut". The passé simple puts distance in; the passé composé sticks to the narrator\'s present. The result is a narrator who seems flat, immediate, without perspective — which is precisely the subject of the book. A French reader feels that from the first line.',
+    qs:[ { q:'Which tense does Camus use?', o:['passé simple','passé composé','imparfait'], a:1 }, { q:'What does the passé simple add?', o:['Distance','Speed','Emotion'], a:0 }, { q:'Why does the choice matter?', o:['It saves space','It makes the narrator sound flat and immediate','It was a printing error'], a:1 } ] },
+];
+
+/* ---------------------------------------------------------------- hunts, 3 to 6 */
+FR_HUNTS[3] = [
+  { theme:'Le temps qu\'il fait', words:['pluie','neige','vent','soleil','chaud','froid','nuage','orage'] },
+  { theme:'Les saisons', words:['hiver','printemps','ete','automne','mois','saison','annee','jour'] },
+  { theme:'Le corps', words:['tete','main','pied','bras','jambe','coeur','dos','oeil'] },
+  { theme:'Les directions', words:['gauche','droite','pont','coin','loin','pres','face','rue'] },
+];
+FR_HUNTS[4] = [
+  { theme:'En voyage', words:['avion','train','valise','hotel','chambre','billet','gare','port'] },
+  { theme:'Les sentiments', words:['content','triste','fatigue','malade','heureux','peur','envie','besoin'] },
+  { theme:'La maison, encore', words:['cuisine','salon','escalier','toit','mur','sol','cave','grenier'] },
+  { theme:'Les verbes', words:['venir','mettre','ouvrir','sortir','rester','croire','suivre','vivre'] },
+];
+FR_HUNTS[5] = [
+  { theme:'L\'opinion', words:['avis','doute','raison','tort','accord','debat','idee','point'] },
+  { theme:'Le travail', words:['bureau','reunion','patron','salaire','stage','emploi','equipe','projet'] },
+  { theme:'La societe', words:['droit','justice','ecole','sante','impot','vote','loi','presse'] },
+];
+FR_HUNTS[6] = [
+  { theme:'Les expressions', words:['cafard','lapin','pomme','salade','peche','tarte','chat','main'] },
+  { theme:'Le registre', words:['truc','bosser','ouais','machin','bref','genre','carrement','grave'] },
+  { theme:'Le Quebec', words:['char','depanneur','courriel','tuque','poutine','magasinage','blonde','chum'] },
+];
+
+/* ---------------------------------------------------------------- dialogues, 3 to 6 */
+FR_DIALOGUES[3] = [
+  { id:'fd3-1', title:'Le week-end dernier', scene:'Monday morning, two colleagues.', lines:[
+    { who:'A', es:'Alors, qu\'est-ce que tu as fait ce week-end ?', en:'So, what did you do this weekend?' },
+    { who:'B', es:'Samedi, je suis allée à la montagne avec des amis.', en:'On Saturday I went to the mountains with friends.' },
+    { who:'A', es:'Il a fait beau ?', en:'Was the weather good?' },
+    { who:'B', es:'Le matin oui, mais l\'après-midi il a plu.', en:'In the morning yes, but in the afternoon it rained.' },
+    { who:'A', es:'Vous êtes rentrés tard ?', en:'Did you get back late?' },
+    { who:'B', es:'Vers dix heures. J\'étais épuisée.', en:'Around ten. I was exhausted.' },
+  ] },
+  { id:'fd3-2', title:'Chez le médecin', scene:'A clinic, Tuesday.', lines:[
+    { who:'A', es:'Qu\'est-ce qui ne va pas ?', en:'What is wrong?' },
+    { who:'B', es:'J\'ai mal à la gorge depuis quatre jours.', en:'I have had a sore throat for four days.' },
+    { who:'A', es:'Vous avez de la fièvre ?', en:'Do you have a fever?' },
+    { who:'B', es:'Hier soir, j\'avais trente-huit et demi.', en:'Last night I had thirty-eight and a half.' },
+    { who:'A', es:'Bon. Reposez-vous et buvez beaucoup.', en:'Right. Rest and drink plenty.' },
+    { who:'B', es:'D\'accord. Merci, docteur.', en:'All right. Thank you, doctor.' },
+  ] },
+  { id:'fd3-3', title:'Je cherche la poste', scene:'Lost in a small town.', lines:[
+    { who:'A', es:'Excusez-moi, je cherche la poste.', en:'Excuse me, I am looking for the post office.' },
+    { who:'B', es:'Vous continuez tout droit et vous traversez le pont.', en:'You carry straight on and cross the bridge.' },
+    { who:'A', es:'Et après le pont ?', en:'And after the bridge?' },
+    { who:'B', es:'C\'est à côté de la boulangerie, en face de l\'école.', en:'It is next to the bakery, opposite the school.' },
+    { who:'A', es:'C\'est encore loin ?', en:'Is it still far?' },
+    { who:'B', es:'Non, cinq minutes. Vous ne pouvez pas la manquer.', en:'No, five minutes. You cannot miss it.' },
+  ] },
+];
+FR_DIALOGUES[4] = [
+  { id:'fd4-1', title:'Des projets', scene:'Two friends, one leaving.', lines:[
+    { who:'A', es:'Tu pars quand, finalement ?', en:'When are you leaving, in the end?' },
+    { who:'B', es:'En août. J\'aurai fini mes cours en juillet.', en:'In August. I will have finished my classes in July.' },
+    { who:'A', es:'Et tu resteras combien de temps ?', en:'And how long will you stay?' },
+    { who:'B', es:'Un an. Si ça me plaît, je resterai plus longtemps.', en:'A year. If I like it, I will stay longer.' },
+    { who:'A', es:'Si j\'avais ton courage, je partirais aussi.', en:'If I had your courage, I would leave too.' },
+    { who:'B', es:'Tu viendras me voir, alors.', en:'You will come and see me, then.' },
+  ] },
+  { id:'fd4-2', title:'À la réception', scene:'Checking in.', lines:[
+    { who:'A', es:'Bonsoir, j\'ai réservé au nom de Roy.', en:'Good evening, I booked under the name Roy.' },
+    { who:'B', es:'Deux nuits, chambre simple. C\'est exact ?', en:'Two nights, single room. Is that right?' },
+    { who:'A', es:'Oui. Pourriez-vous me donner une chambre calme ?', en:'Yes. Could you give me a quiet room?' },
+    { who:'B', es:'J\'en ai une au fond du couloir. Elle donne sur la cour.', en:'I have one at the end of the corridor. It looks onto the courtyard.' },
+    { who:'A', es:'Parfait. Le petit déjeuner est compris ?', en:'Perfect. Is breakfast included?' },
+    { who:'B', es:'Il l\'est, de sept à dix heures.', en:'It is, from seven to ten.' },
+  ] },
+  { id:'fd4-3', title:'Un souvenir', scene:'Looking at an old photograph.', lines:[
+    { who:'A', es:'C\'est toi, sur cette photo ?', en:'Is that you in this photo?' },
+    { who:'B', es:'Oui, j\'avais sept ans. On habitait au bord de la mer.', en:'Yes, I was seven. We lived by the sea.' },
+    { who:'A', es:'Tu y allais souvent, à la plage ?', en:'Did you go to the beach often?' },
+    { who:'B', es:'Tous les jours en été. Ma grand-mère nous emmenait.', en:'Every day in summer. My grandmother took us.' },
+    { who:'A', es:'Elle vit toujours là-bas ?', en:'Does she still live there?' },
+    { who:'B', es:'Non, elle est partie il y a longtemps.', en:'No, she left a long time ago.' },
+  ] },
+];
+FR_DIALOGUES[5] = [
+  { id:'fd5-1', title:'Un désaccord poli', scene:'After a meeting.', lines:[
+    { who:'A', es:'Tu penses vraiment que c\'est une bonne idée ?', en:'Do you really think it is a good idea?' },
+    { who:'B', es:'À mon avis, oui. Bien que ce soit risqué.', en:'In my opinion, yes. Although it is risky.' },
+    { who:'A', es:'Je doute que ça marche, franchement.', en:'I doubt it will work, honestly.' },
+    { who:'B', es:'D\'une part tu as raison, d\'autre part on n\'a pas le choix.', en:'On the one hand you are right, on the other we have no choice.' },
+    { who:'A', es:'Cependant, il faudrait en parler à l\'équipe.', en:'However, we should talk to the team about it.' },
+    { who:'B', es:'Justement. C\'est ce que j\'allais proposer.', en:'Exactly. That is what I was going to suggest.' },
+  ] },
+  { id:'fd5-2', title:'Un entretien', scene:'A job interview.', lines:[
+    { who:'A', es:'Parlez-moi de votre expérience.', en:'Tell me about your experience.' },
+    { who:'B', es:'J\'ai fait un stage de trois mois dans une maison d\'édition.', en:'I did a three-month placement at a publishing house.' },
+    { who:'A', es:'Qu\'est-ce que vous y faisiez exactement ?', en:'What exactly did you do there?' },
+    { who:'B', es:'J\'étais chargée de la relecture et je suivais les auteurs.', en:'I was responsible for proofreading and I followed up with the authors.' },
+    { who:'A', es:'Et pourquoi ce poste-ci ?', en:'And why this position?' },
+    { who:'B', es:'Parce qu\'il me semble que mes compétences y correspondent bien.', en:'Because it seems to me my skills fit it well.' },
+  ] },
+];
+FR_DIALOGUES[6] = [
+  { id:'fd6-1', title:'Du coup', scene:'Two friends, entirely casual.', lines:[
+    { who:'A', es:'Bah alors, t\'étais où hier ?', en:'So where were you yesterday?' },
+    { who:'B', es:'Il m\'a posé un lapin, du coup je suis rentré.', en:'He stood me up, so I went home.' },
+    { who:'A', es:'Sérieux ? Quel truc bizarre.', en:'Seriously? What a strange thing to do.' },
+    { who:'B', es:'Franchement, j\'en ai marre de lui.', en:'Honestly, I am fed up with him.' },
+    { who:'A', es:'Tu m\'étonnes.', en:'You don\'t say.' },
+    { who:'B', es:'Bref. On fait quoi ce soir ?', en:'Anyway. What are we doing tonight?' },
+  ] },
+  { id:'fd6-2', title:'À Montréal', scene:'A French visitor, a Québécois friend.', lines:[
+    { who:'A', es:'Je vais au dep, tu veux quelque chose ?', en:'I am going to the corner shop, do you want anything?' },
+    { who:'B', es:'Au… dep ? C\'est quoi, ça ?', en:'The… dep? What is that?' },
+    { who:'A', es:'Le dépanneur. L\'épicerie du coin, si tu préfères.', en:'The dépanneur. The corner shop, if you prefer.' },
+    { who:'B', es:'Ah ! Chez nous, une dépanneuse remorque les voitures.', en:'Ah! Back home, a dépanneuse tows cars.' },
+    { who:'A', es:'Ha ! Et ma blonde t\'aurait dit la même chose.', en:'Ha! And my girlfriend would have told you the same.' },
+    { who:'B', es:'Ta… blonde ? Elle est brune, pourtant.', en:'Your… blonde? She is dark-haired, though.' },
+  ] },
+];
+
+/* =========================== JAPANESE ===========================
+   The first course in this app that is not written in the Latin alphabet, which changes three
+   things and leaves everything else alone.
+
+   1 · What a learner sees. Every headword is Japanese as Japanese is written, and the rōmaji rides
+       with it — leading the definition, opening the example translation, standing in the hint line
+       of every spoken phrase. Nobody has to install a keyboard or guess at a character, and nobody
+       is denied the real writing either. Level 1 is kana only; level 2 lets the first kanji in and
+       always gives the reading beside them.
+
+   2 · What a learner types. norm() now keeps kana and kanji instead of stripping them, so a typed
+       answer can be either — 食べます or tabemasu both count.
+
+   3 · What has no equivalent. The gender game asks which article a noun takes; Japanese has no
+       articles and no gender, and the crossword needs a Latin grid. Both are declared off for this
+       course rather than shipped broken, and the Play screen simply does not offer them.
+
+   The verb trainer is re-cut rather than dropped. Japanese verbs do not change for person, so the
+   rows are the four forms that actually matter to a beginner — plain, plain negative, polite,
+   polite negative — and the columns are non-past and past. */
+
+const JA_LEVELS = [
+  { id: 1, name: 'たね tane', grade: 'Grade 1 · Absolute beginner', cefr: 'Pre-A1', blurb: 'Hiragana, greetings, numbers, です, and your first hundred words.',
+    cando: ['Read and write hiragana', 'Greet people and introduce yourself', 'Count, and say how old you are', 'Name family, food, colours and animals'] },
+  { id: 2, name: 'ね ne', grade: 'Grade 3–4 · Beginner', cefr: 'A1', blurb: 'Particles, the ます form, katakana, the first kanji, and the day as it happens.',
+    cando: ['Use は, を, に, で and が correctly', 'Say what you do, did and do not do', 'Read katakana and about twenty kanji', 'Order food and ask where something is'] },
+  { id: 3, name: 'くき kuki', grade: 'Grade 6–7 · Elementary', cefr: 'A2', blurb: 'Te-form, joining sentences, asking permission, the plain style.',
+    cando: ['Link actions with the te-form', 'Ask for and give permission', 'Describe what someone is doing right now', 'Switch between polite and plain'] },
+  { id: 4, name: 'は ha', grade: 'Grade 9–10 · Intermediate', cefr: 'B1', blurb: 'Plain style in full, quoting, conditionals, giving and receiving.',
+    cando: ['Report what someone said', 'Use conditionals', 'Handle giving and receiving verbs', 'Follow a normal conversation'] },
+  { id: 5, name: 'はな hana', grade: 'Grade 12 · Upper intermediate', cefr: 'B2', blurb: 'Keigo, passive and causative, reading a newspaper.',
+    cando: ['Use polite and humble forms appropriately', 'Read a news article', 'Argue a position', 'Understand the passive and causative'] },
+  { id: 6, name: 'み mi', grade: 'University · Fluent', cefr: 'C1–C2', blurb: 'Register, dialect, literature and the space between what is said and meant.',
+    cando: ['Read literature in the original', 'Hear Kansai-ben as different, not wrong', 'Use the unsaid the way Japanese does', 'Write in an appropriate register'] },
+];
+
+/* ---------------------------------------------------------------- dictionary
+   es = the Japanese, as written · rōmaji leads every definition and every example translation */
+const JA_DICT = [
+  /* --- level 1 · greetings --- */
+  { es:'こんにちは', en:'hello', pos:'interjection', def:'konnichiwa · The daytime greeting, roughly ten to five. Written with は but said "wa".', ex:'こんにちは、げんきですか。', exEn:'Konnichiwa, genki desu ka? — Hello, how are you?', lvl:1, theme:'あいさつ' },
+  { es:'おはようございます', en:'good morning', pos:'interjection', def:'ohayō gozaimasu · Morning greeting. Drop the gozaimasu with friends.', ex:'せんせい、おはようございます。', exEn:'Sensei, ohayō gozaimasu — Good morning, teacher.', lvl:1, theme:'あいさつ' },
+  { es:'こんばんは', en:'good evening', pos:'interjection', def:'konbanwa · From evening onwards. Also written with は, also said "wa".', ex:'こんばんは。', exEn:'Konbanwa — Good evening.', lvl:1, theme:'あいさつ' },
+  { es:'さようなら', en:'goodbye', pos:'interjection', def:'sayōnara · More final than English "goodbye" — for a long parting.', ex:'さようなら、またあした。', exEn:'Sayōnara, mata ashita — Goodbye, see you tomorrow.', lvl:1, theme:'あいさつ' },
+  { es:'またあした', en:'see you tomorrow', pos:'phrase', def:'mata ashita · What you actually say when you will see them again.', ex:'じゃ、またあした。', exEn:'Ja, mata ashita — Well then, see you tomorrow.', lvl:1, theme:'あいさつ' },
+  { es:'ありがとうございます', en:'thank you', pos:'interjection', def:'arigatō gozaimasu · Full polite thanks. Just arigatō with friends.', ex:'どうもありがとうございます。', exEn:'Dōmo arigatō gozaimasu — Thank you very much.', lvl:1, theme:'あいさつ' },
+  { es:'すみません', en:'excuse me, sorry', pos:'interjection', def:'sumimasen · Excuse me, sorry, and thank you all at once. The single most useful word in Japan.', ex:'すみません、みずをください。', exEn:'Sumimasen, mizu o kudasai — Excuse me, water please.', lvl:1, theme:'あいさつ' },
+  { es:'はい', en:'yes', pos:'interjection', def:'hai · Yes — and also "I am listening", which is why you hear it so often.', ex:'はい、そうです。', exEn:'Hai, sō desu — Yes, that is right.', lvl:1, theme:'あいさつ' },
+  { es:'いいえ', en:'no', pos:'interjection', def:'iie · No. Used less than English "no"; softer refusals are preferred.', ex:'いいえ、ちがいます。', exEn:'Iie, chigaimasu — No, that is not right.', lvl:1, theme:'あいさつ' },
+  { es:'おねがいします', en:'please', pos:'phrase', def:'onegaishimasu · Please, when asking a favour. Literally "I make a request".', ex:'よろしくおねがいします。', exEn:'Yoroshiku onegaishimasu — Please treat me well. (said on meeting)', lvl:1, theme:'あいさつ' },
+  { es:'はじめまして', en:'nice to meet you', pos:'phrase', def:'hajimemashite · Said once, at a first meeting, before your name.', ex:'はじめまして。アナです。', exEn:'Hajimemashite. Ana desu — How do you do. I am Ana.', lvl:1, theme:'あいさつ' },
+
+  /* --- level 1 · people --- */
+  { es:'わたし', en:'I, me', pos:'pronoun', def:'watashi · I. Neutral and polite. Often left out entirely.', ex:'わたしはがくせいです。', exEn:'Watashi wa gakusei desu — I am a student.', lvl:1, theme:'ひと' },
+  { es:'あなた', en:'you', pos:'pronoun', def:'anata · You — but Japanese prefers your name. Using anata can sound distant.', ex:'あなたのなまえは？', exEn:'Anata no namae wa? — Your name?', lvl:1, theme:'ひと' },
+  { es:'なまえ', en:'name', pos:'noun', def:'namae · Name.', ex:'なまえはなんですか。', exEn:'Namae wa nan desu ka? — What is your name?', lvl:1, theme:'ひと' },
+  { es:'せんせい', en:'teacher', pos:'noun', def:'sensei · Teacher, and the way you address one — never "sensei-san".', ex:'たなかせんせいです。', exEn:'Tanaka-sensei desu — This is Mr/Ms Tanaka.', lvl:1, theme:'ひと' },
+  { es:'がくせい', en:'student', pos:'noun', def:'gakusei · Student.', ex:'わたしはがくせいです。', exEn:'Watashi wa gakusei desu — I am a student.', lvl:1, theme:'ひと' },
+  { es:'ともだち', en:'friend', pos:'noun', def:'tomodachi · Friend. Same word for one or many.', ex:'ともだちとあいます。', exEn:'Tomodachi to aimasu — I am meeting a friend.', lvl:1, theme:'ひと' },
+  { es:'かぞく', en:'family', pos:'noun', def:'kazoku · Family.', ex:'かぞくはよにんです。', exEn:'Kazoku wa yonin desu — There are four in my family.', lvl:1, theme:'かぞく' },
+  { es:'おかあさん', en:'mother', pos:'noun', def:'okāsan · Someone else\'s mother, or your own when speaking to her. Your own, to others: はは haha.', ex:'おかあさんはせんせいです。', exEn:'Okāsan wa sensei desu — Your mother is a teacher.', lvl:1, theme:'かぞく' },
+  { es:'おとうさん', en:'father', pos:'noun', def:'otōsan · Same pattern; your own father to others is ちち chichi.', ex:'おとうさんはいますか。', exEn:'Otōsan wa imasu ka? — Is your father in?', lvl:1, theme:'かぞく' },
+  { es:'おねえさん', en:'older sister', pos:'noun', def:'onēsan · Older sister. Japanese splits siblings by age, always.', ex:'おねえさんがいます。', exEn:'Onēsan ga imasu — I have an older sister.', lvl:1, theme:'かぞく' },
+  { es:'おにいさん', en:'older brother', pos:'noun', def:'onīsan · Older brother.', ex:'おにいさんはがくせいです。', exEn:'Onīsan wa gakusei desu — My older brother is a student.', lvl:1, theme:'かぞく' },
+  { es:'いもうと', en:'younger sister', pos:'noun', def:'imōto · Younger sister.', ex:'いもうとがふたりいます。', exEn:'Imōto ga futari imasu — I have two younger sisters.', lvl:1, theme:'かぞく' },
+  { es:'おとうと', en:'younger brother', pos:'noun', def:'otōto · Younger brother.', ex:'おとうとはちいさいです。', exEn:'Otōto wa chiisai desu — My younger brother is small.', lvl:1, theme:'かぞく' },
+
+  /* --- level 1 · numbers --- */
+  { es:'いち', en:'one', pos:'number', def:'ichi · 1.', ex:'いち、に、さん。', exEn:'Ichi, ni, san — One, two, three.', lvl:1, theme:'すうじ' },
+  { es:'に', en:'two', pos:'number', def:'ni · 2.', ex:'にほんください。', exEn:'Nihon kudasai — Two (long things), please.', lvl:1, theme:'すうじ' },
+  { es:'さん', en:'three', pos:'number', def:'san · 3. Also the -san you put after a name.', ex:'さんじです。', exEn:'Sanji desu — It is three o\'clock.', lvl:1, theme:'すうじ' },
+  { es:'よん', en:'four', pos:'number', def:'yon · 4. Also し shi, avoided because it sounds like "death".', ex:'よんひゃく。', exEn:'Yonhyaku — Four hundred.', lvl:1, theme:'すうじ' },
+  { es:'ご', en:'five', pos:'number', def:'go · 5.', ex:'ごふんまってください。', exEn:'Gofun matte kudasai — Please wait five minutes.', lvl:1, theme:'すうじ' },
+  { es:'ろく', en:'six', pos:'number', def:'roku · 6.', ex:'ろくじにおきます。', exEn:'Rokuji ni okimasu — I get up at six.', lvl:1, theme:'すうじ' },
+  { es:'なな', en:'seven', pos:'number', def:'nana · 7. Also しち shichi.', ex:'ななさい。', exEn:'Nanasai — Seven years old.', lvl:1, theme:'すうじ' },
+  { es:'はち', en:'eight', pos:'number', def:'hachi · 8.', ex:'はちじはんです。', exEn:'Hachiji han desu — It is half past eight.', lvl:1, theme:'すうじ' },
+  { es:'きゅう', en:'nine', pos:'number', def:'kyū · 9. Also く ku.', ex:'きゅうひゃくえん。', exEn:'Kyūhyaku en — Nine hundred yen.', lvl:1, theme:'すうじ' },
+  { es:'じゅう', en:'ten', pos:'number', def:'jū · 10. Eleven is simply jū-ichi, ten-one.', ex:'じゅうにさいです。', exEn:'Jūnisai desu — I am twelve.', lvl:1, theme:'すうじ' },
+
+  /* --- level 1 · things and colours --- */
+  { es:'ねこ', en:'cat', pos:'noun', def:'neko · Cat.', ex:'ねこがいます。', exEn:'Neko ga imasu — There is a cat.', lvl:1, theme:'どうぶつ' },
+  { es:'いぬ', en:'dog', pos:'noun', def:'inu · Dog.', ex:'いぬがすきです。', exEn:'Inu ga suki desu — I like dogs.', lvl:1, theme:'どうぶつ' },
+  { es:'とり', en:'bird', pos:'noun', def:'tori · Bird. Also chicken, as meat.', ex:'とりがいます。', exEn:'Tori ga imasu — There is a bird.', lvl:1, theme:'どうぶつ' },
+  { es:'さかな', en:'fish', pos:'noun', def:'sakana · Fish, alive or on a plate.', ex:'さかなをたべます。', exEn:'Sakana o tabemasu — I eat fish.', lvl:1, theme:'どうぶつ' },
+  { es:'うま', en:'horse', pos:'noun', def:'uma · Horse.', ex:'うまはおおきいです。', exEn:'Uma wa ōkii desu — Horses are big.', lvl:1, theme:'どうぶつ' },
+  { es:'あかい', en:'red', pos:'adjective', def:'akai · Red. An い-adjective — it ends in い and conjugates like a verb.', ex:'あかいりんご。', exEn:'Akai ringo — A red apple.', lvl:1, theme:'いろ' },
+  { es:'あおい', en:'blue', pos:'adjective', def:'aoi · Blue — and, in older usage, green things like traffic lights.', ex:'そらがあおいです。', exEn:'Sora ga aoi desu — The sky is blue.', lvl:1, theme:'いろ' },
+  { es:'しろい', en:'white', pos:'adjective', def:'shiroi · White.', ex:'しろいねこ。', exEn:'Shiroi neko — A white cat.', lvl:1, theme:'いろ' },
+  { es:'くろい', en:'black', pos:'adjective', def:'kuroi · Black.', ex:'くろいいぬです。', exEn:'Kuroi inu desu — It is a black dog.', lvl:1, theme:'いろ' },
+  { es:'きいろい', en:'yellow', pos:'adjective', def:'kiiroi · Yellow.', ex:'きいろいはな。', exEn:'Kiiroi hana — A yellow flower.', lvl:1, theme:'いろ' },
+  { es:'おおきい', en:'big', pos:'adjective', def:'ōkii · Big.', ex:'おおきいいえです。', exEn:'Ōkii ie desu — It is a big house.', lvl:1, theme:'けいようし' },
+  { es:'ちいさい', en:'small', pos:'adjective', def:'chiisai · Small.', ex:'ちいさいねこ。', exEn:'Chiisai neko — A small cat.', lvl:1, theme:'けいようし' },
+  { es:'たかい', en:'expensive, tall', pos:'adjective', def:'takai · Both expensive and tall — context decides.', ex:'たかいです。', exEn:'Takai desu — It is expensive.', lvl:1, theme:'けいようし' },
+  { es:'やすい', en:'cheap', pos:'adjective', def:'yasui · Cheap.', ex:'やすいですね。', exEn:'Yasui desu ne — Cheap, isn\'t it.', lvl:1, theme:'けいようし' },
+  { es:'おいしい', en:'delicious', pos:'adjective', def:'oishii · Delicious. Said constantly, and expected at a meal.', ex:'おいしいです！', exEn:'Oishii desu! — It is delicious!', lvl:1, theme:'けいようし' },
+
+  /* --- level 1 · food and basics --- */
+  { es:'みず', en:'water', pos:'noun', def:'mizu · Cold water. Hot water has its own word, おゆ oyu.', ex:'みずをください。', exEn:'Mizu o kudasai — Water, please.', lvl:1, theme:'たべもの' },
+  { es:'おちゃ', en:'tea', pos:'noun', def:'ocha · Green tea. The お is honorific and never dropped.', ex:'おちゃをのみます。', exEn:'Ocha o nomimasu — I drink tea.', lvl:1, theme:'たべもの' },
+  { es:'ごはん', en:'rice, meal', pos:'noun', def:'gohan · Cooked rice — and by extension a meal.', ex:'ごはんをたべます。', exEn:'Gohan o tabemasu — I eat a meal.', lvl:1, theme:'たべもの' },
+  { es:'パン', en:'bread', pos:'noun', def:'pan · Bread. In katakana because it came from Portuguese pão.', ex:'パンをかいます。', exEn:'Pan o kaimasu — I buy bread.', lvl:1, theme:'たべもの' },
+  { es:'たまご', en:'egg', pos:'noun', def:'tamago · Egg.', ex:'たまごがすきです。', exEn:'Tamago ga suki desu — I like eggs.', lvl:1, theme:'たべもの' },
+  { es:'りんご', en:'apple', pos:'noun', def:'ringo · Apple.', ex:'りんごをふたつください。', exEn:'Ringo o futatsu kudasai — Two apples, please.', lvl:1, theme:'たべもの' },
+  { es:'です', en:'is, am, are', pos:'copula', def:'desu · The polite "is". Goes at the end, always.', ex:'がくせいです。', exEn:'Gakusei desu — I am a student.', lvl:1, theme:'ぶんぽう' },
+  { es:'か', en:'(question marker)', pos:'particle', def:'ka · Turns a statement into a question. No question mark needed.', ex:'がくせいですか。', exEn:'Gakusei desu ka? — Are you a student?', lvl:1, theme:'ぶんぽう' },
+  { es:'これ', en:'this', pos:'pronoun', def:'kore · This one, near me.', ex:'これはなんですか。', exEn:'Kore wa nan desu ka? — What is this?', lvl:1, theme:'ぶんぽう' },
+  { es:'それ', en:'that', pos:'pronoun', def:'sore · That one, near you.', ex:'それをください。', exEn:'Sore o kudasai — That one, please.', lvl:1, theme:'ぶんぽう' },
+  { es:'あれ', en:'that over there', pos:'pronoun', def:'are · That one, away from both of us. Japanese splits distance three ways.', ex:'あれはなんですか。', exEn:'Are wa nan desu ka? — What is that over there?', lvl:1, theme:'ぶんぽう' },
+
+  /* --- level 2 · particles and the day --- */
+  { es:'は', en:'(topic marker)', pos:'particle', def:'wa · Marks the topic — what the sentence is about. Written は, said "wa".', ex:'わたしはアナです。', exEn:'Watashi wa Ana desu — As for me, I am Ana.', lvl:2, theme:'じょし' },
+  { es:'を', en:'(object marker)', pos:'particle', def:'o · Marks the thing the verb is done to. This character is used for nothing else.', ex:'ごはんをたべます。', exEn:'Gohan o tabemasu — I eat a meal.', lvl:2, theme:'じょし' },
+  { es:'に', en:'(to, at)', pos:'particle', def:'ni · A point in time, or a destination.', ex:'しちじにおきます。', exEn:'Shichiji ni okimasu — I get up at seven.', lvl:2, theme:'じょし' },
+  { es:'で', en:'(at, by means of)', pos:'particle', def:'de · Where an action happens, or what it is done with.', ex:'がっこうでべんきょうします。', exEn:'Gakkō de benkyō shimasu — I study at school.', lvl:2, theme:'じょし' },
+  { es:'が', en:'(subject marker)', pos:'particle', def:'ga · Marks the subject, and what exists. The difference from は takes years; the rule of thumb is that が brings new information.', ex:'ねこがいます。', exEn:'Neko ga imasu — There is a cat.', lvl:2, theme:'じょし' },
+  { es:'の', en:'(of, \'s)', pos:'particle', def:'no · Joins two nouns, backwards from English: わたしのほん = my book.', ex:'わたしのほんです。', exEn:'Watashi no hon desu — It is my book.', lvl:2, theme:'じょし' },
+  { es:'と', en:'and, with', pos:'particle', def:'to · And, between nouns; with, before a person.', ex:'ともだちといきます。', exEn:'Tomodachi to ikimasu — I go with a friend.', lvl:2, theme:'じょし' },
+  { es:'も', en:'also, too', pos:'particle', def:'mo · Also. Replaces は or を rather than joining them.', ex:'わたしもがくせいです。', exEn:'Watashi mo gakusei desu — I am a student too.', lvl:2, theme:'じょし' },
+  { es:'あさ', en:'morning', pos:'noun', def:'asa · Morning.', ex:'あさごはんをたべます。', exEn:'Asagohan o tabemasu — I eat breakfast.', lvl:2, theme:'じかん' },
+  { es:'ひる', en:'noon, daytime', pos:'noun', def:'hiru · Midday. ひるごはん is lunch.', ex:'ひるごはんはパンです。', exEn:'Hirugohan wa pan desu — Lunch is bread.', lvl:2, theme:'じかん' },
+  { es:'よる', en:'night', pos:'noun', def:'yoru · Night, evening.', ex:'よるはうちにいます。', exEn:'Yoru wa uchi ni imasu — At night I am at home.', lvl:2, theme:'じかん' },
+  { es:'きょう', en:'today', pos:'noun', def:'kyō · Today.', ex:'きょうはあついです。', exEn:'Kyō wa atsui desu — It is hot today.', lvl:2, theme:'じかん' },
+  { es:'あした', en:'tomorrow', pos:'noun', def:'ashita · Tomorrow.', ex:'あしたいきます。', exEn:'Ashita ikimasu — I will go tomorrow.', lvl:2, theme:'じかん' },
+  { es:'きのう', en:'yesterday', pos:'noun', def:'kinō · Yesterday.', ex:'きのうたべました。', exEn:'Kinō tabemashita — I ate yesterday.', lvl:2, theme:'じかん' },
+  { es:'いま', en:'now', pos:'noun', def:'ima · Now. いまなんじですか asks the time.', ex:'いまなんじですか。', exEn:'Ima nanji desu ka? — What time is it now?', lvl:2, theme:'じかん' },
+  { es:'まいにち', en:'every day', pos:'noun', def:'mainichi · Every day.', ex:'まいにちべんきょうします。', exEn:'Mainichi benkyō shimasu — I study every day.', lvl:2, theme:'じかん' },
+
+  /* --- level 2 · places, kanji begin --- */
+  { es:'学校', en:'school', pos:'noun', def:'gakkō · School. Your first kanji: 学 learning, 校 school.', ex:'学校にいきます。', exEn:'Gakkō ni ikimasu — I go to school.', lvl:2, theme:'ばしょ' },
+  { es:'家', en:'house, home', pos:'noun', def:'ie (or uchi) · House. うち carries "my place" more than the building.', ex:'家にかえります。', exEn:'Ie ni kaerimasu — I go home.', lvl:2, theme:'ばしょ' },
+  { es:'駅', en:'station', pos:'noun', def:'eki · Railway station. The single most useful kanji to recognise in Japan.', ex:'駅はどこですか。', exEn:'Eki wa doko desu ka? — Where is the station?', lvl:2, theme:'ばしょ' },
+  { es:'店', en:'shop', pos:'noun', def:'mise · Shop.', ex:'あの店はやすいです。', exEn:'Ano mise wa yasui desu — That shop is cheap.', lvl:2, theme:'ばしょ' },
+  { es:'日本', en:'Japan', pos:'noun', def:'Nihon · Japan — literally "sun origin", which is where "Land of the Rising Sun" comes from.', ex:'日本にすんでいます。', exEn:'Nihon ni sunde imasu — I live in Japan.', lvl:2, theme:'ばしょ' },
+  { es:'日本語', en:'Japanese (language)', pos:'noun', def:'Nihongo · The 語 on the end means "language": えいご eigo is English.', ex:'日本語をべんきょうします。', exEn:'Nihongo o benkyō shimasu — I study Japanese.', lvl:2, theme:'ばしょ' },
+  { es:'水', en:'water', pos:'noun', def:'mizu · The kanji for the みず you met in level 1.', ex:'水をください。', exEn:'Mizu o kudasai — Water, please.', lvl:2, theme:'かんじ' },
+  { es:'人', en:'person', pos:'noun', def:'hito · Person. As a counter it is read にん nin: さんにん, three people.', ex:'あの人はだれですか。', exEn:'Ano hito wa dare desu ka? — Who is that person?', lvl:2, theme:'かんじ' },
+  { es:'車', en:'car', pos:'noun', def:'kuruma · Car.', ex:'車でいきます。', exEn:'Kuruma de ikimasu — I go by car.', lvl:2, theme:'かんじ' },
+  { es:'本', en:'book', pos:'noun', def:'hon · Book — and the counter for long thin things.', ex:'本をよみます。', exEn:'Hon o yomimasu — I read a book.', lvl:2, theme:'かんじ' },
+  { es:'どこ', en:'where', pos:'pronoun', def:'doko · Where.', ex:'トイレはどこですか。', exEn:'Toire wa doko desu ka? — Where is the toilet?', lvl:2, theme:'しつもん' },
+  { es:'だれ', en:'who', pos:'pronoun', def:'dare · Who. Politely: どなた donata.', ex:'あれはだれですか。', exEn:'Are wa dare desu ka? — Who is that?', lvl:2, theme:'しつもん' },
+  { es:'なに', en:'what', pos:'pronoun', def:'nani · What. Shortens to なん nan before です and counters.', ex:'なにをたべますか。', exEn:'Nani o tabemasu ka? — What will you eat?', lvl:2, theme:'しつもん' },
+  { es:'いくら', en:'how much', pos:'pronoun', def:'ikura · How much (money).', ex:'これはいくらですか。', exEn:'Kore wa ikura desu ka? — How much is this?', lvl:2, theme:'しつもん' },
+  { es:'どうして', en:'why', pos:'adverb', def:'dōshite · Why. Also なぜ naze, more formal.', ex:'どうしてですか。', exEn:'Dōshite desu ka? — Why?', lvl:2, theme:'しつもん' },
+  { es:'ください', en:'please give me', pos:'phrase', def:'kudasai · Attaches to a noun + を, or to a te-form verb.', ex:'コーヒーをください。', exEn:'Kōhī o kudasai — Coffee, please.', lvl:2, theme:'かいもの' },
+  { es:'えん', en:'yen', pos:'noun', def:'en · Yen, written 円. Prices are said in plain numbers plus en.', ex:'ごひゃくえんです。', exEn:'Gohyaku en desu — It is five hundred yen.', lvl:2, theme:'かいもの' },
+  { es:'コーヒー', en:'coffee', pos:'noun', def:'kōhī · Coffee. Katakana, because it is borrowed — the ー marks a long vowel.', ex:'コーヒーをのみます。', exEn:'Kōhī o nomimasu — I drink coffee.', lvl:2, theme:'かいもの' },
+  { es:'テレビ', en:'television', pos:'noun', def:'terebi · TV, clipped from "television" — Japanese shortens borrowings hard.', ex:'テレビをみます。', exEn:'Terebi o mimasu — I watch television.', lvl:2, theme:'かいもの' },
+  { es:'でんしゃ', en:'train', pos:'noun', def:'densha · Train.', ex:'でんしゃでいきます。', exEn:'Densha de ikimasu — I go by train.', lvl:2, theme:'かいもの' },
+];
+
+/* ---------------------------------------------------------------- lessons */
+const JA_GRAMMAR = {
+  1: [
+    { id:'jg1-1', title:'Three alphabets, and why', sub:'hiragana, katakana, kanji — each with a job.',
+      lede:'Japanese uses three scripts at once, and they are not alternatives. Each has a role, and a single sentence usually contains all three. Knowing which is which is most of the battle.',
+      rules:[
+        { r:'ひらがな hiragana — 46 characters, for Japanese words and all the grammar.', ex:[['たべます (tabemasu)','eat'],['わたし (watashi)','I'],['です (desu)','is']] },
+        { r:'カタカナ katakana — the same 46 sounds, for foreign words, names and emphasis.', ex:[['コーヒー (kōhī)','coffee'],['カナダ (Kanada)','Canada'],['テレビ (terebi)','television']] },
+        { r:'漢字 kanji — Chinese characters, for meaning. Each has several readings.', ex:[['水 (mizu)','water'],['日本 (Nihon)','Japan'],['学校 (gakkō)','school']] },
+        { r:'A normal sentence mixes all three.', ex:[['私はコーヒーを飲みます。','Watashi wa kōhī o nomimasu — I drink coffee.']] },
+      ],
+      table:{ h:['script','used for','example'], rows:[['hiragana','grammar, Japanese words','ひらがな'],['katakana','borrowed words, names','カタカナ'],['kanji','meaning, word stems','漢字']] },
+      callout:'Learn hiragana first and completely. It takes about a week, and everything else in this course assumes it.',
+      culture:'There are no spaces between words. The script changes are what tell a reader where one word ends and the next begins — which is why mixing three is not madness but punctuation.',
+      quiz:[
+        { q:'Which script is used for borrowed words?', o:['hiragana','katakana','kanji','all three'], a:1, why:'Katakana marks a word as foreign.' },
+        { q:'Which script carries the grammar?', o:['hiragana','katakana','kanji','none'], a:0, why:'Endings and particles are hiragana.' },
+        { q:'Why are there no spaces?', o:['A printing habit','The script changes mark the boundaries','There are spaces','To save paper'], a:1, why:'Script switching does the job spaces do in English.' },
+      ] },
+
+    { id:'jg1-2', title:'The sounds of Japanese', sub:'Five vowels, and every syllable ends in one.',
+      lede:'Japanese has a small, regular sound system — far smaller than English. Almost every syllable is a consonant plus one of five vowels, which is why the writing can be syllabic at all.',
+      rules:[
+        { r:'Five vowels, always the same.', ok:true, ex:[['あ a','like "father"'],['い i','like "see"'],['う u','like "food", lips unrounded'],['え e','like "bet"'],['お o','like "or"']] },
+        { r:'Syllables are consonant + vowel.', ex:[['か ka, き ki, く ku, け ke, こ ko',''],['さ sa, し shi, す su, せ se, そ so','note shi, not si'],['た ta, ち chi, つ tsu, て te, と to','note chi and tsu']] },
+        { r:'ん n is the only consonant that stands alone.', ex:[['にほん (Nihon)','Japan'],['せんせい (sensei)','teacher']] },
+        { r:'Long vowels matter — they change the word.', ex:[['おばさん obasan','aunt'],['おばあさん obāsan','grandmother'],['ゆき yuki','snow'],['ゆうき yūki','courage']] },
+      ],
+      callout:'There is no L, no V, and no distinction between R and L. The Japanese ら-row sits between the two, closer to a Spanish soft r than to either English sound.',
+      quiz:[
+        { q:'How many vowels does Japanese have?', o:['Five','Twelve','Three','Twenty'], a:0, why:'a, i, u, e, o.' },
+        { q:'"Obasan" and "obāsan" differ by…', o:['nothing','vowel length','stress','politeness'], a:1, why:'Aunt versus grandmother — length is meaning.' },
+        { q:'Which consonant can stand alone?', o:['k','n','s','t'], a:1, why:'ん.' },
+      ] },
+
+    { id:'jg1-3', title:'A は B です', sub:'The sentence that gets you through week one.',
+      lede:'Japanese word order puts the verb last and marks each part with a particle. The first pattern to own is topic, then statement, then desu — and it carries an enormous amount.',
+      rules:[
+        { r:'X は Y です — as for X, it is Y.', ex:[['わたしはアナです。','Watashi wa Ana desu — I am Ana.'],['これはほんです。','Kore wa hon desu — This is a book.'],['たなかさんはせんせいです。','Tanaka-san wa sensei desu — Mr Tanaka is a teacher.']] },
+        { r:'Add か for a question. No question mark required.', ex:[['がくせいですか。','Gakusei desu ka? — Are you a student?'],['はい、がくせいです。','Hai, gakusei desu — Yes, I am.']] },
+        { r:'The negative is じゃありません.', ex:[['がくせいじゃありません。','Gakusei ja arimasen — I am not a student.'],['これはみずじゃありません。','Kore wa mizu ja arimasen — This is not water.']] },
+        { r:'The topic is dropped whenever it is obvious.', ex:[['がくせいです。','Gakusei desu — (I) am a student.']] },
+      ],
+      table:{ h:['','affirmative','negative'], rows:[['statement','です desu','じゃありません ja arimasen'],['question','ですか desu ka','じゃありませんか'],['example','ほんです','ほんじゃありません']] },
+      callout:'Japanese drops anything the listener can work out. "Gakusei desu" is a complete, natural sentence — adding watashi wa every time marks you as a learner.',
+      quiz:[
+        { q:'"I am a student."', o:['わたしがくせいです','わたしはがくせいです','がくせいわたしです','です がくせい'], a:1, why:'Topic, statement, desu.' },
+        { q:'How do you make a question?', o:['Raise your voice','Add か at the end','Invert the words','Add ですか at the start'], a:1, why:'か goes on the end.' },
+        { q:'Negative of です?', o:['ですない','じゃありません','ではか','ないです'], a:1, why:'じゃありません.' },
+      ] },
+
+    { id:'jg1-4', title:'Names, and the suffix that follows them', sub:'-san, -sensei, and never about yourself.',
+      lede:'Japanese attaches a title to almost every name. Leaving it off is not neutral — it is either intimate or rude — and the one rule that never bends is that you do not use one about yourself.',
+      rules:[
+        { r:'さん -san for almost everyone. Not translatable; not gendered.', ex:[['たなかさん','Tanaka-san — Mr/Ms Tanaka'],['アナさん','Ana-san']] },
+        { r:'せんせい -sensei for teachers, doctors, and anyone with expertise.', ex:[['やまださんせい… no:','やまだせんせい — Yamada-sensei']] },
+        { r:'Never about yourself.', ex:[['アナです。','Ana desu — I am Ana.'],['アナさんです。','wrong, about yourself']] },
+        { r:'Family name first, in Japanese order.', ex:[['たなか ゆき','Tanaka Yuki — Tanaka is the family name']] },
+      ],
+      callout:'Calling someone by their bare given name is for family, close friends and children. With anyone else, family name plus さん is the safe default — and stays so for years.',
+      culture:'Business cards are exchanged with two hands and read before being put away. Putting one straight in a pocket is the sort of thing people remember.',
+      quiz:[
+        { q:'How do you introduce yourself?', o:['アナさんです','アナです','さんアナです','アナせんせいです'], a:1, why:'Never a title about yourself.' },
+        { q:'"-san" is used for…', o:['women only','men only','almost everyone','teachers only'], a:2, why:'It is not gendered.' },
+        { q:'Which comes first in Japanese order?', o:['Given name','Family name','Either','The title'], a:1, why:'Family name first.' },
+      ] },
+
+    { id:'jg1-5', title:'Counting, and why it is not simple', sub:'Numbers, and the counters they need.',
+      lede:'Japanese numbers are beautifully regular. What is not regular is that you cannot use a bare number with a noun — you need a counter, and which counter depends on the shape of the thing.',
+      rules:[
+        { r:'One to ten, and then simple arithmetic.', ex:[['いち に さん よん ご','1 2 3 4 5'],['ろく なな はち きゅう じゅう','6 7 8 9 10'],['じゅういち','11 — ten-one'],['にじゅう','20 — two-ten']] },
+        { r:'Counters attach to the number.', ex:[['にん nin','people — さんにん, three people'],['ほん hon','long thin things — にほん, two pens'],['まい mai','flat things — いちまい, one sheet'],['つ tsu','the general one — ひとつ, ふたつ, みっつ']] },
+        { r:'When in doubt, use the つ set. It works for most objects up to ten.', ex:[['ひとつ、ふたつ、みっつ','one, two, three (things)'],['りんごをふたつください。','Ringo o futatsu kudasai — Two apples, please.']] },
+        { r:'Age uses さい.', ex:[['じゅうはっさいです。','Jūhassai desu — I am eighteen.']] },
+      ],
+      table:{ h:['counter','for','example'], rows:[['にん','people','さんにん'],['ほん','long things','にほん'],['まい','flat things','さんまい'],['つ','anything, 1–10','ふたつ']] },
+      callout:'There are dozens of counters, and even Japanese speakers reach for つ when they are unsure. Learn つ and にん first; add the rest as you meet them.',
+      quiz:[
+        { q:'What is 20?', o:['にじゅう','じゅうに','ふたじゅう','にじゅうに'], a:0, why:'ni-jū, two-ten.' },
+        { q:'Counter for people?', o:['ほん','にん','まい','つ'], a:1, why:'にん.' },
+        { q:'Unsure which counter? Use…', o:['ほん','まい','つ','にん'], a:2, why:'The つ set covers most objects.' },
+      ] },
+
+    { id:'jg1-6', title:'これ、それ、あれ', sub:'Japanese splits distance three ways.',
+      lede:'English has "this" and "that". Japanese has three, and they are about who the thing is near — me, you, or neither of us. The same three-way split runs through a whole family of words.',
+      rules:[
+        { r:'The thing itself.', ex:[['これ kore','this, near me'],['それ sore','that, near you'],['あれ are','that over there, near neither']] },
+        { r:'With a noun after it, the form changes.', ex:[['この本 kono hon','this book'],['その本 sono hon','that book'],['あの本 ano hon','that book over there']] },
+        { r:'Place works the same way.', ex:[['ここ koko','here'],['そこ soko','there'],['あそこ asoko','over there']] },
+        { r:'And the question word starts with ど.', ex:[['どれ dore','which one?'],['どの本','which book?'],['どこ doko','where?']] },
+      ],
+      table:{ h:['','near me','near you','over there','question'], rows:[['thing','これ','それ','あれ','どれ'],['+ noun','この','その','あの','どの'],['place','ここ','そこ','あそこ','どこ']] },
+      callout:'This is called the ko-so-a-do system, and once you see the pattern you get sixteen words for the price of four.',
+      quiz:[
+        { q:'Something in your listener\'s hand is…', o:['これ','それ','あれ','どれ'], a:1, why:'それ — near you.' },
+        { q:'"This book" is…', o:['これ本','この本','それ本','ここ本'], a:1, why:'Before a noun it becomes この.' },
+        { q:'"Where?" is…', o:['どれ','どの','どこ','あそこ'], a:2, why:'どこ.' },
+      ] },
+
+    { id:'jg1-7', title:'あります and います', sub:'Two verbs for "there is", and the line between them.',
+      lede:'Japanese splits existence by whether the thing can move itself. Living things take います; everything else takes あります. Plants count as things, and robots are argued about.',
+      rules:[
+        { r:'います for people and animals.', ex:[['ねこがいます。','Neko ga imasu — There is a cat.'],['ともだちがいます。','Tomodachi ga imasu — I have a friend.']] },
+        { r:'あります for objects, plants and abstractions.', ex:[['本があります。','Hon ga arimasu — There is a book.'],['じかんがありますか。','Jikan ga arimasu ka? — Do you have time?']] },
+        { r:'Both also mean "to have".', ex:[['いもうとがいます。','Imōto ga imasu — I have a younger sister.'],['お金がありません。','Okane ga arimasen — I have no money.']] },
+        { r:'The place takes に.', ex:[['つくえの上に本があります。','Tsukue no ue ni hon ga arimasu — There is a book on the desk.']] },
+      ],
+      callout:'A car has an engine and moves, but it takes あります — it cannot move itself. A dead fish in a shop takes あります too, which tells you the line is about animacy, not about biology.',
+      quiz:[
+        { q:'"There is a dog."', o:['いぬがあります','いぬがいます','いぬです','いぬがします'], a:1, why:'Animals take います.' },
+        { q:'"I have no time."', o:['じかんがいません','じかんがありません','じかんじゃありません','じかんがないます'], a:1, why:'Time is not animate: ありません.' },
+        { q:'A car takes…', o:['います','あります','either','neither'], a:1, why:'It cannot move itself.' },
+      ] },
+
+    { id:'jg1-8', title:'Adjectives that conjugate', sub:'い-adjectives behave like verbs.',
+      lede:'Japanese has two kinds of adjective. One ends in い and changes its own ending for tense and negation, like a verb. The other behaves like a noun and leans on です.',
+      rules:[
+        { r:'い-adjectives change their own ending.', ex:[['たかいです。','Takai desu — It is expensive.'],['たかくないです。','Takakunai desu — It is not expensive.'],['たかかったです。','Takakatta desu — It was expensive.']] },
+        { r:'な-adjectives take な before a noun and lean on です.', ex:[['しずかなへや','shizuka na heya — a quiet room'],['しずかです。','Shizuka desu — It is quiet.'],['しずかじゃありません。','Shizuka ja arimasen — It is not quiet.']] },
+        { r:'Before a noun, an い-adjective just sits there.', ex:[['あかいりんご','akai ringo — a red apple'],['おおきいいえ','ōkii ie — a big house']] },
+        { r:'いい (good) is irregular and very common.', ex:[['いいです。','Ii desu — It is good.'],['よくないです。','Yokunai desu — It is not good.']] },
+      ],
+      table:{ h:['','い-adjective','な-adjective'], rows:[['now','たかいです','しずかです'],['not','たかくないです','しずかじゃありません'],['was','たかかったです','しずかでした'],['+ noun','たかい本','しずかなへや']] },
+      callout:'"Takai desu" is present, "takakatta desu" is past — and です never changes. The tense lives in the adjective, which is why these are sometimes called verbal adjectives.',
+      quiz:[
+        { q:'"It is not expensive."', o:['たかいじゃありません','たかくないです','たかいくないです','たかでした'], a:1, why:'い-adjectives change their own ending.' },
+        { q:'"A quiet room."', o:['しずかへや','しずかなへや','しずかいへや','へやしずか'], a:1, why:'な-adjectives take な before a noun.' },
+        { q:'Negative of いい?', o:['いくない','よくない','いいじゃない','いかない'], a:1, why:'いい is irregular: よくない.' },
+      ] },
+  ],
+
+  2: [
+    { es:null, id:'jg2-1', title:'Particles, properly', sub:'は, を, に, で, が — the skeleton of every sentence.',
+      lede:'Japanese does not use word order to show who did what. Particles do that job, and they come after the word they mark rather than before it. Get these five and most sentences become readable.',
+      rules:[
+        { r:'は wa — the topic. What the sentence is about.', ex:[['わたしはがくせいです。','Watashi wa gakusei desu — As for me, student.']] },
+        { r:'を o — the direct object.', ex:[['ごはんをたべます。','Gohan o tabemasu — I eat a meal.'],['本をよみます。','Hon o yomimasu — I read a book.']] },
+        { r:'に ni — a time, or a destination.', ex:[['七時におきます。','Shichiji ni okimasu — I get up at seven.'],['学校にいきます。','Gakkō ni ikimasu — I go to school.']] },
+        { r:'で de — where the action happens, or the means.', ex:[['学校でべんきょうします。','Gakkō de benkyō shimasu — I study at school.'],['でんしゃでいきます。','Densha de ikimasu — I go by train.']] },
+      ],
+      table:{ h:['particle','marks','example'], rows:[['は','topic','わたしは'],['を','object','ごはんを'],['に','time / destination','七時に · 学校に'],['で','place of action / means','学校で · 車で'],['が','subject, new information','ねこが']] },
+      callout:'に and で both translate as "at", and the difference is what happens there. 学校にいます — I am at school (existing). 学校でべんきょうします — I study at school (doing).',
+      quiz:[
+        { q:'"I eat bread."', o:['パンはたべます','パンをたべます','パンにたべます','パンでたべます'], a:1, why:'を marks the object.' },
+        { q:'"I go by train."', o:['でんしゃにいきます','でんしゃでいきます','でんしゃをいきます','でんしゃはいきます'], a:1, why:'で marks the means.' },
+        { q:'"I study at school."', o:['学校にべんきょうします','学校でべんきょうします','学校をべんきょうします','学校はべんきょうします'], a:1, why:'An action happens で.' },
+      ] },
+
+    { id:'jg2-2', title:'The ます form', sub:'Polite verbs, and the four shapes they take.',
+      lede:'Every Japanese verb has a polite form ending in ます. It does not change for person — only for time and for whether the thing happened. Four shapes cover the whole of everyday speech.',
+      rules:[
+        { r:'The four shapes.', ex:[['たべます tabemasu','I eat / will eat'],['たべません tabemasen','I do not eat'],['たべました tabemashita','I ate'],['たべませんでした tabemasen deshita','I did not eat']] },
+        { r:'There is no future tense. ます covers now and later.', ex:[['あしたいきます。','Ashita ikimasu — I will go tomorrow.'],['まいにちいきます。','Mainichi ikimasu — I go every day.']] },
+        { r:'No change for person, ever.', ex:[['わたしはたべます。','I eat.'],['かれもたべます。','He eats too — the same verb form.']] },
+        { r:'Common verbs worth owning now.', ex:[['いきます ikimasu','go'],['きます kimasu','come'],['みます mimasu','see, watch'],['のみます nomimasu','drink'],['します shimasu','do']] },
+      ],
+      table:{ h:['','non-past','past'], rows:[['affirmative','たべます','たべました'],['negative','たべません','たべませんでした']] },
+      callout:'One form covers "I eat", "I am eating" and "I will eat". Japanese marks whether something is finished, not when it happened.',
+      quiz:[
+        { q:'"I did not drink."', o:['のみません','のみました','のみませんでした','のみます'], a:2, why:'Past negative: ませんでした.' },
+        { q:'How does the verb change for "he" instead of "I"?', o:['It adds -s','It does not change','It takes a suffix','It becomes plain'], a:1, why:'Japanese verbs never change for person.' },
+        { q:'"I will go tomorrow."', o:['あしたいきました','あしたいきます','あしたいきません','あしたいくでしょう'], a:1, why:'ます covers the future.' },
+      ] },
+
+    { id:'jg2-3', title:'Telling the time, and the day', sub:'Hours, minutes, and the counters that come with them.',
+      lede:'Time in Japanese is a number plus a counter, and the counters change shape in a few places you simply learn. The pattern is regular; the exceptions are four.',
+      rules:[
+        { r:'Hours take じ ji.', ex:[['いちじ ichiji','one o\'clock'],['よじ yoji','four — not よんじ'],['しちじ shichiji','seven'],['くじ kuji','nine — not きゅうじ']] },
+        { r:'Minutes take ふん / ぷん.', ex:[['ごふん gofun','five minutes'],['じゅっぷん juppun','ten minutes'],['さんじゅっぷん','thirty minutes — or はん han, half']] },
+        { r:'Ask with なんじ.', ex:[['いまなんじですか。','Ima nanji desu ka? — What time is it now?'],['はちじはんです。','Hachiji han desu — It is half past eight.']] },
+        { r:'Days of the week end in ようび.', ex:[['げつようび getsuyōbi','Monday — moon day'],['かようび kayōbi','Tuesday — fire day'],['にちようび nichiyōbi','Sunday — sun day']] },
+      ],
+      table:{ h:['','regular','irregular'], rows:[['4 o\'clock','よんじ ✗','よじ ✓'],['7 o\'clock','ななじ ✗','しちじ ✓'],['9 o\'clock','きゅうじ ✗','くじ ✓'],['half past','さんじゅっぷん','はん']] },
+      callout:'The days of the week are named after the five elements plus the sun and moon — the same system behind the English Sunday and Monday, arriving by a completely different route.',
+      quiz:[
+        { q:'"Four o\'clock" is…', o:['よんじ','よじ','しじ','よっつじ'], a:1, why:'よじ — irregular.' },
+        { q:'"Half past" is…', o:['はん','ふん','じ','なか'], a:0, why:'はん.' },
+        { q:'"Sunday" is…', o:['げつようび','にちようび','かようび','どようび'], a:1, why:'にちようび — sun day.' },
+      ] },
+
+    { id:'jg2-4', title:'Katakana', sub:'The second alphabet, and what it signals.',
+      lede:'Katakana covers the same syllables as hiragana and is used to mark a word as foreign, technical or emphatic. Reading it unlocks menus, shop signs and roughly a tenth of modern vocabulary.',
+      rules:[
+        { r:'Borrowed words, reshaped to Japanese sounds.', ex:[['コーヒー kōhī','coffee'],['テレビ terebi','television'],['カナダ Kanada','Canada'],['コンピューター konpyūtā','computer']] },
+        { r:'The ー marks a long vowel — it appears only in katakana.', ex:[['ケーキ kēki','cake'],['スーパー sūpā','supermarket']] },
+        { r:'Japanese shortens borrowings hard.', ex:[['テレビ','from television'],['パソコン','personal computer'],['コンビニ','convenience store']] },
+        { r:'It is also used for emphasis, like italics.', ex:[['ダメ dame','no good — written in katakana for force']] },
+      ],
+      callout:'Every borrowed word is bent to fit Japanese syllables, so "strike" becomes ストライク su-to-ra-i-ku. Reading katakana aloud and listening for the English inside it is a genuine skill, and a fast way to add vocabulary.',
+      culture:'A word can be borrowed and then change meaning: マンション manshon is not a mansion but an ordinary block of flats, and バイキング baikingu — "viking" — means a buffet.',
+      quiz:[
+        { q:'Katakana is used for…', o:['grammar','borrowed words','verb endings','particles'], a:1, why:'Foreign words, names, emphasis.' },
+        { q:'The ー marks…', o:['a pause','a long vowel','a question','emphasis'], a:1, why:'A long vowel, katakana only.' },
+        { q:'"コンビニ" is short for…', o:['convenience store','computer','company','concert'], a:0, why:'konbini.' },
+      ] },
+
+    { id:'jg2-5', title:'Your first kanji', sub:'Twenty characters that carry a lot.',
+      lede:'Kanji look like the hard part and are in fact the part that makes reading fast, because each one carries meaning at a glance. Start with the ones that appear everywhere.',
+      rules:[
+        { r:'Numbers and time.', ex:[['一 二 三','ichi, ni, san'],['日 hi / nichi','sun, day'],['月 tsuki / getsu','moon, month'],['年 toshi / nen','year']] },
+        { r:'People and places.', ex:[['人 hito','person'],['日本 Nihon','Japan — sun origin'],['学校 gakkō','school'],['駅 eki','station']] },
+        { r:'Everyday things.', ex:[['水 mizu','water'],['車 kuruma','car'],['本 hon','book'],['店 mise','shop']] },
+        { r:'Most kanji have two kinds of reading: Japanese and borrowed-Chinese.', ex:[['水 alone: みず mizu',''],['水曜日 in a compound: すい sui','Wednesday']] },
+      ],
+      table:{ h:['kanji','meaning','alone','in a compound'], rows:[['日','sun, day','ひ hi','にち / び'],['水','water','みず mizu','すい sui'],['人','person','ひと hito','にん / じん'],['本','book','ほん hon','ほん / もと']] },
+      callout:'Do not try to learn every reading of a kanji on the day you meet it. Learn the word it appears in; the readings arrive on their own once you have met the character in five or six words.',
+      quiz:[
+        { q:'日本 means…', o:['sunshine','Japan','daybook','Sunday'], a:1, why:'Sun origin — Japan.' },
+        { q:'How many readings does a kanji usually have?', o:['One','At least two','Exactly three','It varies by region'], a:1, why:'A Japanese reading and a Chinese-derived one, at minimum.' },
+        { q:'駅 means…', o:['school','station','shop','house'], a:1, why:'eki — station.' },
+      ] },
+
+    { id:'jg2-6', title:'Asking for things', sub:'ください, and shopping without panic.',
+      lede:'One pattern buys anything: the thing, the particle を, and ください. Add a number with its counter and you can shop, order and ask for help.',
+      rules:[
+        { r:'Noun + を + ください.', ex:[['水をください。','Mizu o kudasai — Water, please.'],['これをください。','Kore o kudasai — This one, please.'],['コーヒーをふたつください。','Kōhī o futatsu kudasai — Two coffees, please.']] },
+        { r:'Ask the price with いくら.', ex:[['これはいくらですか。','Kore wa ikura desu ka? — How much is this?'],['ごひゃくえんです。','Gohyaku en desu — Five hundred yen.']] },
+        { r:'Ask where something is with どこ.', ex:[['駅はどこですか。','Eki wa doko desu ka? — Where is the station?'],['トイレはどこですか。','Toire wa doko desu ka? — Where is the toilet?']] },
+        { r:'And the phrases that surround the transaction.', ex:[['いらっしゃいませ','irasshaimase — welcome (said to you, never back)'],['おねがいします','onegaishimasu — please'],['だいじょうぶです','daijōbu desu — it is fine / no thanks']] },
+      ],
+      callout:'"Daijōbu desu" is the most useful hedge in the language. It means fine, all right, no problem, and — said with a small wave — no thank you.',
+      culture:'いらっしゃいませ is shouted at you on entering almost any shop. It is not a question and needs no answer; nodding is plenty.',
+      quiz:[
+        { q:'"Two coffees, please."', o:['コーヒーにください','コーヒーをふたつください','ふたつコーヒーです','コーヒーはふたつか'], a:1, why:'Noun を number-counter ください.' },
+        { q:'"How much is this?"', o:['これはどこですか','これはいくらですか','これはなんですか','これをください'], a:1, why:'いくら asks the price.' },
+        { q:'A shopkeeper says いらっしゃいませ. You…', o:['say it back','nod','ask the price','apologise'], a:1, why:'It is a greeting to you, not a question.' },
+      ] },
+
+    { id:'jg2-7', title:'Saying what you like', sub:'すき, and the particle that surprises everyone.',
+      lede:'Liking something is not a verb in Japanese but an adjective, and the thing you like is marked as a subject rather than an object. It feels backwards for about a week and then stops.',
+      rules:[
+        { r:'X が すきです — I like X.', ex:[['ねこがすきです。','Neko ga suki desu — I like cats.'],['日本語がすきです。','Nihongo ga suki desu — I like Japanese.']] },
+        { r:'Degrees.', ex:[['だいすきです','daisuki desu — I love it'],['すきじゃありません','suki ja arimasen — I do not like it'],['あまりすきじゃありません','amari suki ja arimasen — I do not much like it']] },
+        { r:'The same pattern for good at, want, and able.', ex:[['じょうずです jōzu desu','good at'],['ほしいです hoshii desu','want (a thing)'],['わかります wakarimasu','understand — also takes が']] },
+        { r:'Softening a no is the norm.', ex:[['ちょっと…','chotto… — literally "a little", meaning no'],['あまり…','amari… — not very…']] },
+      ],
+      callout:'"Chotto…" with a slight intake of breath is a complete refusal. Nothing follows it, and everyone understands. Pressing for a reason after it is the rude part.',
+      quiz:[
+        { q:'"I like dogs."', o:['いぬをすきです','いぬがすきです','いぬはすきます','いぬにすきです'], a:1, why:'すき takes が.' },
+        { q:'"I do not much like it."', o:['すきじゃありません','あまりすきじゃありません','だいすきです','すきです'], a:1, why:'あまり + negative.' },
+        { q:'"Chotto…" on its own means…', o:['a little','wait','no','please'], a:2, why:'A polite refusal.' },
+      ] },
+
+    { id:'jg2-8', title:'The shape of a polite conversation', sub:'Openings, back-channels and endings.',
+      lede:'Japanese conversation has more signposts than English. The listener is expected to make noise constantly, and silence where a response should be reads as disagreement or inattention.',
+      rules:[
+        { r:'Back-channels — say these while the other person talks.', ex:[['はい hai','yes, go on'],['ええ ē','mm-hm'],['そうですか sō desu ka','is that so'],['なるほど naruhodo','I see']] },
+        { r:'ね and よ at the end change the temperature.', ex:[['あついですね。','Atsui desu ne — Hot, isn\'t it. (seeking agreement)'],['あついですよ。','Atsui desu yo — It is hot, you know. (telling you)']] },
+        { r:'Openings and closings are fixed.', ex:[['おつかれさまです','otsukaresama desu — said on arriving or leaving work'],['しつれいします','shitsurei shimasu — excuse me, on entering or leaving'],['いただきます','itadakimasu — before eating'],['ごちそうさまでした','gochisōsama deshita — after eating']] },
+        { r:'Apologise early and often.', ex:[['すみません','sumimasen — sorry, excuse me, thanks'],['もうしわけありません','mōshiwake arimasen — very formal apology']] },
+      ],
+      table:{ h:['','ね ne','よ yo'], rows:[['function','seeks agreement','gives information'],['example','いいですね','いいですよ'],['feel','shared','asserted']] },
+      callout:'Using よ where ね belongs sounds combative; using ね where よ belongs sounds as if you are fishing. They are small and they carry a lot.',
+      culture:'Saying nothing while someone speaks is not neutral in Japanese — a silent listener is assumed to be unhappy. The constant はい and ええ are the listener doing their share of the work.',
+      quiz:[
+        { q:'"Hot, isn\'t it" ends in…', o:['よ','ね','か','な'], a:1, why:'ね seeks agreement.' },
+        { q:'What do you say before eating?', o:['ごちそうさまでした','いただきます','おつかれさま','しつれいします'], a:1, why:'いただきます.' },
+        { q:'A silent listener reads as…', o:['polite','attentive','unhappy or inattentive','thoughtful'], a:2, why:'Back-channels are expected.' },
+      ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- phrases (hint = rōmaji) */
+const JA_SPEAKING = {
+  1: [
+    { es:'はじめまして。アナです。', en:'How do you do. I am Ana.', hint:'hajimemashite. Ana desu.' },
+    { es:'よろしくおねがいします。', en:'Pleased to meet you.', hint:'yoroshiku onegaishimasu' },
+    { es:'おはようございます。', en:'Good morning.', hint:'ohayō gozaimasu' },
+    { es:'ありがとうございます。', en:'Thank you.', hint:'arigatō gozaimasu' },
+    { es:'すみません。', en:'Excuse me. / Sorry.', hint:'sumimasen' },
+    { es:'わたしはがくせいです。', en:'I am a student.', hint:'watashi wa gakusei desu' },
+    { es:'これはなんですか。', en:'What is this?', hint:'kore wa nan desu ka' },
+    { es:'わかりません。', en:'I do not understand.', hint:'wakarimasen' },
+    { es:'もういちどおねがいします。', en:'Once more, please.', hint:'mō ichido onegaishimasu' },
+    { es:'ねこがいます。', en:'There is a cat.', hint:'neko ga imasu' },
+    { es:'じゅうはっさいです。', en:'I am eighteen.', hint:'jūhassai desu' },
+    { es:'さようなら。またあした。', en:'Goodbye. See you tomorrow.', hint:'sayōnara. mata ashita.' },
+  ],
+  2: [
+    { es:'駅はどこですか。', en:'Where is the station?', hint:'eki wa doko desu ka' },
+    { es:'これはいくらですか。', en:'How much is this?', hint:'kore wa ikura desu ka' },
+    { es:'コーヒーをふたつください。', en:'Two coffees, please.', hint:'kōhī o futatsu kudasai' },
+    { es:'いまなんじですか。', en:'What time is it now?', hint:'ima nanji desu ka' },
+    { es:'しちじにおきます。', en:'I get up at seven.', hint:'shichiji ni okimasu' },
+    { es:'まいにち日本語をべんきょうします。', en:'I study Japanese every day.', hint:'mainichi nihongo o benkyō shimasu' },
+    { es:'きのう学校にいきました。', en:'I went to school yesterday.', hint:'kinō gakkō ni ikimashita' },
+    { es:'にくはたべません。', en:'I do not eat meat.', hint:'niku wa tabemasen' },
+    { es:'ねこがすきです。', en:'I like cats.', hint:'neko ga suki desu' },
+    { es:'でんしゃでいきます。', en:'I go by train.', hint:'densha de ikimasu' },
+    { es:'あついですね。', en:'Hot, isn\'t it.', hint:'atsui desu ne' },
+    { es:'だいじょうぶです。', en:'It is fine. / No thank you.', hint:'daijōbu desu' },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- passages
+   Level 1 is kana only — a learner one week in can read every character on the page. */
+const JA_READING = {
+  1: [
+    { id:'jr1-1', title:'わたしのかぞく', words:55,
+      text:['はじめまして。わたしはレイです。じゅうにさいです。','かぞくはよにんです。おとうさんとおかあさんといもうとがいます。','おとうさんはせんせいです。おかあさんはいしゃです。','いもうとはちいさいです。ななさいです。','いぬもいます。くろいいぬです。なまえはハナです。'],
+      en:'Hajimemashite. Watashi wa Rei desu. Jūnisai desu. Kazoku wa yonin desu. Otōsan to okāsan to imōto ga imasu. Otōsan wa sensei desu. Okāsan wa isha desu. Imōto wa chiisai desu. Nanasai desu. Inu mo imasu. Kuroi inu desu. Namae wa Hana desu. — How do you do. I am Rei. I am twelve. There are four in my family. I have a father, a mother and a younger sister. My father is a teacher. My mother is a doctor. My younger sister is small. She is seven. We have a dog too. It is a black dog. Her name is Hana.',
+      qs:[ { q:'How old is Rei?', o:['Seven','Twelve','Four'], a:1 }, { q:'What is the mother\'s job?', o:['Teacher','Doctor','Student'], a:1 }, { q:'What colour is the dog?', o:['White','Black','Brown'], a:1 } ] },
+    { id:'jr1-2', title:'いろ', words:42,
+      text:['そらはあおいです。ゆきはしろいです。','わたしのねこはくろいです。ちいさくて、かわいいです。','りんごはあかいです。おいしいです。','きいろいはながすきです。'],
+      en:'Sora wa aoi desu. Yuki wa shiroi desu. Watashi no neko wa kuroi desu. Chiisakute, kawaii desu. Ringo wa akai desu. Oishii desu. Kiiroi hana ga suki desu. — The sky is blue. Snow is white. My cat is black. It is small and cute. Apples are red. They are delicious. I like yellow flowers.',
+      qs:[ { q:'What colour is the cat?', o:['White','Black','Yellow'], a:1 }, { q:'What does the writer like?', o:['Red apples','Yellow flowers','Blue skies'], a:1 } ] },
+    { id:'jr1-3', title:'これはなんですか', words:48,
+      text:['— これはなんですか。','— それはほんです。','— にほんごのほんですか。','— はい、にほんごのほんです。','— あれはなんですか。','— あれはとけいです。たかいです。','— そうですか。'],
+      en:'"Kore wa nan desu ka?" "Sore wa hon desu." "Nihongo no hon desu ka?" "Hai, nihongo no hon desu." "Are wa nan desu ka?" "Are wa tokei desu. Takai desu." "Sō desu ka." — "What is this?" "That is a book." "Is it a Japanese book?" "Yes, it is a Japanese book." "What is that over there?" "That is a clock. It is expensive." "Is that so."',
+      qs:[ { q:'What is the book about?', o:['Japanese','English','Nothing'], a:0 }, { q:'What is far away?', o:['A book','A clock','A cat'], a:1 }, { q:'What is said about the clock?', o:['It is cheap','It is expensive','It is small'], a:1 } ] },
+  ],
+  2: [
+    { id:'jr2-1', title:'わたしの一日', words:78,
+      text:['まいあさ、しちじにおきます。あさごはんはパンとコーヒーです。','はちじに家をでます。でんしゃで学校にいきます。三十分かかります。','学校で日本語とすうがくをべんきょうします。ひるごはんはともだちとたべます。','よじにかえります。うちでテレビをみます。','よるは本をよみます。じゅうじにねます。'],
+      en:'Maiasa, shichiji ni okimasu. Asagohan wa pan to kōhī desu. Hachiji ni ie o demasu. Densha de gakkō ni ikimasu. Sanjuppun kakarimasu. Gakkō de nihongo to sūgaku o benkyō shimasu. Hirugohan wa tomodachi to tabemasu. Yoji ni kaerimasu. Uchi de terebi o mimasu. Yoru wa hon o yomimasu. Jūji ni nemasu. — Every morning I get up at seven. Breakfast is bread and coffee. I leave the house at eight. I go to school by train. It takes thirty minutes. At school I study Japanese and maths. I eat lunch with friends. I come home at four. At home I watch television. At night I read a book. I go to bed at ten.',
+      qs:[ { q:'How does she get to school?', o:['By bus','By train','On foot'], a:1 }, { q:'How long does it take?', o:['Ten minutes','Thirty minutes','An hour'], a:1 }, { q:'What does she do at night?', o:['Watches TV','Reads a book','Studies'], a:1 } ] },
+    { id:'jr2-2', title:'店で', words:64,
+      text:['— いらっしゃいませ。','— すみません、これはいくらですか。','— それは八百円です。','— じゃ、それをふたつください。','— はい、千六百円です。','— カードでもいいですか。','— はい、だいじょうぶです。ありがとうございました。'],
+      en:'"Irasshaimase." "Sumimasen, kore wa ikura desu ka?" "Sore wa happyaku en desu." "Ja, sore o futatsu kudasai." "Hai, sen roppyaku en desu." "Kādo demo ii desu ka?" "Hai, daijōbu desu. Arigatō gozaimashita." — "Welcome." "Excuse me, how much is this?" "That is eight hundred yen." "Then two of those, please." "Yes, that is one thousand six hundred yen." "Is card all right?" "Yes, that is fine. Thank you very much."',
+      qs:[ { q:'How much is one?', o:['800 yen','1600 yen','600 yen'], a:0 }, { q:'How many did she buy?', o:['One','Two','Three'], a:1 }, { q:'How did she pay?', o:['Cash','Card','She did not'], a:1 } ] },
+    { id:'jr2-3', title:'日本の学校', words:82,
+      text:['日本の学校は四月にはじまります。三月におわります。','せいとは学校をそうじします。そうじのじかんがあります。','たいていのがっこうにせいふくがあります。','ひるごはんはきゅうしょくです。ぜんいんおなじものをたべます。','クラブかつどうもあります。やきゅうやテニスがにんきです。'],
+      en:'Nihon no gakkō wa shigatsu ni hajimarimasu. Sangatsu ni owarimasu. Seito wa gakkō o sōji shimasu. Sōji no jikan ga arimasu. Taitei no gakkō ni seifuku ga arimasu. Hirugohan wa kyūshoku desu. Zen\'in onaji mono o tabemasu. Kurabu katsudō mo arimasu. Yakyū ya tenisu ga ninki desu. — The Japanese school year starts in April. It ends in March. Pupils clean the school. There is a cleaning time. Most schools have a uniform. Lunch is a school meal. Everyone eats the same thing. There are club activities too. Baseball and tennis are popular.',
+      qs:[ { q:'When does the school year start?', o:['September','April','January'], a:1 }, { q:'Who cleans the school?', o:['Cleaners','The pupils','The teachers'], a:1 }, { q:'What is lunch like?', o:['Everyone eats the same','Everyone brings their own','There is no lunch'], a:0 } ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- word hunts
+   The grid needs letters, so the hunts are in rōmaji — the reading is the thing being drilled. */
+const JA_HUNTS = {
+  1: [
+    { theme:'あいさつ · Greetings', words:['konnichiwa','arigatou','sumimasen','sayounara','hajimemashite','ohayou','konbanwa','hai'] },
+    { theme:'かぞく · Family', words:['kazoku','okaasan','otousan','imouto','otouto','tomodachi','sensei','gakusei'] },
+    { theme:'すうじ · Numbers', words:['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'] },
+    { theme:'いろ · Colours', words:['akai','aoi','shiroi','kuroi','kiiroi','ookii','chiisai','takai'] },
+  ],
+  2: [
+    { theme:'たべもの · Food', words:['mizu','ocha','gohan','tamago','ringo','koohii','pan','sakana'] },
+    { theme:'じかん · Time', words:['asa','hiru','yoru','kyou','ashita','kinou','ima','mainichi'] },
+    { theme:'ばしょ · Places', words:['gakkou','ie','eki','mise','nihon','kuruma','densha','toire'] },
+    { theme:'どうし · Verbs', words:['tabemasu','nomimasu','ikimasu','kimasu','mimasu','shimasu','yomimasu','kaimasu'] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- dialogues */
+const JA_DIALOGUES = {
+  1: [
+    { id:'jd1-1', title:'はじめまして', scene:'Two students meet on the first day.', lines:[
+      { who:'A', es:'はじめまして。たなかです。', en:'How do you do. I am Tanaka. (Hajimemashite. Tanaka desu.)' },
+      { who:'B', es:'はじめまして。アナです。', en:'How do you do. I am Ana. (Hajimemashite. Ana desu.)' },
+      { who:'A', es:'アナさんはがくせいですか。', en:'Are you a student, Ana? (Ana-san wa gakusei desu ka?)' },
+      { who:'B', es:'はい、がくせいです。', en:'Yes, I am a student. (Hai, gakusei desu.)' },
+      { who:'A', es:'そうですか。よろしくおねがいします。', en:'Is that so. Pleased to meet you. (Sō desu ka. Yoroshiku onegaishimasu.)' },
+      { who:'B', es:'こちらこそ、よろしくおねがいします。', en:'Likewise, pleased to meet you. (Kochira koso, yoroshiku onegaishimasu.)' },
+    ] },
+    { id:'jd1-2', title:'かぞく', scene:'Talking about family.', lines:[
+      { who:'A', es:'かぞくはなんにんですか。', en:'How many are in your family? (Kazoku wa nannin desu ka?)' },
+      { who:'B', es:'よにんです。あねといもうとがいます。', en:'Four. I have an older sister and a younger sister. (Yonin desu. Ane to imōto ga imasu.)' },
+      { who:'A', es:'いもうとさんはなんさいですか。', en:'How old is your younger sister? (Imōto-san wa nansai desu ka?)' },
+      { who:'B', es:'ななさいです。', en:'She is seven. (Nanasai desu.)' },
+      { who:'A', es:'かわいいですね。', en:'How sweet. (Kawaii desu ne.)' },
+    ] },
+    { id:'jd1-3', title:'これはなんですか', scene:'Pointing at things.', lines:[
+      { who:'A', es:'これはなんですか。', en:'What is this? (Kore wa nan desu ka?)' },
+      { who:'B', es:'それはほんです。', en:'That is a book. (Sore wa hon desu.)' },
+      { who:'A', es:'だれのほんですか。', en:'Whose book is it? (Dare no hon desu ka?)' },
+      { who:'B', es:'わたしのほんです。', en:'It is my book. (Watashi no hon desu.)' },
+      { who:'A', es:'あれもほんですか。', en:'Is that one a book too? (Are mo hon desu ka?)' },
+      { who:'B', es:'いいえ、あれはノートです。', en:'No, that is a notebook. (Iie, are wa nōto desu.)' },
+    ] },
+    { id:'jd1-4', title:'またあした', scene:'Leaving for the day.', lines:[
+      { who:'A', es:'もうろくじですね。', en:'It is already six. (Mō rokuji desu ne.)' },
+      { who:'B', es:'ほんとうですね。かえります。', en:'So it is. I will go home. (Hontō desu ne. Kaerimasu.)' },
+      { who:'A', es:'きをつけて。', en:'Take care. (Ki o tsukete.)' },
+      { who:'B', es:'ありがとうございます。またあした。', en:'Thank you. See you tomorrow. (Arigatō gozaimasu. Mata ashita.)' },
+      { who:'A', es:'またあした。', en:'See you tomorrow. (Mata ashita.)' },
+    ] },
+  ],
+  2: [
+    { id:'jd2-1', title:'駅はどこですか', scene:'Asking the way.', lines:[
+      { who:'A', es:'すみません、駅はどこですか。', en:'Excuse me, where is the station? (Sumimasen, eki wa doko desu ka?)' },
+      { who:'B', es:'まっすぐいって、みぎにまがってください。', en:'Go straight and turn right. (Massugu itte, migi ni magatte kudasai.)' },
+      { who:'A', es:'とおいですか。', en:'Is it far? (Tōi desu ka?)' },
+      { who:'B', es:'いいえ、ごふんぐらいです。', en:'No, about five minutes. (Iie, gofun gurai desu.)' },
+      { who:'A', es:'ありがとうございました。', en:'Thank you very much. (Arigatō gozaimashita.)' },
+      { who:'B', es:'いいえ、どういたしまして。', en:'Not at all. (Iie, dō itashimashite.)' },
+    ] },
+    { id:'jd2-2', title:'カフェで', scene:'Ordering.', lines:[
+      { who:'A', es:'いらっしゃいませ。', en:'Welcome. (Irasshaimase.)' },
+      { who:'B', es:'コーヒーをひとつおねがいします。', en:'One coffee, please. (Kōhī o hitotsu onegaishimasu.)' },
+      { who:'A', es:'ホットですか、アイスですか。', en:'Hot or iced? (Hotto desu ka, aisu desu ka?)' },
+      { who:'B', es:'ホットでおねがいします。', en:'Hot, please. (Hotto de onegaishimasu.)' },
+      { who:'A', es:'よんひゃくえんです。', en:'That is four hundred yen. (Yonhyaku en desu.)' },
+      { who:'B', es:'はい。ありがとうございます。', en:'Here you are. Thank you. (Hai. Arigatō gozaimasu.)' },
+    ] },
+    { id:'jd2-3', title:'まいにち', scene:'Comparing routines.', lines:[
+      { who:'A', es:'まいあさなんじにおきますか。', en:'What time do you get up every morning? (Maiasa nanji ni okimasu ka?)' },
+      { who:'B', es:'しちじにおきます。たなかさんは。', en:'I get up at seven. And you, Tanaka? (Shichiji ni okimasu. Tanaka-san wa?)' },
+      { who:'A', es:'わたしはろくじです。でんしゃでいきますから。', en:'I get up at six, because I go by train. (Watashi wa rokuji desu. Densha de ikimasu kara.)' },
+      { who:'B', es:'たいへんですね。', en:'That is hard work. (Taihen desu ne.)' },
+      { who:'A', es:'そうですね。でも、でんしゃで本をよみます。', en:'It is. But I read a book on the train. (Sō desu ne. Demo, densha de hon o yomimasu.)' },
+    ] },
+    { id:'jd2-4', title:'すきなもの', scene:'Talking about what you like.', lines:[
+      { who:'A', es:'日本のたべものはすきですか。', en:'Do you like Japanese food? (Nihon no tabemono wa suki desu ka?)' },
+      { who:'B', es:'はい、だいすきです。とくにさかなが。', en:'Yes, I love it. Fish especially. (Hai, daisuki desu. Toku ni sakana ga.)' },
+      { who:'A', es:'なっとうは。', en:'What about nattō? (Nattō wa?)' },
+      { who:'B', es:'ちょっと…', en:'Er… (Chotto…)' },
+      { who:'A', es:'わかります。だいじょうぶです。', en:'I understand. That is fine. (Wakarimasu. Daijōbu desu.)' },
+    ] },
+  ],
+  3: [], 4: [], 5: [], 6: [],
+};
+
+/* ---------------------------------------------------------------- the verb trainer
+   Japanese verbs do not change for person, so the four "persons" are the four shapes a beginner
+   needs, and the two tenses are non-past and past. Each cell shows kana with the rōmaji beside it,
+   the way a textbook does. */
+const JA_PERSONS = [
+  { k: 'ma', t: 'ます polite', en: 'polite' },
+  { k: 'mn', t: 'ません polite negative', en: 'polite, not' },
+  { k: 'pa', t: 'plain', en: 'dictionary form' },
+  { k: 'pn', t: 'ない plain negative', en: 'casual, not' },
+];
+const JA_PK = JA_PERSONS.map(p => p.k);
+
+const JA_TENSES = [
+  { k: 'pres', t: '非過去 hi-kako', en: 'Non-past', level: 1, ex: 'たべます — I eat / will eat', blurb: 'Now, habitually, or later. Japanese has no separate future.' },
+  { k: 'past', t: '過去 kako', en: 'Past', level: 2, ex: 'たべました — I ate', blurb: 'Finished. The polite past is simply ました.' },
+];
+
+/* Each verb carries its four building blocks, so nothing has to be guessed:
+   inf = dictionary form · stem = the ます-stem · neg = plain negative · past = plain past */
+const JA_VERBS = [
+  { inf:'たべる', rom:'taberu', en:'to eat', type:'ru', lvl:1, tags:['core'], stem:['たべ','tabe'], neg:['たべない','tabenai'], past:['たべた','tabeta'] },
+  { inf:'のむ', rom:'nomu', en:'to drink', type:'u', lvl:1, tags:['core'], stem:['のみ','nomi'], neg:['のまない','nomanai'], past:['のんだ','nonda'] },
+  { inf:'いく', rom:'iku', en:'to go', type:'u', lvl:1, tags:['core'], stem:['いき','iki'], neg:['いかない','ikanai'], past:['いった','itta'] },
+  { inf:'くる', rom:'kuru', en:'to come', type:'irr', lvl:1, tags:['irr','core'], stem:['き','ki'], neg:['こない','konai'], past:['きた','kita'] },
+  { inf:'する', rom:'suru', en:'to do', type:'irr', lvl:1, tags:['irr','core'], stem:['し','shi'], neg:['しない','shinai'], past:['した','shita'] },
+  { inf:'みる', rom:'miru', en:'to see, to watch', type:'ru', lvl:1, tags:['core'], stem:['み','mi'], neg:['みない','minai'], past:['みた','mita'] },
+  { inf:'きく', rom:'kiku', en:'to listen, to ask', type:'u', lvl:1, tags:[], stem:['きき','kiki'], neg:['きかない','kikanai'], past:['きいた','kiita'] },
+  { inf:'よむ', rom:'yomu', en:'to read', type:'u', lvl:1, tags:[], stem:['よみ','yomi'], neg:['よまない','yomanai'], past:['よんだ','yonda'] },
+  { inf:'かく', rom:'kaku', en:'to write', type:'u', lvl:2, tags:[], stem:['かき','kaki'], neg:['かかない','kakanai'], past:['かいた','kaita'] },
+  { inf:'はなす', rom:'hanasu', en:'to speak', type:'u', lvl:2, tags:['core'], stem:['はなし','hanashi'], neg:['はなさない','hanasanai'], past:['はなした','hanashita'] },
+  { inf:'かう', rom:'kau', en:'to buy', type:'u', lvl:2, tags:[], stem:['かい','kai'], neg:['かわない','kawanai'], past:['かった','katta'] },
+  { inf:'かえる', rom:'kaeru', en:'to return home', type:'u', lvl:2, tags:[], stem:['かえり','kaeri'], neg:['かえらない','kaeranai'], past:['かえった','kaetta'] },
+  { inf:'おきる', rom:'okiru', en:'to get up', type:'ru', lvl:2, tags:[], stem:['おき','oki'], neg:['おきない','okinai'], past:['おきた','okita'] },
+  { inf:'ねる', rom:'neru', en:'to sleep, to go to bed', type:'ru', lvl:2, tags:[], stem:['ね','ne'], neg:['ねない','nenai'], past:['ねた','neta'] },
+  { inf:'わかる', rom:'wakaru', en:'to understand', type:'u', lvl:2, tags:['core'], stem:['わかり','wakari'], neg:['わからない','wakaranai'], past:['わかった','wakatta'] },
+  { inf:'ある', rom:'aru', en:'to exist (things)', type:'u', lvl:1, tags:['irr','core'], stem:['あり','ari'], neg:['ない','nai'], past:['あった','atta'] },
+  { inf:'いる', rom:'iru', en:'to exist (people, animals)', type:'ru', lvl:1, tags:['core'], stem:['い','i'], neg:['いない','inai'], past:['いた','ita'] },
+  { inf:'まつ', rom:'matsu', en:'to wait', type:'u', lvl:2, tags:[], stem:['まち','machi'], neg:['またない','matanai'], past:['まった','matta'] },
+  { inf:'あう', rom:'au', en:'to meet', type:'u', lvl:2, tags:[], stem:['あい','ai'], neg:['あわない','awanai'], past:['あった','atta'] },
+  { inf:'べんきょうする', rom:'benkyō suru', en:'to study', type:'irr', lvl:2, tags:['core'], stem:['べんきょうし','benkyōshi'], neg:['べんきょうしない','benkyō shinai'], past:['べんきょうした','benkyō shita'] },
+];
+
+/* kana (rōmaji) — the shape a textbook prints */
+function jaBoth(kana, rom) { return kana + ' (' + rom + ')'; }
+function jaConj(v, tense, pk) {
+  const past = tense === 'past';
+  if (pk === 'ma') return jaBoth(v.stem[0] + (past ? 'ました' : 'ます'), v.stem[1] + (past ? 'mashita' : 'masu'));
+  if (pk === 'mn') return jaBoth(v.stem[0] + (past ? 'ませんでした' : 'ません'), v.stem[1] + (past ? 'masen deshita' : 'masen'));
+  if (pk === 'pa') return past ? jaBoth(v.past[0], v.past[1]) : jaBoth(v.inf, v.rom);
+  if (pk === 'pn') {
+    if (!past) return jaBoth(v.neg[0], v.neg[1]);
+    return jaBoth(v.neg[0].replace(/い$/, 'かった'), v.neg[1].replace(/ai$/, 'akatta'));
+  }
+  return '';
+}
+/* the polite forms are perfectly regular, so "irregular" only ever marks the plain column */
+function jaRegular(v, tense, pk) {
+  if (pk === 'ma' || pk === 'mn') return jaConj(v, tense, pk);
+  return jaConj(v, tense, pk);
+}
+
+/* ---------------------------------------------------------------- register it */
+registerCourse({
+  id: 'ja', code: 'JA', name: 'Japanese', native: '日本語',
+  note: 'levels 1–2',
+  levels: JA_LEVELS, dict: JA_DICT, grammar: JA_GRAMMAR, speaking: JA_SPEAKING,
+  reading: JA_READING, hunts: JA_HUNTS, dialogues: JA_DIALOGUES,
+  tenses: JA_TENSES, verbs: JA_VERBS, persons: JA_PERSONS,
+  conj: jaConj, regular: jaRegular,
+  voice: ['ja-jp', 'ja-'],
+  recog: 'ja-JP',
+  /* written in its own script, with the reading carried beside it */
+  script: { rom: true },
+  /* no articles and no gender, so the gender game has nothing to ask; the crossword needs a Latin
+     grid, and kana in a 5×5 is a different puzzle than the one that game is. Both are hidden. */
+  gender: null,
+  letters: null,
+  games: { genero: false, crucigrama: false },
+});
+
 /* =========================== APP =========================== */
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const stripAccents = (s) => String(s).replace(/\u00f1/g, '\u0001').replace(/\u00d1/g, '\u0002').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\u0001/g, '\u00f1').replace(/\u0002/g, '\u00d1');
-const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f1\s]/g, '').replace(/\s+/g, ' ').trim();
+/* Keeps kana and kanji as well as letters, so a typed answer in Japanese can be either the
+   script or its rōmaji — たべます and tabemasu both survive this and both count. */
+const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f1\u3040-\u30ff\u4e00-\u9fff\s]/g, '').replace(/\s+/g, ' ').trim();
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v22', date: '15 September 2026' };
+const BUILD = { v: 'v23', date: '15 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
