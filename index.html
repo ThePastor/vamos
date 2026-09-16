@@ -4907,7 +4907,7 @@ const Cloud = {
     /* On a build that requires an account, nothing is written until there is one. Otherwise every
        person who opened the link and walked away would leave an empty "Learner" row behind, and the
        Owner page — the whole point of which is a count of real people — would be a list of nobody. */
-    if (typeof gateNeeded === 'function' && gateNeeded()) return;
+    if (typeof gateHolds === 'function' && gateHolds()) return;
     if (Cloud.blocked()) { Cloud.setState('blocked', 'Sync is switched off inside claude.ai — use your web address.'); return; }
     const payload = summary(); payload.full = fullState(); payload.acct = !!S.acct;
     const body = { id: rowId(), name: learnerName(), updated_at: new Date().toISOString(), payload };
@@ -4982,8 +4982,9 @@ function initCloud() {
 }
 
 /* ----------------------------------------------------------------------
-   ACCOUNTS — a name and a PIN. No email, no verification: the id is a hash of the two,
-   so the same name + PIN on any device opens the same progress.
+   ACCOUNTS — a name and a password. No email verification: the id is a hash of the two, so the
+   same name + password on any device opens the same progress. Nothing reversible is stored — the
+   server only ever sees the hash, never what was typed.
    ---------------------------------------------------------------------- */
 const rowId = () => (S.acct && S.acct.id) || S.who.id;
 async function acctId(name, pin) {
@@ -4997,7 +4998,20 @@ async function acctId(name, pin) {
     return 'a_' + h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0');
   }
 }
-const validPin = (p) => /^\d{4,8}$/.test(String(p).trim());
+/* What a NEW password has to look like: eight characters, and nothing else demanded. Length is
+   what actually makes a password hard to guess; every extra rule about symbols and digits buys a
+   little of that and costs a lot of forgotten passwords typed on a phone keyboard.
+
+   Signing IN is deliberately more permissive. Every account made before v28 was opened with a
+   4-8 digit PIN, and the row id is a hash of the name and whatever was typed — so those PINs still
+   open those accounts, untouched. Refusing them at the door would lock out every learner who
+   signed up first, which is exactly the people who signed up earliest. */
+const MIN_PASS = 8;
+const secret = (p) => String(p == null ? '' : p).trim();
+const validNewPass = (p) => secret(p).length >= MIN_PASS;
+const validOldPin  = (p) => /^\d{4,8}$/.test(secret(p));
+const validSecret  = (p) => validNewPass(p) || validOldPin(p);
+const validPin = validSecret;   /* the old name, so nothing that calls it has to change */
 /* the whole state, as it will be restored on another device */
 function fullState() {
   const o = JSON.parse(JSON.stringify(S));
@@ -5047,7 +5061,7 @@ async function signIn(name, pin, opts) {
   opts = opts || {};
   name = String(name || '').trim();
   if (name.length < 2) return { ok: false, msg: 'Type your name first.' };
-  if (!validPin(pin)) return { ok: false, msg: 'The PIN is 4 to 8 digits.' };
+  if (!validSecret(pin)) return { ok: false, msg: `Passwords are at least ${MIN_PASS} characters.` };
   if (S.test) return { ok: false, msg: 'Leave test mode first — the test copy is never saved to the cloud.' };
   if (!Cloud.on()) return { ok: false, msg: 'Saving across devices needs a cloud project. An owner sets one up once in Owner → Setup; until then progress stays on this device.' };
   if (Cloud.blocked()) return { ok: false, msg: 'Sign-in needs the web address — claude.ai blocks this page from reaching the internet.' };
@@ -5068,11 +5082,17 @@ async function signIn(name, pin, opts) {
     logAct('signin', name);
     return { ok: true, msg: `Welcome back, ${name} — ${S.xp || 0} XP, ${S.coins || 0} ${COIN_NAME} and ${lessonsDone()} lessons restored.`, restored: true };
   }
-  /* new account: bring across an older DEVICE record under this name. Account rows are never imported by name — they need the PIN. */
+  /* From here down we are CREATING an account, not opening one — so this is the only place the
+     new-password rule applies. Reaching it with an old-style PIN means no account exists under that
+     name and PIN, so there is nothing to be locked out of. */
+  if (!validNewPass(pin)) return { ok: false, msg: validOldPin(pin)
+    ? `No account under that name and PIN. New accounts use a password of at least ${MIN_PASS} characters — pick one and it will be made now.`
+    : `Pick a password of at least ${MIN_PASS} characters.` };
+  /* bring across an older DEVICE record under this name. Account rows are never imported by name — they need the password. */
   let legacy = null, sameName = [];
   try { sameName = await Cloud.byName(name); } catch (e) {}
   const isAcct = (r) => /^a_/.test(r.id) || (r.payload && r.payload.acct);
-  if (sameName.some(isAcct) && localXP < 30) return { ok: false, msg: `There is already an account called ${name}. If that is you, check the PIN. If you are a different ${name}, add a last initial — “${name} R”, say.` };
+  if (sameName.some(isAcct) && localXP < 30) return { ok: false, msg: `There is already an account called ${name}. If that is you, check the password. If you are a different ${name}, add a last initial — “${name} R”, say.` };
   legacy = sameName.filter(r => r.id !== id && !isAcct(r) && r.payload && !r.payload.migrated_to && (r.payload.xp || 0) > 0).sort((a, b) => (b.payload.xp || 0) - (a.payload.xp || 0))[0] || null;
   let imported = '';
   if (legacy && (legacy.payload.xp || 0) > localXP) {
@@ -5084,8 +5104,8 @@ async function signIn(name, pin, opts) {
   S.acct = { id, name, since: todayStr(), email: String(opts.email || '').trim() };
   S.who.name = name; save(); Cloud.lastSent = ''; await Cloud.push(true);
   logAct('signup', name);
-  const dup = sameName.some(isAcct) ? ` (There was already a ${name} saved with a different PIN — if that was you, sign out and try the other PIN.)` : '';
-  return { ok: true, msg: `Saved. From now on, sign in as ${name} with that PIN on any device and your progress follows you.` + imported + dup, restored: !!imported };
+  const dup = sameName.some(isAcct) ? ` (There was already a ${name} saved with a different password — if that was you, sign out and try the other one.)` : '';
+  return { ok: true, msg: `Saved. From now on, sign in as ${name} with that password on any device and your progress follows you.` + imported + dup, restored: !!imported };
 }
 function signOut() { S.acct = null; save(); }
 
@@ -5598,7 +5618,12 @@ function buildPlacement() {
 }
 function initChecks() { if (!S.checks) S.checks = {}; }
 const levelPassed = (lv) => !!(S.checks && S.checks[lv] && S.checks[lv].passed);
-const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) >= lv;
+/* Every level is open, in every language, from the first second. The path used to unlock one
+   level at a time, which is right for a course somebody has already committed to and wrong for a
+   link handed round a campus: the person who opens it wants to see whether level 5 is worth their
+   time, and a row of padlocks answers that question with "no". levelPassed() still fills the dot on
+   each level button, so the row goes on showing how far someone has actually got. */
+const levelUnlocked = () => true;
 
 /* =========================== PWA: install, offline, updates =========================== */
 /* Only the hosted https copy has a service worker (sw.js sits next to index.html on GitHub Pages).
@@ -5610,6 +5635,7 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v28', 'The app opens straight into itself. There is no sign-up at the door any more, and no padlocks: every level of every language is open from the first second, so you can try level 5 Japanese before you decide whether any of this is for you. At <b>100 XP</b> \u2014 counted across everything you do, in every language \u2014 an account is asked for, and everything earned up to that point comes with you into it. Accounts now use a real password of eight characters or more instead of a four-digit PIN; an older PIN still signs in the account it made.'],
   ['v27', 'The shared link stops breaking. Publishing a new version used to leave the app showing a \u201cpage not found\u201d - the copy on your phone took the host\u2019s brief mid-upload 404 for the real page and kept it. It no longer does: the last good copy is held on to until a real one arrives, so an update is invisible to anyone following the link. And an address that has been cut short or mistyped now lands on a page with a way back instead of a dead end.'],
   ['v26', 'A full audit of every screen on every size of phone, tablet and computer. The word hunt no longer breaks on the Japanese greetings; the bottom bar and the lesson buttons stop pushing the page sideways on a small phone; the smallest text is readable again; and every line that still said “Spanish” while you were learning French or Japanese now names the language you are actually in.'],
   ['v25', 'Japanese is finished — all six levels, from hiragana to reading Kawabata in the original, by way of keigo, the passive and Kansai-ben. The verb trainer gains five shapes above tense (ている, たい, potential, passive, causative), and a verb that genuinely has no form in a column now says so instead of inventing one.'],
@@ -6956,13 +6982,13 @@ function renderRights() {
 
   ${sec('privacy', 'Privacy', `
     <p>${name} has no analytics, no advertising and no third-party trackers. Nothing about your use of it is sold or shared.</p>
-    <p>What leaves your device is a first name, an identifier derived from your PIN (never the PIN itself), your practice state, and — on a copy that asks for one at sign-up — the email address you gave. It goes to a database belonging to whoever runs this copy, and it is used to tell learners apart and to reach you about the app itself. It is not sold, not shared, and not added to any mailing list you did not ask for.</p>
+    <p>What leaves your device is a first name, an identifier derived from your password (never the password itself), your practice state, and — on a copy that asks for one at sign-up — the email address you gave. It goes to a database belonging to whoever runs this copy, and it is used to tell learners apart and to reach you about the app itself. It is not sold, not shared, and not added to any mailing list you did not ask for.</p>
     <p>${BRAND.signup === 'required' ? 'This copy asks for an account before it starts, so that the person who publishes it knows how many people are using it.' : 'On this copy an account is optional, and without one nothing at all leaves your browser.'} Ask at ${contact} to see what is held about you, to correct it, or to have it deleted.</p>
     <p>The fonts are fetched from Google's servers on first load, which tells them your IP address, as any web font does. After that they are cached and the app works with no network at all.</p>`)}
 
   ${sec('warranty', 'No warranty', `
     <p>${name} is provided as it is, with no warranty of any kind. It is a language-learning app made with care, not a certified course, and its explanations may contain mistakes. Nothing here is professional advice.</p>
-    <p>To the extent the law allows, ${who} is not liable for any loss arising from using it — including lost progress, whether from a cleared browser, a lost PIN or a service outage. Some protections cannot be excluded by law, and nothing here tries to remove them.</p>`)}
+    <p>To the extent the law allows, ${who} is not liable for any loss arising from using it — including lost progress, whether from a cleared browser, a lost password or a service outage. Some protections cannot be excluded by law, and nothing here tries to remove them.</p>`)}
 
   ${sec('contact', 'Law, permission and reporting a copy', `
     <p>This notice is governed by the law of ${esc(BRAND.law || 'the owner’s home jurisdiction')}, and by the Canadian <i>Copyright Act</i>.</p>
@@ -6983,14 +7009,31 @@ function renderRights() {
   }));
 }
 
-/* =========================== The sign-up gate ===========================
+/* ===================== The sign-up wall, at GATE_XP ======================
    Some copies of this app are handed to a whole campus at once, and the person who published it
-   needs to know how many people actually opened the link. When the brand file says
-   BRAND_SIGNUP="required" the app does not start until there is an account: a name, an email and a
-   PIN. The PIN is not security theatre — it is what lets a learner pick the app back up on another
+   needs to know how many people actually opened the link.
+
+   Until v28 that was a door: on a build with BRAND_SIGNUP="required" the app did not start at all
+   until there was an account. That answers "how many signed up" and loses the question worth more,
+   which is "how many would have". Someone who follows a link from a poster will not hand over an
+   email to find out whether an app is any good.
+
+   So the door is now a wall further in. Everything is open — every level, every language, every
+   game — until the total reaches GATE_XP. That is a real amount of the app: enough lessons to know
+   whether it is worth an account, and little enough that anyone still going at that point means
+   it. At GATE_XP the wall goes up and stays up until there is an account, and everything earned on
+   the way is carried into it.
+
+   The password is not security theatre — it is what lets a learner pick the app back up on another
    phone with their streak and their companions intact.
 
-   The gate is deliberately narrow, because a door with no key is worse than no door:
+   Two predicates, and the difference matters:
+     gateHolds()  — this build wants an account and there is not one. Cloud.push() uses this, so
+                    NOTHING about a person without an account is written to the database, whatever
+                    their XP. That promise is older than this wall and survives it.
+     gateNeeded() — the same, AND they are past GATE_XP. Only this puts the wall on screen.
+
+   The wall is deliberately narrow, because a door with no key is worse than no door:
      • never inside the Claude artifact frame, which cannot reach the internet at all;
      • never in the owner's test copy, and never once the Owner page has been unlocked;
      • never in a copy with no cloud project — a rebrand with the keys stripped out would
@@ -6999,10 +7042,33 @@ function renderRights() {
    Two pages stay reachable from behind it: the rights notice, because a licence nobody can open is
    a licence nobody has read, and the Owner page, so the owner can always get in. */
 const GATE_ON = BRAND.signup === 'required';
+/* How much of the app is free. One number, counted across everything: lessons, review and games,
+   in every language. Counting per language would hand out three times as much to anyone who
+   noticed they could simply switch language at 99. */
+const GATE_XP = 100;
 const GATE_OPEN_PAGES = { rights: 1, owner: 1 };
 
-function gateNeeded() {
+/* wants an account, has not got one — whatever the XP */
+function gateHolds() {
   return GATE_ON && !S.acct && !ON_CLAUDE && !S.test && !ownerUnlocked() && Cloud.on();
+}
+/* ...and has earned enough that the wall is due */
+function gateNeeded() {
+  return gateHolds() && (S.xp || 0) >= GATE_XP;
+}
+
+/* Called from addXP() after every award. The wall goes up the first time the total crosses
+   GATE_XP — a beat later, so the "+10 XP" toast is actually seen first and the crossing does not
+   feel like the app breaking. After that syncGate() puts it back on every route change, so there
+   is no way round it short of signing up. */
+function gateCrossed(before) {
+  if (!GATE_ON || before >= GATE_XP || !gateNeeded()) return;
+  toast(`That is ${GATE_XP} XP — make an account to carry on. Everything you have done is kept.`);
+  setTimeout(() => {
+    if (!gateNeeded()) return;
+    document.documentElement.classList.add('gated');
+    showGate();
+  }, 1700);
 }
 const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim());
 
@@ -7015,20 +7081,19 @@ function syncGate(page) {
   else { const g = $('#gate'); if (g) g.remove(); }
 }
 
+/* No language picker here any more: by the time this wall appears the person has done a hundred
+   XP in a language they chose for themselves, and asking again would be asking a question they
+   have already answered at some length. */
 function gateFormHTML() {
-  return `${!multilingual() ? '' : `<div class="glangs" role="group" aria-label="Choose a language to learn">
-      <span class="label">I want to learn</span>
-      <div class="langgrid">${courseList().map(c => `<button type="button" class="lpick ${c.id === (S.lang || DEFAULT_COURSE) ? 'on' : ''}" data-pick="${esc(c.id)}"${c.id === (S.lang || DEFAULT_COURSE) ? ' aria-pressed="true"' : ' aria-pressed="false"'}>${courseBadge(c)}<span><b>${esc(c.name)}</b><span class="small muted">${esc(c.native)}</span></span></button>`).join('')}</div>
-    </div>`}
-    <div class="gform">
+  return `<div class="gform">
       <label><span class="label">Your name</span><input type="text" id="gName" maxlength="24" placeholder="${esc(BRAND.sample)}" autocomplete="given-name" value="${esc((S.who && S.who.name) || '')}"></label>
       <label><span class="label">Email</span><input type="email" id="gEmail" maxlength="120" placeholder="you@example.com" autocomplete="email" inputmode="email" value="${esc((S.who && S.who.email) || '')}"></label>
-      <label><span class="label">PIN (4–8 digits)</span><input type="password" id="gPin" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off"></label>
+      <label><span class="label">Password (8 or more characters)</span><input type="password" id="gPin" maxlength="72" placeholder="••••••••" autocomplete="current-password"></label>
     </div>
-    <button type="button" class="btn rose" id="gGo">Start learning <span class="arr">→</span></button>
+    <button type="button" class="btn rose" id="gGo">Keep going <span class="arr">→</span></button>
     <p class="small gmsg" id="gMsg">${navigator.onLine === false
-      ? 'No connection at the moment. The very first sign-up needs the internet — after that the app works with no signal at all.'
-      : 'Been here before? The same name and PIN sign you back in and bring your progress with you.'}</p>`;
+      ? 'No connection at the moment. Making the account needs the internet once — after that the app works with no signal at all.'
+      : 'Been here before? The same name and password sign you back in. An older 4–8 digit PIN still works too.'}</p>`;
 }
 
 function showGate() {
@@ -7038,10 +7103,10 @@ function showGate() {
   el.innerHTML = `<div class="gatebox">
       <span class="gwordmark">${esc(BRAND.a)}<b>${esc(BRAND.b)}</b></span>
       <div class="gpic">${mascot(CAST_LEAD, 104)}</div>
-      <span class="label">Before you start</span>
-      <h1>Make your account</h1>
-      <p class="gsub">${esc(BRAND.tagline)}</p>
-      <p class="small muted">Ten seconds, and it is what keeps your XP, streak, words and companions when you switch phone or clear your browser.</p>
+      <span class="label">${S.xp || 0} XP so far</span>
+      <h1>Keep what you've earned</h1>
+      <p class="gsub">All of it is yours — ${S.xp || 0} XP, ${learnedCount()} words, a ${streakAlive()}-day streak and everyone in your casita. An account is what stops it living on this one phone.</p>
+      <p class="small muted">A name, an email and a password. Ten seconds, and you carry on exactly where you stopped.</p>
       <div id="gSlot">${gateFormHTML()}</div>
       <div class="gfoot"><a href="#rights">All rights reserved</a> · <a href="#owner">Owner</a></div>
     </div>`;
@@ -7059,7 +7124,7 @@ function wireGate() {
     const pin = $('#gPin').value;
     if (name.length < 2) { msg.textContent = 'Type your name first.'; $('#gName').focus(); return; }
     if (!validEmail(email)) { msg.textContent = 'That email does not look right — check it over.'; $('#gEmail').focus(); return; }
-    if (!validPin(pin)) { msg.textContent = 'The PIN is 4 to 8 digits. Pick something you will remember.'; $('#gPin').focus(); return; }
+    if (!validSecret(pin)) { msg.textContent = `Pick a password of at least ${MIN_PASS} characters — something you will remember.`; $('#gPin').focus(); return; }
     /* keep what was typed, so a failed attempt does not mean typing it all again */
     S.who.name = name; S.who.email = email; save();
     go.disabled = true; msg.textContent = 'One moment…';
@@ -7088,7 +7153,7 @@ function wireGate() {
   });
 }
 
-/* the one fork: this device has more progress on it than the saved copy for that name and PIN */
+/* the one fork: this device has more progress on it than the saved copy for that name and password */
 function gateChoice(c, name, pin, email) {
   $('#gSlot').innerHTML = `<div class="gchoice">
       <b>Which copy should we keep?</b>
@@ -10568,7 +10633,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v27', date: '16 September 2026' };
+const BUILD = { v: 'v28', date: '16 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -10593,6 +10658,7 @@ function streakAlive() { const t = todayStr(), y = addDays(-1); return S.streak.
 function addXP(n, reason) {
   const t = todayStr(), y = addDays(-1);
   const before = xpToday();
+  const totalBefore = S.xp || 0;
   S.xp = (S.xp || 0) + n; S.xpLog[t] = before + n;
   if (S.streak.last !== t) { S.streak.count = S.streak.last === y ? (S.streak.count || 0) + 1 : 1; S.streak.last = t; }
   const news = rewardXP(n);
@@ -10603,6 +10669,8 @@ function addXP(n, reason) {
   news.forEach((ev, i) => setTimeout(() => announce(ev), 700 + i * 1400));
   if (before < S.goal && xpToday() >= S.goal) setTimeout(() => xpToast(`Daily goal reached ♥ ${streakAlive()}-day streak`), 900);
   if (before < S.goal && xpToday() >= S.goal) setTimeout(() => xpToast('A daily chest is waiting in your Casita 🎁'), 1800);
+  /* the sign-up wall, on the award that carries the total past GATE_XP */
+  if (typeof gateCrossed === 'function') gateCrossed(totalBefore);
 }
 /* a companion evolved, or a new one turned up */
 function announce(ev) {
@@ -11222,7 +11290,7 @@ function renderHome() {
   ${installBannerHTML()}
   <section class="hsec">
     <div class="hhead"><div><span class="eyebrow">Learn</span><h2>Pick a section</h2><p>Each one follows the level you choose here.</p></div>
-      <div class="levelrow">${LEVELS.map(l => `<button type="button" class="${l.id === lv.id ? 'on' : ''} ${levelUnlocked(l.id) ? '' : 'locked'}" data-level="${l.id}" title="${levelUnlocked(l.id) ? esc(l.grade) : 'Pass the level ' + (l.id - 1) + ' checkpoint to open this'}"><i class="${levelPassed(l.id) || levelProgress(l.id) >= 100 ? 'full' : ''}"></i>${levelUnlocked(l.id) ? '' : '○ '}${l.id} · ${esc(l.name)}</button>`).join('')}</div>
+      <div class="levelrow">${LEVELS.map(l => `<button type="button" class="${l.id === lv.id ? 'on' : ''} ${levelUnlocked(l.id) ? '' : 'locked'}" data-level="${l.id}" title="${esc(l.grade)}"><i class="${levelPassed(l.id) || levelProgress(l.id) >= 100 ? 'full' : ''}"></i>${levelUnlocked(l.id) ? '' : '○ '}${l.id} · ${esc(l.name)}</button>`).join('')}</div>
     </div>
     <div class="hbody cards5">
       <a class="lcard t-pink" href="#grammar"><span class="glyph">¿?</span>${mascot('nopalito', 72)}<h3>Grammar</h3><p>Short rules, then a few exercises.</p><span class="foot"><span>${(GRAMMAR[lv.id] || []).filter(l => S.done[l.id]).length}/${(GRAMMAR[lv.id] || []).length} done</span><span>→</span></span></a>
@@ -11371,20 +11439,20 @@ function accountHTML(opts) {
   if (S.acct) {
     return `<div class="acct in" id="acctCard">
       <div class="row between"><b>Signed in as ${esc(S.acct.name)}</b><span class="cpill" data-cloudstate></span></div>
-      <p class="small muted">Everything — XP, ${COIN_NAME}, lessons, outfits — is saved to the cloud as you go (last saved ${fmtAgo(Cloud.last ? Cloud.last.getTime() : S.savedAt)}). Sign in with the same name and PIN on any phone or iPad and it all comes with you.</p>
+      <p class="small muted">Everything — XP, ${COIN_NAME}, lessons, outfits — is saved to the cloud as you go (last saved ${fmtAgo(Cloud.last ? Cloud.last.getTime() : S.savedAt)}). Sign in with the same name and password on any phone or iPad and it all comes with you.</p>
       ${S.acct.email ? `<p class="small muted">Email on the account: <b>${esc(S.acct.email)}</b></p>` : ''}
       <div class="btn-row"><button type="button" class="btn sm ghost" id="acctSync">Save now</button><button type="button" class="btn sm ghost" id="acctOut">Sign out</button></div>
     </div>`;
   }
   return `<div class="acct" id="acctCard">
     <b>${opts.title || 'Save your progress'}</b>
-    <p class="small muted">${opts.blurb || `A name and a PIN — that's the whole sign-up. Use the same two on any device and your XP, ${COIN_NAME} and outfits follow you. Without it, progress lives only on this one phone.`}</p>
+    <p class="small muted">${opts.blurb || `A name and a password — that's the whole sign-up. Use the same two on any device and your XP, ${COIN_NAME} and outfits follow you. Without it, progress lives only on this one phone.`}</p>
     <div class="acctform">
       <label><span class="label">Your name</span><input type="text" id="acctName" maxlength="24" placeholder="${esc(BRAND.sample)}" autocomplete="given-name" value="${esc(S.who.name || '')}"></label>
-      <label><span class="label">PIN (4–8 digits)</span><input type="password" id="acctPin" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off"></label>
+      <label><span class="label">Password (8 or more characters)</span><input type="password" id="acctPin" maxlength="72" placeholder="••••••••" autocomplete="current-password"></label>
     </div>
     <div class="btn-row"><button type="button" class="btn sm rose" id="acctGo">Sign in or create</button>${opts.later ? '<button type="button" class="btn sm ghost" id="acctLater">Later</button>' : ''}</div>
-    <p class="small muted" id="acctMsg">${opts.hint || 'Already have one? The same name and PIN signs you back in.'}</p>
+    <p class="small muted" id="acctMsg">${opts.hint || 'Already have one? The same name and password signs you back in — an older 4–8 digit PIN still works.'}</p>
   </div>`;
 }
 function choiceHTML(c) {
@@ -11426,7 +11494,7 @@ function askAccount() {
   S.who.asked = true; save();
   const el = document.createElement('div');
   el.className = 'bigtoast in namebox acctbox';
-    el.innerHTML = `<div class="pic">${companion(CAST_LEAD, 92)}</div><div>${accountHTML({ title: '¡Hola! Save your progress', blurb: 'A name and a PIN. Same two on any device and your streak, coins and outfits follow you.', later: true, hint: '' })}</div>`;
+    el.innerHTML = `<div class="pic">${companion(CAST_LEAD, 92)}</div><div>${accountHTML({ title: '¡Hola! Save your progress', blurb: 'A name and a password. Same two on any device and your streak, coins and outfits follow you.', later: true, hint: '' })}</div>`;
   document.body.appendChild(el); stackToasts();
   wireAccount(el, () => { el.remove(); stackToasts(); render(); });
 }
@@ -12457,7 +12525,7 @@ function renderPlacement() {
     logAct('placement', 'Level ' + level);
     save();
     $('#cpDone').disabled = true;
-    $('#cpResult').innerHTML = `<div class="cpresult pass"><div class="cpbig">${level}</div><div><b>Start at level ${level} · ${esc(L.name)}</b><p class="small muted">${esc(L.blurb || '')} Everything below it is unlocked too, so you can drop back any time. Your level has been set.</p><div class="btn-row"><a class="btn rose" href="#home">Take me there →</a></div></div></div>`;
+    $('#cpResult').innerHTML = `<div class="cpresult pass"><div class="cpbig">${level}</div><div><b>Start at level ${level} · ${esc(L.name)}</b><p class="small muted">${esc(L.blurb || '')} Every level is open anyway, so you can move up or drop back whenever you like. This is just where we would start you.</p><div class="btn-row"><a class="btn rose" href="#home">Take me there →</a></div></div></div>`;
     $('#cpResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 }
