@@ -587,7 +587,7 @@ html.standalone .dedication { display: block; }
 .rule.waiting { box-shadow: 0 0 0 3px var(--pink-3); }
 .rule .boxplay { flex: none; }
 .rule .boxbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; background: var(--pink-1); border-radius: 8px; }
-.rule .ex .sayen { border: 1px solid var(--line-soft); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 1px 7px; font-family: var(--font-mono); font-size: .6rem; letter-spacing: .06em; cursor: pointer; margin-left: 4px; vertical-align: middle; }
+.rule .ex .sayen { border: 1px solid var(--line-soft); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 4px 9px; min-height: 30px; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; cursor: pointer; margin-left: 4px; vertical-align: middle; }
 .rule .ex .sayen:hover { background: var(--pink-1); color: var(--ink); }
 .rule .ex.speaking { background: var(--pink-1); border-radius: 6px; }
 .tips { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -681,7 +681,7 @@ html.standalone .dedication { display: block; }
   .pagehead .side { padding: 12px 18px 14px; }
   .pagehead .title p.clampable { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .pagehead .title p.clampable.open { -webkit-line-clamp: unset; display: block; }
-  .moretog { align-self: flex-start; border: 0; background: none; padding: 4px 0; color: var(--pink-5); font-family: var(--font-mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; min-height: 32px; }
+  .moretog { align-self: flex-start; border: 0; background: none; padding: 8px 0; color: var(--pink-5); font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; min-height: 44px; }
   .topbar .lvl select { max-width: 42vw; }
 }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -728,7 +728,7 @@ img, svg { max-width: 100%; }
 .mobnav { display: none; }
 @media (max-width: 760px) {
   .mobnav {
-    display: grid; grid-template-columns: repeat(7, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     background: var(--surface); border-top: 1px solid var(--line);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -8px 24px -18px rgba(0,0,0,.5);
@@ -800,11 +800,11 @@ img, svg { max-width: 100%; }
   .lcard p { font-size: .8rem; }
   .lcard .mascot { width: 46px !important; height: 46px !important; }
   .lcard .glyph { font-size: 1.7rem; }
-  .lcard .foot { font-size: .56rem; }
+  .lcard .foot { font-size: .68rem; }
   .pathlist .node { grid-template-columns: 34px 1fr auto; gap: 10px; }
   .pathlist::before { left: 16px; }
   .node .dot { width: 34px; height: 34px; }
-  .node .xp { font-size: .58rem; }
+  .node .xp { font-size: .68rem; }
 
   /* section headers */
   .section-head { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 18px 12px; }
@@ -823,7 +823,7 @@ img, svg { max-width: 100%; }
   .playbar .player { align-self: flex-start; }
   .rule { padding: 14px; }
   .rule .boxbar { flex-direction: column; align-items: stretch; gap: 8px; }
-  .rule .boxbar .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rule .boxbar .btn-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
   .rule .boxbar .btn { width: 100%; }
   .rule .ex { padding: 8px 0; }
   .quiz .qhead, .quiz .qfoot { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -839,7 +839,7 @@ img, svg { max-width: 100%; }
   .dlg .head .btn { white-space: normal; text-align: center; line-height: 1.3; }
   .dlg .head > span.muted { text-align: left; }
   .dlg .line { padding: 12px 18px; gap: 8px; }
-  .dlg .who { font-size: .58rem; }
+  .dlg .who { font-size: .68rem; }
   .dlg .es { font-size: 1.1rem; }
   .dlg .ctrl { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; width: 100%; }
   .dlg .ctrl .btn { width: 100%; }
@@ -869,7 +869,7 @@ img, svg { max-width: 100%; }
   /* about + footer */
   .about { padding: 24px 18px; gap: 26px; }
   .about .cast { grid-template-columns: 1fr; }
-  .foot { padding: 18px; flex-direction: column; gap: 6px; text-align: center; align-items: center; font-size: .6rem; }
+  .foot { padding: 18px; flex-direction: column; gap: 6px; text-align: center; align-items: center; font-size: .7rem; }
   .roadmap { padding: 18px; }
   .micpanel .howto > div { padding: 10px; }
 }
@@ -885,6 +885,9 @@ img, svg { max-width: 100%; }
   .topbar .theme button { font-size: .55rem; }
   .topbar .goal { padding: 0 5px; }
   .ring { width: 26px; height: 26px; }
+}
+@media (max-width: 420px) {
+  .rule .boxbar .btn-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 360px) {
   .cards5 { grid-template-columns: 1fr; }
@@ -1072,7 +1075,7 @@ img, svg { max-width: 100%; }
 .vctrl label { display: grid; gap: 4px; min-width: 0; }
 .vctrl select { width: 100%; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-.seg button { border: 0; background: none; padding: 9px 15px; cursor: pointer; font-family: var(--font-mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.seg button { border: 0; background: none; padding: 9px 15px; cursor: pointer; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .seg button.on { background: var(--pink-3); color: var(--pink-ink); }
 .notice.tint .mono { text-transform: none; letter-spacing: 0; font-size: .84rem; }
 .notice.tint { background: var(--sand); border: 1px solid var(--line); border-radius: 14px; padding: 11px 14px; font-size: .88rem; line-height: 1.5; }
@@ -1125,7 +1128,7 @@ img, svg { max-width: 100%; }
 .checkpoint { padding: 20px 48px 44px; }
 .checkpoint .quiz { display: grid; gap: 12px; }
 .cpq { position: relative; }
-.cpq .lvtag { position: absolute; right: 12px; top: 12px; font-family: var(--font-mono); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.cpq .lvtag { position: absolute; right: 12px; top: 12px; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .cpin { width: 100%; margin-top: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 1.02rem; }
 .cpresult { display: flex; gap: 18px; align-items: center; margin-top: 20px; border-radius: 20px; padding: 20px; background: var(--sand); border: 1px solid var(--line); }
 .cpresult.pass { background: var(--ok-soft); }
@@ -1137,7 +1140,7 @@ img, svg { max-width: 100%; }
 .cpbanner .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--pink-4); color: var(--pink-ink); font-weight: 800; flex: 0 0 auto; }
 .cpbanner .arr { margin-left: auto; }
 .cpbanner b { font-family: var(--font-display); }
-.levelrow button.locked { opacity: .55; }
+.levelrow button.locked { opacity: .72; }
 
 @media (max-width: 1100px) { .checkpoint { padding-left: 32px; padding-right: 32px; } }
 @media (max-width: 760px) {
@@ -1226,7 +1229,7 @@ img, svg { max-width: 100%; }
 .learnhead .levelrow { margin-top: 8px; }
 .levelrow.big { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; }
 .levelrow.big button { display: grid; justify-items: center; gap: 2px; padding: 10px 4px; border-radius: 14px; font-size: 1.05rem; font-weight: 700; min-height: 60px; }
-.levelrow.big button .ln { font-size: .62rem; font-weight: 500; letter-spacing: .02em; text-transform: none; font-family: var(--font-body); opacity: .8; }
+.levelrow.big button .ln { font-size: .7rem; font-weight: 500; letter-spacing: .02em; text-transform: none; font-family: var(--font-body); opacity: .8; }
 .levelrow.big button i { display: none; }
 .levelrow.big button.on { background: var(--pink-4); color: var(--pink-ink); border-color: var(--pink-5); }
 .learncards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 48px 24px; border-bottom: 1px solid var(--line); }
@@ -1301,12 +1304,12 @@ img, svg { max-width: 100%; }
 
   /* --- bottom bar: five roomy tabs --- */
   .mobnav {
-    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     background: var(--surface); border-top: 1px solid var(--line);
     padding: 4px 0 env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -8px 24px -18px rgba(0,0,0,.5);
   }
-  .mobnav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px 8px; min-height: 64px; text-decoration: none; color: var(--ink-3); font-family: var(--font-body); font-size: .74rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+  .mobnav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 8px; min-width: 0; min-height: 64px; text-decoration: none; color: var(--ink-3); font-family: var(--font-body); font-size: .74rem; font-weight: 600; letter-spacing: 0; text-transform: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mobnav a .mi { display: grid; place-items: center; width: 52px; height: 32px; border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; line-height: 1; transition: background .15s; }
   .mobnav a.on { color: var(--pink-5); background: none; }
   .mobnav a.on .mi { background: var(--pink-2); color: var(--pink-ink); }
@@ -1344,7 +1347,7 @@ img, svg { max-width: 100%; }
 @media (max-width: 360px) {
   html { font-size: 16px; }
   .setcard .seg.wide button { padding: 8px 2px; font-size: .82rem; min-width: 0; }
-  .setcard .seg.wide button small { font-size: .6rem; }
+  .setcard .seg.wide button small { font-size: .68rem; }
   .levelrow.big button { padding: 8px 2px; min-height: 54px; }
   /* five things in a 320px bar: let the wordmark give way rather than run under the pills */
   .topbar .wordmark { font-size: 1.15rem; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; }
@@ -1353,6 +1356,7 @@ img, svg { max-width: 100%; }
   .topbar .theme button { width: 40px; height: 40px; }
   .topbar .theme #langBtn { width: auto; min-width: 40px; height: 40px; padding: 0 4px; }
   .multilang .topbar .wordmark { font-size: 1rem; }
+  .multilang .topbar .coins, .multilang .topbar .goal { padding-left: 5px; padding-right: 7px; }
   .mobnav a { font-size: .68rem; }
   .mobnav a .mi { width: 44px; }
 }
@@ -1475,7 +1479,7 @@ html.gated .updcard, html.gated .acttoast, html.gated .bigtoast { display: none 
 @media (max-width: 900px) {
   .topbar .theme #langBtn .ic-globe { display: none; }
   .topbar .theme #langBtn { padding: 0 9px; min-height: 44px; }
-  .topbar .theme #langBtn .lcode { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; border-radius: 999px; background: var(--pink-1); color: var(--ink); font-size: .66rem; }
+  .topbar .theme #langBtn .lcode { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; border-radius: 999px; background: var(--pink-1); color: var(--ink); font-size: .72rem; }
 }
 
 /* the sheet the button opens - one panel, centred, so it behaves the same on a phone,
@@ -1494,6 +1498,8 @@ html.gated .updcard, html.gated .acttoast, html.gated .bigtoast { display: none 
    gives a little back rather than running under the streak pill. */
 @media (max-width: 480px) {
   .multilang .topbar .wordmark { font-size: .92rem; min-width: 0; overflow: hidden; text-overflow: clip; }
+  /* a four-figure coin count plus the language chip is the widest the bar ever gets */
+  .multilang .topbar .coins, .multilang .topbar .goal { padding-left: 6px; padding-right: 8px; margin: 0 2px; }
   .multilang .topbar .theme #langBtn { padding: 0 5px; }
   .multilang .topbar .theme #langBtn .lcode { min-width: 27px; height: 24px; }
   .multilang .topbar .goal, .multilang .topbar .coins { padding: 5px 8px; }
@@ -1619,7 +1625,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 .evostep .pic svg { width: 100%; height: 100%; display: block; }
 .evostep .q { display: grid; place-items: center; height: 100%; font-family: var(--font-display); font-size: 1.6rem; color: var(--ink-3); opacity: .5; }
 .evostep b { font-size: .68rem; line-height: 1.15; text-align: center; }
-.evostep small { font-family: var(--font-mono); font-size: .52rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
+.evostep small { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
 .evostep.on { border-color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); background: var(--pink-1); }
 .evostep.on small { color: var(--pink-5); }
 .evostep.locked { opacity: .55; cursor: default; }
@@ -1641,7 +1647,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 @media (max-width: 760px) { .shopnote { padding: 12px 18px 0; } }
 .bgpick { margin-bottom: 12px; }
 @media (max-width: 1100px) { .deco { grid-template-columns: 1fr; padding-left: 32px; padding-right: 32px; } }
-@media (max-width: 760px) { .deco { padding: 16px 18px 22px; gap: 14px; } .evostep b { font-size: .62rem; } .evostep small { font-size: .48rem; } .hot { width: 36px; height: 36px; margin: -18px 0 0 -18px; } }
+@media (max-width: 760px) { .deco { padding: 16px 18px 22px; gap: 14px; } .evostep b { font-size: .7rem; } .evostep small { font-size: .68rem; } .hot { width: 36px; height: 36px; margin: -18px 0 0 -18px; } }
 @media (max-width: 400px) { .evostrip { gap: 4px; } .evostep { padding: 6px 2px; border-radius: 10px; } .wtile { width: 84px; } }
 @media (pointer: coarse) { .chip, .lookchip button { min-height: 40px; } }
 
@@ -1702,11 +1708,16 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 .gamecard > div { min-width: 0; }
 .gamecard h3 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: -0.02em; margin: 2px 0; }
 .gamecard p { margin: 0 0 4px; font-size: .9rem; opacity: .85; }
-.gamecard .gstat { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.gamecard .gstat { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .gamecard .gemoji { font-size: 2.4rem; width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.55); }
 .gamecard .arr { font-size: 1.3rem; }
 .gamecard.t-pink3 { background: var(--tile-3); } .gamecard.t-gold { background: var(--sand); } .gamecard.t-sky { background: #DCEBF5; color: #2F2D1F; }
 .gamecard.soon { opacity: .7; border-style: dashed; }
+/* A tinted card keeps its own colour in both themes, so the muted ink has to follow the card
+   rather than the page — on a dark plum card, --ink-3 was all but invisible. */
+.gamecard.t-pink3 .gstat, .gamecard.t-gold .gstat, .gamecard.t-sky .gstat,
+.gamecard.t-pink3 .label, .gamecard.t-gold .label, .gamecard.t-sky .label { color: inherit; opacity: .72; }
+.gamecard.t-sky, .gamecard.t-sky h3, .gamecard.t-sky p, .gamecard.t-sky .arr { color: #2F2D1F; }
 .game { padding: 18px 48px 40px; border-bottom: 1px solid var(--line); }
 .gcard { max-width: 620px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
 .gcard.intro, .gcard.end { text-align: center; justify-items: center; }
@@ -1798,7 +1809,8 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 .gszone.armed .zbig { background: var(--pink-2); border-color: var(--pink-4); }
 .gszone .zbig:active, .gszone .zsm:active { transform: scale(.97); }
 /* crucigrama */
-.cwgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; max-width: 330px; margin: 0 auto; width: 100%; }
+.cwgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; max-width: 330px; margin: 0 auto; width: 100%; }
+.cwcell input { min-height: 34px; }
 .cwcell { position: relative; aspect-ratio: 1; border-radius: 8px; background: var(--surface); border: 1.5px solid var(--line); display: block; }
 .cwcell.off { background: transparent; border-color: transparent; }
 .cwcell input { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; text-align: center; text-transform: uppercase; font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); padding: 0; border-radius: 8px; }
@@ -5369,14 +5381,14 @@ const CAUSES = {
   serestar: { t: 'ser vs estar', tip: 'ser = what something IS (permanent, identity). estar = how or where it is right now.' },
   verbform: { t: 'Verb form', tip: 'Right verb, wrong person. Check who is doing it — yo, vos, ellos each get their own ending.' },
   tense: { t: 'Tense', tip: 'Right verb and person, wrong time. Finished yesterday = pretérito; used to = imperfecto.' },
-  article: { t: 'Article', tip: 'Spanish uses el/la/los/las far more than English uses "the" — with likes, generalisations, days and body parts.' },
+  article: { t: 'Article', tip: 'The article carries more weight than English "the" — it turns up with likes, generalisations, days and parts of the body where English drops it.' },
   preposition: { t: 'Preposition', tip: 'por vs para, a vs en, de vs desde — these rarely map one-to-one onto English.' },
-  pronoun: { t: 'Pronoun', tip: 'me/te/le/se and the personal a. Spanish puts these before the verb: me gusta, la veo.' },
+  pronoun: { t: 'Pronoun', tip: 'Object pronouns rarely sit where English puts them — check both which pronoun and where it goes.' },
   order: { t: 'Word order', tip: 'Adjectives usually follow the noun, and questions do not need "do".' },
   spelling: { t: 'Spelling', tip: 'Very close — check the letters. b/v, ll/y, h and double letters are the usual suspects.' },
   vocab: { t: 'Vocabulary', tip: 'A different word was needed. Add it to your flashcards and it will come back.' },
-  missing: { t: 'Missing word', tip: 'Something was left out. Read your answer back against the Spanish out loud.' },
-  extra: { t: 'Extra word', tip: 'One word too many — Spanish often needs fewer than English.' },
+  missing: { t: 'Missing word', tip: 'Something was left out. Read your answer back against the original, out loud.' },
+  extra: { t: 'Extra word', tip: 'One word too many — check it back against the original.' },
 };
 const ARTICLES = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'lo', 'al', 'del'];
 const PREPS = ['a', 'de', 'en', 'con', 'por', 'para', 'sin', 'sobre', 'hasta', 'desde', 'entre', 'hacia'];
@@ -5598,6 +5610,7 @@ const levelUnlocked = (lv) => lv <= 1 || levelPassed(lv - 1) || (S.placed || 0) 
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v26', 'A full audit of every screen on every size of phone, tablet and computer. The word hunt no longer breaks on the Japanese greetings; the bottom bar and the lesson buttons stop pushing the page sideways on a small phone; the smallest text is readable again; and every line that still said “Spanish” while you were learning French or Japanese now names the language you are actually in.'],
   ['v25', 'Japanese is finished — all six levels, from hiragana to reading Kawabata in the original, by way of keigo, the passive and Kansai-ben. The verb trainer gains five shapes above tense (ている, たい, potential, passive, causative), and a verb that genuinely has no form in a column now says so instead of inventing one.'],
   ['v24', 'The language you are learning now sits in the header, on every screen - phone, tablet and computer. Tap it and the whole app changes over; each language keeps its own lessons and its own level, while your XP, your streak and your casita come with you.'],
   ['v23', 'French is finished — all six levels, from the alphabet to reading Camus in the original. And <b>Japanese</b> arrives beside it: kana from the first lesson, the reading always printed next to the writing, and a verb trainer cut for a language that does not conjugate for person.'],
@@ -6039,14 +6052,14 @@ function renderMercado() {
   const st = gameStat('mercado');
   app.innerHTML = `
   <section class="pagehead game-head">
-    <div class="title"><span class="label">Play · Mercado</span><h1>Market rush</h1><p>A customer points at something and says the price. Tap the Spanish word before they walk off. Right answers build a combo, and every one teaches the word.</p></div>
+    <div class="title"><span class="label">Play · Mercado</span><h1>Market rush</h1><p>A customer points at something and says the price. Tap the ${esc(COURSE.name)} word before they walk off. Right answers build a combo, and every one teaches the word.</p></div>
     <div class="side pink"><span class="label">Best</span><div class="es" style="font-size:2rem">${st.best}</div><span class="small muted">${st.plays ? st.plays + ' round' + (st.plays === 1 ? '' : 's') + ' played' : 'not played yet'}</span></div>
   </section>
   <div class="game" id="game">
     <div class="gcard intro">
       <div class="gmascot">${companion(buddy().id, 120, 'float')}</div>
-      <h2>¿Qué quiere el cliente?</h2>
-      <p class="muted">${Math.round(MERCADO.baseTime * paceMul() / 100) / 10} seconds per customer, easing to ${Math.round(MERCADO.minTime * paceMul() / 100) / 10} as your combo grows. ${mercadoItems().length} things across ${MERCADO_STALLS.length} stalls. Tap the Spanish for what they want.</p>
+      <h2>${esc(flavour('¿Qué quiere el cliente?', 'What does the customer want?'))}</h2>
+      <p class="muted">${Math.round(MERCADO.baseTime * paceMul() / 100) / 10} seconds per customer, easing to ${Math.round(MERCADO.minTime * paceMul() / 100) / 10} as your combo grows. ${mercadoItems().length} things across ${MERCADO_STALLS.length} stalls. Tap the ${esc(COURSE.name)} for what they want.</p>
       <span class="label">How long?</span>
       <div class="seg wide" id="mgLen">${MERCADO_LEN.map(([k, t, n]) => `<button type="button" data-len="${k}" class="${(S.games.mercado.len || 'normal') === k ? 'on' : ''}">${t}<small>${n} customers</small></button>`).join('')}</div>
       ${paceRowHTML()}
@@ -6082,7 +6095,7 @@ function mercadoNext() {
       <div class="cbubble"><span class="label">${esc(q.item.stallName)}</span><b>${esc(q.item.en)}</b>${q.item.price ? `<span class="price">Q${q.item.price}</span>` : ''}</div>
     </div>
     <div class="goptions">${q.options.map(o => `<button type="button" class="gopt" data-es="${esc(o.es)}">${esc(o.es)}</button>`).join('')}</div>
-    <p class="small muted center">Tap the Spanish word.</p>
+    <p class="small muted center">Tap the ${esc(COURSE.name)} word.</p>
   </div>`;
   g.querySelectorAll('.gopt').forEach(b => b.addEventListener('click', () => mercadoAnswer(b.dataset.es, b)));
   clearTimeout(MG.timer);
@@ -6176,7 +6189,7 @@ function renderEscucha() {
   const canSpeak = 'speechSynthesis' in window;
   app.innerHTML = `
   <section class="pagehead game-head">
-    <div class="title"><span class="label">Play · Escucha y escribe</span><h1>Dictation ladder</h1><p>A sentence is read once at normal speed. Type what you hear. Every right word climbs a rung; a wrong or missing word drops one; an accent slip holds. Reach the top before the sentences run out.</p></div>
+    <div class="title"><span class="label">Play · ${esc(flavour('Escucha y escribe', 'Listen and write'))}</span><h1>Dictation ladder</h1><p>A sentence is read once at normal speed. Type what you hear. Every right word climbs a rung; a wrong or missing word drops one; an accent slip holds. Reach the top before the sentences run out.</p></div>
     <div class="side pink"><span class="label">Best rung</span><div class="es" style="font-size:2rem">${st.best}<span class="muted" style="font-size:1rem">/${ESCUCHA.rungs}</span></div><span class="small muted">${st.plays ? st.plays + ' climb' + (st.plays === 1 ? '' : 's') : 'not played yet'}</span></div>
   </section>
   <div class="game" id="game">
@@ -6305,7 +6318,9 @@ function renderGames(id) {
 /* =========================== GAMES II (v16): Lotería, ¡El o la!, streak rescue, crucigrama ===========================
    Same shape as part15: one card per screen, big targets, XP paid through addXP(). */
 
-/* ----- gender and plural helpers (shared by ¡El o la! and the clue writer) ----- */
+/* ----- gender and plural helpers (shared by the gender game and the clue writer) ----- */
+/* Each course names this game after its own articles — ¡El o la! in Spanish, Le ou la ? in French */
+function genderTitle() { return (COURSE && COURSE.gender && COURSE.gender.title) || '¡El o la!'; }
 /* feminine nouns that take EL in the singular (stressed a-) — too cruel for a speed game */
 const GENDER_TRAPS = ['agua', 'alma', 'área', 'águila', 'hambre', 'aula', 'arma', 'hacha', 'ala'];
 function nounGender(d) { return d && /^noun \((m|f)\)$/.test(d.pos) ? d.pos.charAt(6) : null; }
@@ -6346,7 +6361,7 @@ function renderLoteria() {
   const st = gameStat('loteria');
   app.innerHTML = `
   <section class="pagehead game-head">
-    <div class="title"><span class="label">Play · Lotería</span><h1>Lotería</h1><p>The caller names a card in Spanish — <em>¡la luna!</em> — and you find the picture on your board. Four in a row is <b>¡Lotería!</b>, all sixteen is <b>carta llena</b>.</p></div>
+    <div class="title"><span class="label">Play · Lotería</span><h1>Lotería</h1><p>The caller names a card in ${esc(COURSE.name)} — <em>¡la luna!</em> — and you find the picture on your board. Four in a row is <b>¡Lotería!</b>, all sixteen is <b>carta llena</b>.</p></div>
     <div class="side pink"><span class="label">Best</span><div class="es" style="font-size:2rem">${st.best}</div><span class="small muted">${st.plays ? st.plays + ' board' + (st.plays === 1 ? '' : 's') + ' played' : 'not played yet'}</span></div>
   </section>
   <div class="game" id="game">
@@ -6501,19 +6516,19 @@ function genderPaintStatus() {
 }
 function renderGender(mode) {
   const rescue = mode === 'rescue';
-  crumb([{ t: 'Play', href: '#games' }, { t: rescue ? 'Streak rescue' : '¡El o la!' }]);
+  crumb([{ t: 'Play', href: '#games' }, { t: rescue ? 'Streak rescue' : genderTitle() }]);
   const st = gameStat('genero');
   const pend = rescuePending();
   if (rescue && !pend) { app.innerHTML = `<section class="pagehead"><div class="title"><span class="label">Play</span><h1>Nothing to rescue</h1><p>Your streak is fine — there is nothing to save right now.</p></div></section><div class="game"><div class="gcard intro"><div class="gmascot">${companion(buddy().id, 120, 'float')}</div><div class="btn-row center"><a class="btn rose" href="#games/genero">Play ¡El o la! anyway</a><a class="btn ghost" href="#games">← Play</a></div></div></div>`; return; }
   app.innerHTML = `
   <section class="pagehead game-head">
-    <div class="title"><span class="label">Play · ${rescue ? 'Streak rescue' : '¡El o la!'}</span><h1>${rescue ? 'Save your streak' : '¡El o la!'}</h1><p>${rescue ? `You missed a day, so your <b>${pend.count}-day streak</b> is hanging by a thread. Get ${GS_CONF.rescueTarget} right in ${secsLabel(gsSecs(true))} and it carries on as if nothing happened.` : 'Words fall. Send each one left to <b>el</b> or right to <b>la</b> — and a plural needs the double: two quick taps on the same side, or the little LOS / LAS chip.'}</p></div>
+    <div class="title"><span class="label">Play · ${rescue ? 'Streak rescue' : esc(genderTitle())}</span><h1>${rescue ? 'Save your streak' : esc(genderTitle())}</h1><p>${rescue ? `You missed a day, so your <b>${pend.count}-day streak</b> is hanging by a thread. Get ${GS_CONF.rescueTarget} right in ${secsLabel(gsSecs(true))} and it carries on as if nothing happened.` : 'Words fall. Send each one left to <b>el</b> or right to <b>la</b> — and a plural needs the double: two quick taps on the same side, or the little LOS / LAS chip.'}</p></div>
     <div class="side pink"><span class="label">${rescue ? 'Streak at stake' : 'Best'}</span><div class="es" style="font-size:2rem">${rescue ? pend.count : st.best}</div><span class="small muted">${rescue ? 'days' : st.plays ? st.plays + ' round' + (st.plays === 1 ? '' : 's') : 'not played yet'}</span></div>
   </section>
   <div class="game" id="game">
     <div class="gcard intro">
       <div class="gmascot">${companion(buddy().id, 120, 'float')}</div>
-      <h2>${rescue ? `¿Lista? ${gsSecs(true)} segundos.` : '¿El o la?'}</h2>
+      <h2>${rescue ? esc(flavour('¿Lista? ' + gsSecs(true) + ' segundos.', 'Ready? ' + gsSecs(true) + ' seconds.')) : esc(genderTitle())}</h2>
       <p class="muted">${rescue ? `${GS_CONF.rescueTarget} correct saves it. One try — after that the streak starts again from today, and that is all right too.` : `${secsLabel(gsSecs(false))}, and a word takes about ${Math.round(GS_CONF.fall0 * paceMul() / 100) / 10} seconds to fall — a little less as the round goes on. Singular is one tap or swipe; plural is the double. Every miss shows you the right article.`}</p>
       ${paceRowHTML()}
       <div class="btn-row center"><button type="button" class="btn rose big" id="gsStart">${rescue ? 'Save it' : 'Start'}</button><a class="btn ghost" href="#games">← Play</a></div>
@@ -6568,9 +6583,9 @@ function genderEnd() {
   let saved = null;
   if (GS.rescue) saved = GS.right >= GS_CONF.rescueTarget ? rescueWin() : rescueLose();
   const xp = GS.rescue ? (saved ? 15 : 5) : Math.min(40, GS.right * 2) + (GS.best >= 8 ? 10 : 0);
-  logAct('game', (GS.rescue ? 'Rescue ' : 'El o la ') + GS.right, { n: GS.right });
+  logAct('game', (GS.rescue ? 'Rescue ' : genderTitle() + ' ') + GS.right, { n: GS.right });
   save();
-  if (xp) addXP(xp, GS.rescue ? 'Streak rescue' : '¡El o la!');
+  if (xp) addXP(xp, GS.rescue ? 'Streak rescue' : genderTitle());
   const g = $('#game'); if (!g) return;
   g.innerHTML = `
   <div class="gcard end">
@@ -6580,7 +6595,7 @@ function genderEnd() {
     <p class="muted">${GS.right} right · ${GS.wrong} wrong · best combo ×${GS.best}</p>
     <p class="small muted">${GS.rescue ? (saved ? `Your ${saved} -day streak is safe.`.replace(' -', '-') : 'The streak starts again today — no harm done.') : `+${xp} XP. Best so far: ${st.best}.`}</p>
     ${GS.slips.length ? `<div class="chips">${[...new Set(GS.slips)].slice(0, 8).map(w => `<span class="pill">${esc(w)}</span>`).join('')}</div><p class="small muted">Those are the ones that got away — with the right article.</p>` : ''}
-    <div class="btn-row center"><button type="button" class="btn rose big" id="gsAgain">${GS.rescue ? 'Play ¡El o la!' : 'Play again'}</button><a class="btn ghost" href="#games">← Play</a></div>
+    <div class="btn-row center"><button type="button" class="btn rose big" id="gsAgain">${GS.rescue ? 'Play ' + esc(genderTitle()) : 'Play again'}</button><a class="btn ghost" href="#games">← Play</a></div>
   </div>`;
   $('#gsAgain').addEventListener('click', () => genderStart(false));
 }
@@ -6744,15 +6759,15 @@ function renderCrucigrama() {
         <div><span class="label">Horizontales →</span><ul>${list('a')}</ul></div>
         <div><span class="label">Verticales ↓</span><ul>${list('d')}</ul></div>
       </div>
-      <div class="btn-row center">${doneToday ? '<a class="btn ghost" href="#games">← Play</a>' : '<button type="button" class="btn rose" id="cwCheck">Revisar</button><button type="button" class="btn ghost sm" id="cwHint">Pista</button><button type="button" class="btn ghost sm" id="cwClear">↺ Reset</button><a class="btn ghost sm" href="#games">← Play</a>'}</div>
+      <div class="btn-row center">${doneToday ? '<a class="btn ghost" href="#games">← Play</a>' : '<button type="button" class="btn rose" id="cwCheck">' + esc(flavour('Revisar', 'Check')) + '</button><button type="button" class="btn ghost sm" id="cwHint">' + esc(flavour('Pista', 'Hint')) + '</button><button type="button" class="btn ghost sm" id="cwClear">↺ Reset</button><a class="btn ghost sm" href="#games">← Play</a>'}</div>
       <details class="tipsbox cwhow"${doneToday ? '' : ' open'}>
         <summary>How to play</summary>
         <ol class="steps">
-          <li>Each clue is a Spanish sentence with one word missing, and the English meaning beside it. The number in brackets is how many letters the answer has.</li>
+          <li>Each clue is a ${esc(COURSE.name)} sentence with one word missing, and the English meaning beside it. The number in brackets is how many letters the answer has.</li>
           <li>The first letter of every word is already filled in for you.</li>
           <li>Type one letter per square. <b>Horizontales</b> read left to right, <b>Verticales</b> downwards.</li>
           <li>Accents are not needed — <i>rio</i> is accepted for <i>río</i>.</li>
-          <li>Stuck on one? <b>Pista</b> fills in the next letter of whichever word you are typing in.</li>
+          <li>Stuck on one? <b>${esc(flavour('Pista', 'Hint'))}</b> fills in the next letter of whichever word you are typing in.</li>
           <li><b>Revisar</b> checks the grid. Wrong letters clear themselves so you can try again — there is no penalty for checking.</li>
         </ol>
       </details>
@@ -7132,6 +7147,11 @@ function courseEnabled(id) { return brandLangs().indexOf(id) >= 0; }
 /* every course the learner can actually pick, in the order the brand lists them */
 function courseList() { return brandLangs().map(id => COURSES[id]).filter(Boolean); }
 const multilingual = () => courseList().length > 1;
+/* Spanish flavour — ¿Qué quiere el cliente?, Revisar, Horizontales — belongs to the Spanish
+   course, not to the engine. Everywhere it appears, the other courses get plain English. */
+function flavour(spanish, other) { return COURSE && COURSE.id === 'es' ? spanish : other; }
+/* what the app asks a learner to type into, in the language they are learning */
+function coursePrompt() { return (COURSE && COURSE.typePrompt) || ('Type it in ' + (COURSE ? COURSE.name : 'Spanish') + '…'); }
 /* A game a course has no use for is hidden rather than left to fail: Japanese has no
    articles for the gender game to ask about, and no Latin grid for the crossword. */
 function gameOn(k) { return !(COURSE && COURSE.games && COURSE.games[k] === false); }
@@ -7278,7 +7298,7 @@ function courseRow(c, on) {
 /* ---------- registering Spanish ----------
    Everything loaded above is the Spanish course; this hands it over whole. */
 registerCourse({
-  id: 'es', code: 'ES', name: 'Spanish', native: 'Español',
+  id: 'es', code: 'ES', name: 'Spanish', native: 'Español', typePrompt: 'Escribe en español…',
   note: 'Latin America',
   levels: LEVELS, dict: DICT, grammar: GRAMMAR, speaking: SPEAKING,
   reading: READING, hunts: HUNTS, dialogues: DIALOGUES,
@@ -8060,7 +8080,7 @@ function frConj(v, tense, pk) {
 
 /* ---------------------------------------------------------------- register it */
 registerCourse({
-  id: 'fr', code: 'FR', name: 'French', native: 'Français',
+  id: 'fr', code: 'FR', name: 'French', native: 'Français', typePrompt: 'Écris-le en français…',
   levels: FR_LEVELS, dict: FR_DICT, grammar: FR_GRAMMAR, speaking: FR_SPEAKING,
   reading: FR_READING, hunts: FR_HUNTS, dialogues: FR_DIALOGUES,
   tenses: FR_TENSES, verbs: FR_VERBS, persons: FR_PERSONS,
@@ -8174,7 +8194,7 @@ FR_DICT.push(
   { es:'en', en:'of it, some', pos:'pronoun', def:'Replaces "du / de la / des + noun". J\'en veux — I want some.', ex:'J\'en ai deux.', exEn:'I have two of them.', lvl:4, theme:'les pronoms' },
   { es:'lui', en:'to him, to her', pos:'pronoun', def:'The indirect object for one person.', ex:'Je lui parle.', exEn:'I am speaking to him.', lvl:4, theme:'les pronoms' },
   { es:'leur', en:'to them', pos:'pronoun', def:'The plural of lui. Not the same word as the possessive leur.', ex:'Je leur ai écrit.', exEn:'I wrote to them.', lvl:4, theme:'les pronoms' },
-  { es:'qui', en:'who, which (subject)', pos:'pronoun', def:'The relative that does the verb: l\'homme qui parle.', ex:'la femme qui travaille ici', exEn:'the woman who works here', lvl:4, theme:'les pronoms' },
+  { es:'qui (relatif)', en:'who, which (subject)', pos:'pronoun', def:'qui · The relative that does the verb: l\'homme qui parle.', ex:'la femme qui travaille ici', exEn:'the woman who works here', lvl:4, theme:'les pronoms' },
   { es:'que', en:'that, which (object)', pos:'pronoun', def:'The relative the verb is done to: le livre que je lis.', ex:'le film que j\'ai vu', exEn:'the film that I saw', lvl:4, theme:'les pronoms' },
   { es:'dont', en:'of which, whose', pos:'pronoun', def:'Replaces a phrase with "de": le livre dont je parle.', ex:'la chose dont j\'ai besoin', exEn:'the thing I need', lvl:4, theme:'les pronoms' },
   { es:'il faut', en:'it is necessary, you must', pos:'phrase', def:'The most useful impersonal in French. Followed by an infinitive.', ex:'Il faut partir maintenant.', exEn:'We have to leave now.', lvl:4, theme:'l\'obligation' },
@@ -8895,7 +8915,7 @@ const JA_DICT = [
 
   /* --- level 1 · numbers --- */
   { es:'いち', en:'one', pos:'number', def:'ichi · 1.', ex:'いち、に、さん。', exEn:'Ichi, ni, san — One, two, three.', lvl:1, theme:'すうじ' },
-  { es:'に', en:'two', pos:'number', def:'ni · 2.', ex:'にほんください。', exEn:'Nihon kudasai — Two (long things), please.', lvl:1, theme:'すうじ' },
+  { es:'に (二)', en:'two', pos:'number', def:'ni · The number 2. The same kana is also the particle に — see that entry.', ex:'にほんください。', exEn:'Nihon kudasai — Two (long things), please.', lvl:1, theme:'すうじ' },
   { es:'さん', en:'three', pos:'number', def:'san · 3. Also the -san you put after a name.', ex:'さんじです。', exEn:'Sanji desu — It is three o\'clock.', lvl:1, theme:'すうじ' },
   { es:'よん', en:'four', pos:'number', def:'yon · 4. Also し shi, avoided because it sounds like "death".', ex:'よんひゃく。', exEn:'Yonhyaku — Four hundred.', lvl:1, theme:'すうじ' },
   { es:'ご', en:'five', pos:'number', def:'go · 5.', ex:'ごふんまってください。', exEn:'Gofun matte kudasai — Please wait five minutes.', lvl:1, theme:'すうじ' },
@@ -9310,7 +9330,7 @@ const JA_READING = {
    The grid needs letters, so the hunts are in rōmaji — the reading is the thing being drilled. */
 const JA_HUNTS = {
   1: [
-    { theme:'あいさつ · Greetings', words:['konnichiwa','arigatou','sumimasen','sayounara','hajimemashite','ohayou','konbanwa','hai'] },
+    { theme:'あいさつ · Greetings', words:['ohayou','arigatou','sumimasen','sayonara','konbanwa','hai','iie','douzo'] },
     { theme:'かぞく · Family', words:['kazoku','okaasan','otousan','imouto','otouto','tomodachi','sensei','gakusei'] },
     { theme:'すうじ · Numbers', words:['ichi','ni','san','yon','go','roku','nana','hachi','kyuu','juu'] },
     { theme:'いろ · Colours', words:['akai','aoi','shiroi','kuroi','kiiroi','ookii','chiisai','takai'] },
@@ -9456,7 +9476,7 @@ function jaRegular(v, tense, pk) {
 
 /* ---------------------------------------------------------------- register it */
 registerCourse({
-  id: 'ja', code: 'JA', name: 'Japanese', native: '日本語',
+  id: 'ja', code: 'JA', name: 'Japanese', native: '日本語', typePrompt: '日本語で書いてください…',
   note: 'levels 1–2',
   levels: JA_LEVELS, dict: JA_DICT, grammar: JA_GRAMMAR, speaking: JA_SPEAKING,
   reading: JA_READING, hunts: JA_HUNTS, dialogues: JA_DIALOGUES,
@@ -10547,7 +10567,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v25', date: '15 September 2026' };
+const BUILD = { v: 'v26', date: '16 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -11456,8 +11476,8 @@ function renderAbout() {
       <h2>Six levels, named after a growing plant</h2>
       ${LEVELS.map(l => `<p><b>${l.id} · ${esc(l.name)}</b> — ${esc(l.grade)} (${esc(l.cefr)}). ${esc(l.blurb)}</p>`).join('')}
       <h2 style="margin-top:20px">What's in, what's next</h2>
-      <p><b>In now:</b> levels 1–3 filled in (previews for 4–6); a ${DICT.length}-word dictionary; streak, XP and daily goal; a unit path; spaced-repetition flashcards; a mistakes queue; dialogues; listen-and-type; sentence building; a Latin-American Spanish voice with play and pause; and the <a href="#casita">Casita</a> — companions that grow, ${ITEMS.length} cosmetics in ${Object.keys(HUES).length} colours, ${DECOR.length} pieces of decor and daily chests, all paid for through the <a href="#checkout">checkout</a> with the XP you earn.</p>
-      <p><b>Also in now:</b> a <a href="#review/verbs">verb trainer</a> covering ${TENSES.length} tenses across ${VERBS.length} verbs (including Guatemalan <em>vos</em>), typed <a href="#review/translate">translation drills</a> in both directions, finished lessons that come back on the same spaced schedule as words, end-of-level <a href="#checkpoint/${S.level}">checkpoints</a>, a <a href="#placement">placement test</a>, and mistakes that tell you <em>why</em> they were wrong — gender, tense, ser vs estar and ten other causes.</p>
+      <p><b>In now:</b> all six levels of ${esc(COURSE.name)}, end to end; a ${DICT.length}-word dictionary; streak, XP and daily goal; a unit path; spaced-repetition flashcards; a mistakes queue; dialogues; listen-and-type; sentence building; a ${esc(COURSE.name)} voice with play and pause; and the <a href="#casita">Casita</a> — companions that grow, ${ITEMS.length} cosmetics in ${Object.keys(HUES).length} colours, ${DECOR.length} pieces of decor and daily chests, all paid for through the <a href="#checkout">checkout</a> with the XP you earn.</p>
+      <p><b>Also in now:</b> a <a href="#review/verbs">verb trainer</a> covering ${TENSES.length} ${COURSE.id === 'ja' ? 'forms' : 'tenses'} across ${VERBS.length} ${esc(COURSE.name)} verbs${COURSE.id === 'es' ? ' (including Guatemalan <em>vos</em>)' : ''}, typed <a href="#review/translate">translation drills</a> in both directions, finished lessons that come back on the same spaced schedule as words, end-of-level <a href="#checkpoint/${S.level}">checkpoints</a>, a <a href="#placement">placement test</a>, and mistakes that tell you <em>why</em> they were wrong — gender, tense, ser vs estar and ten other causes.</p>
       <p><b>Next:</b> levels 4–6 filled in, illustrated stories with audio, a “hearts” mode for quizzes, streak repair and weekly quests.</p>
       <p><b>Later:</b> an AI conversation partner, native audio clips, writing correction.</p>
       <p class="small">On a phone, add ${esc(BRAND.name)} to the home screen (<a href="#settings">Settings → On your phone</a>) and it opens full screen and works with no signal. Progress is saved in this browser, and — if cloud sync is switched on — mirrored to your own Supabase project so the <a href="#owner">Owner</a> page can see it.${BRAND.credit ? ' ' + BRAND.credit : ''}</p>
@@ -11877,11 +11897,25 @@ function newHunt(level, setIdx) {
   const sets = HUNTS[level] || [];
   const set = sets[setIdx] || sets[0];
   const cfg = huntConfig(level);
-  const words = set.words.map(w => ({ es: w, g: gridForm(w) })).filter(w => w.g.length >= 2);
+  let words = set.words.map(w => ({ es: w, g: gridForm(w) })).filter(w => w.g.length >= 2);
+  /* A word longer than the grid can never be placed, however many times we try, so the grid is
+     grown until the longest word fits before the first attempt is made. */
+  const longest = words.reduce((n, w) => Math.max(n, w.g.length), 0);
+  let size = Math.max(cfg.size, longest);
   let built = null;
-  for (let i = 0; i < 40 && !built; i++) built = buildGrid(words, cfg.size, cfg.dirs);
-  if (!built) { built = buildGrid(words, cfg.size + 2, cfg.dirs); cfg.size += 2; }
-  return { level, setIdx: sets.indexOf(set), theme: set.theme, size: cfg.size, grid: built.g, words: built.placed, found: new Set() };
+  /* Grow, rather than give up: a failed pack is nearly always one word too many for the space. */
+  for (let grow = 0; grow < 6 && !built; grow++, size++) {
+    for (let i = 0; i < 40 && !built; i++) built = buildGrid(words, size, cfg.dirs);
+  }
+  if (built) size--;
+  /* Last resort — drop the longest words one at a time rather than throw. A puzzle with six of
+     its eight words is a puzzle; a blank screen is not. */
+  while (!built && words.length > 3) {
+    words = [...words].sort((a, b) => a.g.length - b.g.length).slice(0, words.length - 1);
+    for (let i = 0; i < 40 && !built; i++) built = buildGrid(words, size, cfg.dirs);
+  }
+  if (!built) { size = Math.max(size, longest + 2); built = { g: Array.from({ length: size }, () => Array(size).fill('').map(() => LETTERS[Math.floor(Math.random() * LETTERS.length)])), placed: [] }; }
+  return { level, setIdx: sets.indexOf(set), theme: set.theme, size, grid: built.g, words: built.placed, found: new Set() };
 }
 function renderHunt(id) {
   const lv = LV();
@@ -12259,7 +12293,7 @@ function renderTranslate() {
       <div class="tdrill">
         <span class="label">${dir === 'es' ? 'Say this in ' + COURSE.name : 'What does this mean?'}</span>
         <div class="tprompt">${esc(prompt)}${dir === 'en' ? `<button type="button" class="btn sm ghost" id="tSay">◉</button>` : ''}</div>
-        <textarea id="tAns" rows="2" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="${dir === 'es' ? 'Escribe en español…' : 'Type it in English…'}" aria-label="Your translation"></textarea>
+        <textarea id="tAns" rows="2" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="${dir === 'es' ? esc(coursePrompt()) : 'Type it in English…'}" aria-label="Your translation"></textarea>
         <div class="btn-row"><button type="button" class="btn rose" id="tGo">Check</button><button type="button" class="btn ghost" id="tReset">↺ Reset</button><button type="button" class="btn ghost" id="tSkip">Show me</button><span class="mono muted" style="margin-left:auto">${asked ? right + '/' + asked : ''}</span></div>
         <div id="tRes"></div>
       </div>`;
