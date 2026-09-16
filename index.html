@@ -7096,6 +7096,21 @@ function gateFormHTML() {
       : 'Been here before? The same name and password sign you back in. An older 4–8 digit PIN still works too.'}</p>`;
 }
 
+/* What this person is about to keep, in their own numbers. Only the ones that are actually
+   above zero: somebody who got here entirely through the games has no words and no streak, and
+   "100 XP, 0 words, a 0-day streak" reads like a report card rather than a reason to sign up. */
+function gateSpoils() {
+  const bits = [`${S.xp || 0} XP`];
+  const words = learnedCount();
+  const streak = streakAlive();
+  const friends = unlockedChars().length;
+  if (words) bits.push(words === 1 ? 'a word' : `${words} words`);
+  if (streak > 1) bits.push(`a ${streak}-day streak`);
+  if (friends > 1) bits.push('everyone in your casita');
+  if (bits.length === 1) return bits[0] + ' of work';
+  return bits.slice(0, -1).join(', ') + ' and ' + bits[bits.length - 1];
+}
+
 function showGate() {
   if ($('#gate')) return;                        /* never rebuild it under someone mid-type */
   const el = document.createElement('div');
@@ -7105,7 +7120,7 @@ function showGate() {
       <div class="gpic">${mascot(CAST_LEAD, 104)}</div>
       <span class="label">${S.xp || 0} XP so far</span>
       <h1>Keep what you've earned</h1>
-      <p class="gsub">All of it is yours — ${S.xp || 0} XP, ${learnedCount()} words, a ${streakAlive()}-day streak and everyone in your casita. An account is what stops it living on this one phone.</p>
+      <p class="gsub">All of it is yours — ${gateSpoils()}. An account is what stops it living on this one phone.</p>
       <p class="small muted">A name, an email and a password. Ten seconds, and you carry on exactly where you stopped.</p>
       <div id="gSlot">${gateFormHTML()}</div>
       <div class="gfoot"><a href="#rights">All rights reserved</a> · <a href="#owner">Owner</a></div>
