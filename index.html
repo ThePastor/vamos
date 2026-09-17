@@ -5,8 +5,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Vamos">
-<meta name="theme-color" content="#FBF7EF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1A18" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1116" media="(prefers-color-scheme: dark)">
 <!-- The card a shared link unfurls into: the app's own mark and its own words, in the brand's
      colours, rather than a bare URL. og:image has to be absolute, so it is built from BRAND_SITE.
 
@@ -1853,15 +1853,19 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --shape: #FFB3C6; --tile-3: #FFB3C6; --inverse: #3A2230; --inverse-ink: #FFE5EC; --inverse-ink-2: #B58FA0;
   --shadow: 0 24px 60px -30px rgba(58, 34, 48, .45);
 }
-/* ---------- teal: warm sand and deep teal ---------- */
-:root[data-palette="teal"] {
-  --bg: #FBF7EF; --surface: #FFFDF8; --surface-2: #F1E7D6; --sand: #F1E7D6;
-  --pink-1: #DFEFEA; --pink-2: #B7DED3; --pink-3: #8FCBBC; --pink-4: #4FA893; --pink-5: #2F8C77; --pink-ink: #10312B;
-  --ink: #17332E; --ink-2: #3D5C55; --ink-3: #7D948E; --line: #1F4A42; --line-soft: #D4E5DF; --dot: #1F4A42;
-  --shape: #8FCBBC; --tile-3: #8FCBBC; --inverse: #17332E; --inverse-ink: #DFEFEA; --inverse-ink-2: #8FB2A8;
-  --sage: #CBD8AE; --sage-soft: #E6EDD3; --tan: #C9A27A; --tan-deep: #8A6540; --tan-soft: #EEE0CD;
-  --ok: #2F7A55; --ok-soft: #DCEFE3; --bad: #B15A3D; --bad-soft: #F7DED2;
-  --shadow: 0 24px 60px -30px rgba(23, 51, 46, .45);
+/* ---------- cobalt: near-white paper and true blue (replaced the teal set in v31) ---------- */
+:root[data-palette="cobalt"] {
+  --bg: #F4F7FA; --surface: #FFFFFF; --surface-2: #E6EDF5; --sand: #E6EDF5;
+  /* The accent ramp is PASTEL on purpose. 33 rules across the stylesheet paint a dark ink on
+     --pink-3/4/5 — the ladder, the word-hunt cells, the XP toast, the path dots, the primary
+     button — so an accent dark enough to need white text makes every one of them unreadable.
+     A deep cobalt button looked better in isolation and would have broken a third of the app. */
+  --pink-1: #DCEAFB; --pink-2: #B0D0F7; --pink-3: #8FC0F5; --pink-4: #6BA8F0; --pink-5: #5A9CEC; --pink-ink: #0B1B2E;
+  --ink: #0F1C2B; --ink-2: #374B62; --ink-3: #74879C; --line: #1E3550; --line-soft: #D2DFEC; --dot: #1E3550;
+  --shape: #8FC0F5; --tile-3: #8FC0F5; --inverse: #0F1C2B; --inverse-ink: #DCEAFB; --inverse-ink-2: #8FA3B8;
+  --sage: #C3D2C8; --sage-soft: #E2EBE5; --tan: #C0A184; --tan-deep: #856348; --tan-soft: #EBDFD3;
+  --ok: #1B8F63; --ok-soft: #D6F1E5; --bad: #D2434F; --bad-soft: #FADCDE;
+  --shadow: 0 24px 60px -30px rgba(15, 28, 43, .5);
 }
 /* ---------- indigo: cool paper and violet ---------- */
 :root[data-palette="indigo"] {
@@ -1875,7 +1879,7 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
 }
 
 /* ---------- dark halves ---------- */
-:root[data-palette="rosa"][data-theme="dark"], :root[data-palette="teal"][data-theme="dark"], :root[data-palette="indigo"][data-theme="dark"] { color-scheme: dark; }
+:root[data-palette="rosa"][data-theme="dark"], :root[data-palette="cobalt"][data-theme="dark"], :root[data-palette="indigo"][data-theme="dark"] { color-scheme: dark; }
 :root[data-palette="rosa"][data-theme="dark"] {
   --bg: #1E1519; --surface: #26191F; --surface-2: #2F2026; --sand: #2F2026;
   --pink-1: #3A2530; --pink-2: #4E2E3C; --pink-3: #6B3D4E; --pink-4: #C4738D; --pink-5: #E58AA6; --pink-ink: #FFE5EC;
@@ -1883,16 +1887,16 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
   --shape: #6B3D4E; --tile-3: #4E2E3C; --inverse: #FFE5EC; --inverse-ink: #26191F; --inverse-ink-2: #6B4A58;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
 }
-:root[data-palette="teal"][data-theme="dark"] {
-  --bg: #0F1A18; --surface: #14231F; --surface-2: #1B2E29; --sand: #1B2E29;
-  --pink-1: #1B2E29; --pink-2: #23413A; --pink-3: #2F5A50; --pink-4: #5FBAA3; --pink-5: #7ED3BB; --pink-ink: #DFEFEA;
-  --ink: #E6F2EE; --ink-2: #B3CCC5; --ink-3: #85A099; --line: #3D6B60; --line-soft: #24403A; --dot: #4F8577;
-  --shape: #2F5A50; --tile-3: #23413A; --inverse: #DFEFEA; --inverse-ink: #14231F; --inverse-ink-2: #3D6B60;
+:root[data-palette="cobalt"][data-theme="dark"] {
+  --bg: #0E1116; --surface: #171C24; --surface-2: #212833; --sand: #212833;
+  --pink-1: #212833; --pink-2: #2D3948; --pink-3: #7FA3CC; --pink-4: #5AA8FF; --pink-5: #84C2FF; --pink-ink: #0E1116;
+  --ink: #EAF1F8; --ink-2: #B6C5D5; --ink-3: #8495A8; --line: #3F5064; --line-soft: #232A34; --dot: #5B738C;
+  --shape: #3F5064; --tile-3: #2D3948; --inverse: #DCEAFB; --inverse-ink: #171C24; --inverse-ink-2: #3F5064;
   /* the line drawn around a companion so it stays readable on a dark ground. Without this the
      palette falls back to the default dark theme's rosa mauve and every companion gets a pink edge. */
-  --mascot-outline: #3D6B60;
-  --sage: #3E5B3A; --sage-soft: #25361F; --tan: #9C7A54; --tan-deep: #C9A27A; --tan-soft: #33291D;
-  --ok: #7ED3BB; --ok-soft: #1E3A30; --bad: #E39176; --bad-soft: #43241B;
+  --mascot-outline: #374B62;
+  --sage: #3F5347; --sage-soft: #253026; --tan: #97795E; --tan-deep: #C0A184; --tan-soft: #302720;
+  --ok: #4FDCA0; --ok-soft: #0E3227; --bad: #FF7F8C; --bad-soft: #3A1B20;
   --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
 }
 :root[data-palette="indigo"][data-theme="dark"] {
@@ -1913,13 +1917,16 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
     --ink: #F5E7EC; --ink-2: #D2B8C2; --ink-3: #A98C99; --line: #6B4A58; --line-soft: #3E2A33; --dot: #8A6272;
     --shape: #6B3D4E; --tile-3: #4E2E3C; --inverse: #FFE5EC; --inverse-ink: #26191F; --inverse-ink-2: #6B4A58;
   }
-  :root[data-palette="teal"]:not([data-theme="light"]) {
-    --bg: #0F1A18; --surface: #14231F; --surface-2: #1B2E29; --sand: #1B2E29;
-    --pink-1: #1B2E29; --pink-2: #23413A; --pink-3: #2F5A50; --pink-4: #5FBAA3; --pink-5: #7ED3BB; --pink-ink: #DFEFEA;
-    --ink: #E6F2EE; --ink-2: #B3CCC5; --ink-3: #85A099; --line: #3D6B60; --line-soft: #24403A; --dot: #4F8577;
-    --shape: #2F5A50; --tile-3: #23413A; --inverse: #DFEFEA; --inverse-ink: #14231F; --inverse-ink-2: #3D6B60;
-    --sage: #3E5B3A; --sage-soft: #25361F; --tan: #9C7A54; --tan-deep: #C9A27A; --tan-soft: #33291D;
-    --ok: #7ED3BB; --ok-soft: #1E3A30; --bad: #E39176; --bad-soft: #43241B;
+  :root[data-palette="cobalt"]:not([data-theme="light"]) {
+    --bg: #0E1116; --surface: #171C24; --surface-2: #212833; --sand: #212833;
+    --pink-1: #212833; --pink-2: #2D3948; --pink-3: #7FA3CC; --pink-4: #5AA8FF; --pink-5: #84C2FF; --pink-ink: #0E1116;
+    --ink: #EAF1F8; --ink-2: #B6C5D5; --ink-3: #8495A8; --line: #3F5064; --line-soft: #232A34; --dot: #5B738C;
+    --shape: #3F5064; --tile-3: #2D3948; --inverse: #DCEAFB; --inverse-ink: #171C24; --inverse-ink-2: #3F5064;
+    /* the line drawn around a companion so it stays readable on a dark ground. Without this the
+       palette falls back to the default dark theme's rosa mauve and every companion gets a pink edge. */
+    --mascot-outline: #374B62;
+    --sage: #3F5347; --sage-soft: #253026; --tan: #97795E; --tan-deep: #C0A184; --tan-soft: #302720;
+    --ok: #4FDCA0; --ok-soft: #0E3227; --bad: #FF7F8C; --bad-soft: #3A1B20;
   }
   :root[data-palette="indigo"]:not([data-theme="light"]) {
     --bg: #14121F; --surface: #1A1729; --surface-2: #231F36; --sand: #231F36;
@@ -2003,7 +2010,7 @@ const BRAND = {
   site: 'https://thepastor.github.io/vamos/',
   folder: 'Vamos',
   sample: 'Ana',
-  palette: 'teal',
+  palette: 'cobalt',
   table: 'learner_progress',
   /* which companion set this build uses: "cute" (the original four) or "neutral" */
   cast: 'neutral',
@@ -5842,6 +5849,7 @@ const levelUnlocked = () => true;
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v31', 'New colours. The green has gone \u2014 the app is blue now, and the dark theme is a proper neutral slate rather than a dark green, which is easier on the eyes at night. Everything is a little more saturated than it was, so buttons and the level you are on actually stand out. If you had picked Teal in Settings you are on the new Cobalt; Rosa and Indigo are untouched.'],
   ['v30', 'A new cast, and a different one for every language. Four companions each \u2014 two and two \u2014 drawn from that language\u2019s own legends rather than its wildlife: a quetzal and a guardian of the milpa in Spanish, the gargouille of Rouen and an Alpine dwarf who skis on his own feet in French, a kitsune and the toad of the Jiraiya tales in Japanese. They change when you change language, and whoever you were raising in each one is waiting when you come back. Everything you had already raised carries straight over.'],
   ['v29.1', 'The tab icon sat on a white square. The rounded tile was drawn on a white page and kept its corners, which showed as a box behind it on any tab that was not white \u2014 the corners are clear now.'],
   ['v29', 'The link looks like the app again. Sharing it used to unfurl a small pink square \u2014 the mascot this build stopped using in September \u2014 because every chat app had cached that picture against an address that never changed. The card is now a wide one at its own new address, with the wordmark on it, so nothing can serve the old one. There is a proper tab icon too, and on Android the address bar finally takes this app\u2019s colour rather than another build\u2019s.'],
@@ -10860,7 +10868,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v30', date: '17 September 2026' };
+const BUILD = { v: 'v31', date: '17 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -10913,9 +10921,17 @@ function levelProgress(id) {
 
 /* ----- theme ----- */
 function isDark() { const root = document.documentElement; return root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches); }
-const PALETTES = [['rosa', 'Rosa'], ['teal', 'Teal'], ['indigo', 'Indigo']];
-const PALETTE_TC = { rosa: ['#FEFAE0', '#1E1519'], teal: ['#FBF7EF', '#0F1A18'], indigo: ['#F7F6FB', '#14121F'] };
-function paletteOf() { const p = (S && S.palette) || BRAND.palette || 'rosa'; return PALETTE_TC[p] ? p : 'rosa'; }
+const PALETTES = [['rosa', 'Rosa'], ['cobalt', 'Cobalt'], ['indigo', 'Indigo']];
+const PALETTE_TC = { rosa: ['#FEFAE0', '#1E1519'], cobalt: ['#F4F7FA', '#0E1116'], indigo: ['#F7F6FB', '#14121F'] };
+/* Teal was the default until v31 and is saved in a lot of browsers. paletteOf() falls back to rosa
+   for anything it does not recognise, so without this map a learner who never touched the theme
+   switch would open the app one morning and find it pink. */
+const PALETTE_WAS = { teal: 'cobalt' };
+function paletteOf() {
+  let p = (S && S.palette) || BRAND.palette || 'rosa';
+  if (PALETTE_WAS[p]) { p = PALETTE_WAS[p]; if (S && S.palette) S.palette = p; }
+  return PALETTE_TC[p] ? p : 'rosa';
+}
 function applyPalette() {
   const p = paletteOf();
   document.documentElement.dataset.palette = p;
