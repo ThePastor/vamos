@@ -4031,9 +4031,37 @@ const MASCOTS_NEUTRAL = {
 };
 
 /* Which set this build uses. Set by BRAND.cast in the brand file — everything else reads MASCOTS. */
+/* ============ THE MYTHIC CAST (v30) ============
+   Twelve companions, four per language, drawn in one grammar: no outlines anywhere, form carried
+   by a gradient on every mass, a soft cast shadow, and one highlight that separates head from
+   body. Limbs read by VALUE rather than by edge - every arm and foot is a darker gradient than
+   the mass it comes out of, or it disappears into it.
+   Every id is unique across all three languages, so this stays one flat map and only CHARS has to
+   swap when the course does. */
+const MASCOT_NAMES_MYTHIC = {
+  tuk: 'Tuk the quetzal', alux: 'Alux the field guardian', carbunco: 'Carbunco the gem beast',
+  alicanto: 'Alicanto the ore bird', gargo: 'Gargo the gargouille', meli: 'Meli the melusine',
+  barbegazi: 'Barbegazi of the Alps', peluda: 'Peluda the shaggy beast', kon: 'Kon the kitsune',
+  gama: 'Gama the toad', fuku: 'Fuku the owl', amabi: 'Amabi of the sea',
+};
+const MASCOTS_MYTHIC = {
+  tuk: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tuk the quetzal"><defs><linearGradient id="tk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5FE0BC"/><stop offset="1" stop-color="#1E9276"/></linearGradient><linearGradient id="tk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7BF0CE"/><stop offset="1" stop-color="#33B694"/></linearGradient><linearGradient id="tk3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8E7C"/><stop offset="1" stop-color="#D8412F"/></linearGradient><radialGradient id="tks"><stop offset="0" stop-color="#1E9276" stop-opacity=".30"/><stop offset="1" stop-color="#1E9276" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="182" rx="46" ry="13" fill="url(#tks)"/><path d="M128 140q40 26 30 54-14-18-28-4-10-28-2-50z" fill="url(#tk1)"/><path d="M70 132q-28 5 -28 20" fill="none" stroke="url(#tk1)" stroke-width="18" stroke-linecap="round"/> <path d="M130 132q28 5 28 20" fill="none" stroke="url(#tk1)" stroke-width="18" stroke-linecap="round"/><path d="M68 110.4a32 32 0 0 1 64 0 L144 151.8a44 34.32 0 0 1 -88 0z" fill="url(#tk2)"/><ellipse cx="78" cy="173" rx="16" ry="10" fill="url(#tk1)"/> <ellipse cx="122" cy="173" rx="16" ry="10" fill="url(#tk1)"/><ellipse cx="100" cy="156" rx="21" ry="18" fill="url(#tk3)"/><ellipse cx="88" cy="124" rx="16" ry="12" fill="#fff" opacity=".18"/><path d="M100 14q-22 5-19 26 19-9 38 0 3-21-19-26z" fill="#8CF5D6"/><path d="M68 32q-19 12-10 30 15-15 32-13z" fill="#8CF5D6"/><path d="M132 32q19 12 10 30-15-15-32-13z" fill="#8CF5D6"/><circle cx="100" cy="68" r="41" fill="url(#tk2)"/><ellipse cx="88" cy="54" rx="22" ry="15" fill="#fff" opacity=".18"/><path d="M88 80h24l-12 19z" fill="#FFC94D"/> <ellipse cx="83" cy="62" rx="9.5" ry="10.260000000000002" fill="#16302B"/> <ellipse cx="117" cy="62" rx="9.5" ry="10.260000000000002" fill="#16302B"/> <circle cx="86.23" cy="58.39" r="3.2300000000000004" fill="#fff"/> <circle cx="120.23" cy="58.39" r="3.2300000000000004" fill="#fff"/> <ellipse cx="68" cy="80" rx="10" ry="6" fill="#FF9FAE" opacity=".72"/> <ellipse cx="132" cy="80" rx="10" ry="6" fill="#FF9FAE" opacity=".72"/></svg>`,
+  alux: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alux the field guardian"><defs><linearGradient id="ax1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C99A63"/><stop offset="1" stop-color="#8A5E32"/></linearGradient><linearGradient id="ax2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E0B98A"/><stop offset="1" stop-color="#A87A46"/></linearGradient><linearGradient id="ax3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2D98C"/><stop offset="1" stop-color="#C9A03C"/></linearGradient><linearGradient id="ax4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FC96E"/><stop offset="1" stop-color="#357F44"/></linearGradient><radialGradient id="axs"><stop offset="0" stop-color="#6E4526" stop-opacity=".30"/><stop offset="1" stop-color="#6E4526" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="184" rx="46" ry="12" fill="url(#axs)"/><path d="M72 128q-26 5.5 -26 22" fill="none" stroke="url(#ax1)" stroke-width="18" stroke-linecap="round"/> <path d="M128 128q26 5.5 26 22" fill="none" stroke="url(#ax1)" stroke-width="18" stroke-linecap="round"/><path d="M70 110a30 30 0 0 1 60 0 L142 152.9a42 32.76 0 0 1 -84 0z" fill="url(#ax2)"/><path d="M70 150q30 12 60 0-4 22-30 22-26 0-30-22z" fill="url(#ax4)"/><ellipse cx="84" cy="124" rx="14" ry="11" fill="#fff" opacity=".18"/><ellipse cx="80" cy="176" rx="15" ry="9" fill="url(#ax1)"/> <ellipse cx="120" cy="176" rx="15" ry="9" fill="url(#ax1)"/><circle cx="100" cy="74" r="36" fill="url(#ax2)"/><ellipse cx="88" cy="62" rx="18" ry="12" fill="#fff" opacity=".18"/><path d="M64 62q-22-4-22 12 16 8 26-2z" fill="url(#ax1)"/><path d="M136 62q22-4 22 12-16 8-26-2z" fill="url(#ax1)"/><ellipse cx="100" cy="44" rx="58" ry="14" fill="url(#ax3)"/><path d="M100 8q-20 2-22 22 22 8 44 0-2-20-22-22z" fill="url(#ax3)"/><path d="M60 44q40 10 80 0" fill="none" stroke="#B08A2E" stroke-width="3" opacity=".55"/> <ellipse cx="85" cy="76" rx="8.5" ry="9.18" fill="#4A2E14"/> <ellipse cx="115" cy="76" rx="8.5" ry="9.18" fill="#4A2E14"/> <circle cx="87.89" cy="72.77" r="2.89" fill="#fff"/> <circle cx="117.89" cy="72.77" r="2.89" fill="#fff"/> <ellipse cx="72" cy="90" rx="10" ry="6" fill="#FF9E86" opacity=".72"/> <ellipse cx="128" cy="90" rx="10" ry="6" fill="#FF9E86" opacity=".72"/><path d="M94 96q6 6 12 0" fill="none" stroke="#4A2E14" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  carbunco: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carbunco the gem beast"><defs><linearGradient id="cb1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A5470"/><stop offset="1" stop-color="#2A2540"/></linearGradient><linearGradient id="cb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7D7699"/><stop offset="1" stop-color="#3E3860"/></linearGradient><linearGradient id="cb3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B7A"/><stop offset="1" stop-color="#C42440"/></linearGradient><radialGradient id="cbs"><stop offset="0" stop-color="#2A2540" stop-opacity=".30"/><stop offset="1" stop-color="#2A2540" stop-opacity="0"/></radialGradient></defs><radialGradient id="cbglow"><stop offset="0" stop-color="#FF8E9E" stop-opacity=".75"/><stop offset="1" stop-color="#FF8E9E" stop-opacity="0"/></radialGradient><ellipse cx="100" cy="182" rx="46" ry="12" fill="url(#cbs)"/><path d="M70 132q-26 5 -26 20" fill="none" stroke="url(#cb1)" stroke-width="18" stroke-linecap="round"/> <path d="M130 132q26 5 26 20" fill="none" stroke="url(#cb1)" stroke-width="18" stroke-linecap="round"/><path d="M68 110.4a32 32 0 0 1 64 0 L144 151.8a44 34.32 0 0 1 -88 0z" fill="url(#cb2)"/><ellipse cx="84" cy="126" rx="15" ry="12" fill="#fff" opacity=".16"/><ellipse cx="78" cy="173" rx="16" ry="10" fill="url(#cb1)"/> <ellipse cx="122" cy="173" rx="16" ry="10" fill="url(#cb1)"/><path d="M146 140q30 10 28 38-14-12-22 0-12-18-6-38z" fill="url(#cb1)"/><circle cx="100" cy="72" r="40" fill="url(#cb2)"/><ellipse cx="88" cy="58" rx="21" ry="14" fill="#fff" opacity=".18"/><path d="M66 44q-6 22 10 28 4-20-10-28z" fill="url(#cb1)"/><path d="M134 44q6 22-10 28-4-20 10-28z" fill="url(#cb1)"/><circle cx="100" cy="40" r="30" fill="url(#cbglow)"/><path d="M100 22l11 12-11 16-11-16z" fill="url(#cb3)"/><path d="M100 22l11 12h-22z" fill="#FFB8C4" opacity=".9"/> <ellipse cx="82" cy="74" rx="9.5" ry="10.260000000000002" fill="#191430"/> <ellipse cx="118" cy="74" rx="9.5" ry="10.260000000000002" fill="#191430"/> <circle cx="85.23" cy="70.39" r="3.2300000000000004" fill="#fff"/> <circle cx="121.23" cy="70.39" r="3.2300000000000004" fill="#fff"/> <ellipse cx="67" cy="90" rx="10" ry="6" fill="#FF8EA8" opacity=".6"/> <ellipse cx="133" cy="90" rx="10" ry="6" fill="#FF8EA8" opacity=".6"/><path d="M94 98q6 6 12 0" fill="none" stroke="#191430" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  alicanto: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alicanto the ore bird"><defs><linearGradient id="al1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6E7C9E"/><stop offset="1" stop-color="#38435E"/></linearGradient><linearGradient id="al2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8C9BBC"/><stop offset="1" stop-color="#4A5877"/></linearGradient><linearGradient id="al3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD766"/><stop offset="1" stop-color="#D89E1E"/></linearGradient><linearGradient id="al4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F6FC"/><stop offset="1" stop-color="#B8C6DA"/></linearGradient><radialGradient id="als"><stop offset="0" stop-color="#38435E" stop-opacity=".30"/><stop offset="1" stop-color="#38435E" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="184" rx="44" ry="11" fill="url(#als)"/><path d="M58 104q-46-6-54-54 26 10 40-2 2 32 14 56z" fill="url(#al3)"/><path d="M142 104q46-6 54-54-26 10-40-2-2 32-14 56z" fill="url(#al4)"/><path d="M60 96q-30-8-36-38 18 8 28 0 0 22 8 38z" fill="#FFEBAE" opacity=".65"/><path d="M140 96q30-8 36-38-18 8-28 0 0 22-8 38z" fill="#FBFDFF" opacity=".7"/><path d="M74 130q-20 4 -20 16" fill="none" stroke="url(#al1)" stroke-width="18" stroke-linecap="round"/> <path d="M126 130q20 4 20 16" fill="none" stroke="url(#al1)" stroke-width="18" stroke-linecap="round"/><path d="M68 108.4a32 32 0 0 1 64 0 L142 152.9a42 32.76 0 0 1 -84 0z" fill="url(#al2)"/><ellipse cx="84" cy="124" rx="15" ry="12" fill="#fff" opacity=".2"/><g fill="url(#al3)"><ellipse cx="82" cy="178" rx="14" ry="7"/><ellipse cx="118" cy="178" rx="14" ry="7"/></g><circle cx="100" cy="70" r="37" fill="url(#al2)"/><ellipse cx="88" cy="58" rx="19" ry="13" fill="#fff" opacity=".22"/><path d="M100 26q-17 4-15 20 15-6 30 0 2-16-15-20z" fill="url(#al3)"/><path d="M88 82h24l-12 18z" fill="url(#al3)"/> <ellipse cx="83" cy="64" rx="9" ry="9.72" fill="#20293E"/> <ellipse cx="117" cy="64" rx="9" ry="9.72" fill="#20293E"/> <circle cx="86.06" cy="60.58" r="3.06" fill="#fff"/> <circle cx="120.06" cy="60.58" r="3.06" fill="#fff"/> <ellipse cx="68" cy="82" rx="10" ry="6" fill="#FFB0C4" opacity=".6"/> <ellipse cx="132" cy="82" rx="10" ry="6" fill="#FFB0C4" opacity=".6"/><g fill="#FFEBAE"><circle cx="34" cy="126" r="4"/><circle cx="168" cy="132" r="3.4"/></g></svg>`,
+  gargo: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gargo the gargoyle"><defs><linearGradient id="gg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#AEB6C2"/><stop offset="1" stop-color="#5A626E"/></linearGradient><linearGradient id="gg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C8CFD9"/><stop offset="1" stop-color="#7A828E"/></linearGradient><linearGradient id="gg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#96A6BE"/><stop offset="1" stop-color="#4A5A74"/></linearGradient><radialGradient id="ggs"><stop offset="0" stop-color="#4A5260" stop-opacity=".30"/><stop offset="1" stop-color="#4A5260" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="180" rx="48" ry="13" fill="url(#ggs)"/><path d="M52 66q-40 6-46 46 18-6 26 8 4-32 24-40z" fill="url(#gg3)"/><path d="M148 66q40 6 46 46-18-6-26 8-4-32-24-40z" fill="url(#gg3)"/><path d="M54 74q-18 14-14 36 12-12 22-4z" fill="url(#gg1)" opacity=".7"/><path d="M146 74q18 14 14 36-12-12-22-4z" fill="url(#gg1)" opacity=".7"/><path d="M70 132q-28 5 -28 20" fill="none" stroke="url(#gg3)" stroke-width="18" stroke-linecap="round"/> <path d="M130 132q28 5 28 20" fill="none" stroke="url(#gg3)" stroke-width="18" stroke-linecap="round"/><path d="M66 110.8a34 34 0 0 1 68 0 L146 150.7a46 35.88 0 0 1 -92 0z" fill="url(#gg1)"/><ellipse cx="78" cy="173" rx="16" ry="10" fill="url(#gg3)"/> <ellipse cx="122" cy="173" rx="16" ry="10" fill="url(#gg3)"/><ellipse cx="86" cy="126" rx="16" ry="12" fill="#fff" opacity=".24"/><path d="M64 46q-10 24 4 34 10-20-4-34z" fill="url(#gg2)"/><path d="M136 46q10 24-4 34-10-20 4-34z" fill="url(#gg2)"/><circle cx="100" cy="76" r="41" fill="url(#gg2)"/><ellipse cx="88" cy="62" rx="21" ry="14" fill="#fff" opacity=".26"/><path d="M74 40q6 18 18 20-4-20-18-20z" fill="url(#gg3)"/><path d="M126 40q-6 18-18 20 4-20 18-20z" fill="url(#gg3)"/><path d="M74 94q26 16 52 0 0 22-26 22t-26-22z" fill="#39414C"/><g fill="#EDF1F6"><path d="M80 98l5 9 5-9z"/><path d="M110 98l5 9 5-9z"/></g> <ellipse cx="81" cy="70" rx="9.5" ry="10.260000000000002" fill="#2B313A"/> <ellipse cx="119" cy="70" rx="9.5" ry="10.260000000000002" fill="#2B313A"/> <circle cx="84.23" cy="66.39" r="3.2300000000000004" fill="#fff"/> <circle cx="122.23" cy="66.39" r="3.2300000000000004" fill="#fff"/> <ellipse cx="65" cy="88" rx="10" ry="6" fill="#C9A0B8" opacity=".42"/> <ellipse cx="135" cy="88" rx="10" ry="6" fill="#C9A0B8" opacity=".42"/><path d="M60 116q-6 10-2 18" fill="none" stroke="#8A929E" stroke-width="3" opacity=".5"/></svg>`,
+  meli: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Meli the melusine"><defs><linearGradient id="ml1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6FD0E8"/><stop offset="1" stop-color="#2A7FA8"/></linearGradient><linearGradient id="ml2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FE8F5"/><stop offset="1" stop-color="#4FA8C8"/></linearGradient><linearGradient id="ml3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5D98C"/><stop offset="1" stop-color="#D8A83C"/></linearGradient><radialGradient id="mls"><stop offset="0" stop-color="#2A7FA8" stop-opacity=".30"/><stop offset="1" stop-color="#2A7FA8" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="182" rx="46" ry="12" fill="url(#mls)"/><path d="M130 148q38 10 36 42-16-14-26 2-14-22-10-44z" fill="url(#ml1)"/><path d="M158 170q16 6 18 22-12-6-18 4-4-14 0-26z" fill="url(#ml2)"/><path d="M70 132q-28 5 -28 20" fill="none" stroke="url(#ml2)" stroke-width="18" stroke-linecap="round"/> <path d="M130 132q28 5 28 20" fill="none" stroke="url(#ml2)" stroke-width="18" stroke-linecap="round"/><path d="M68 110.4a32 32 0 0 1 64 0 L144 151.8a44 34.32 0 0 1 -88 0z" fill="url(#ml1)"/><ellipse cx="78" cy="173" rx="16" ry="10" fill="url(#ml2)"/> <ellipse cx="122" cy="173" rx="16" ry="10" fill="url(#ml2)"/><g fill="url(#ml2)" opacity=".85"><circle cx="86" cy="134" r="8"/><circle cx="104" cy="144" r="8"/><circle cx="88" cy="158" r="7"/><circle cx="114" cy="126" r="7"/></g><ellipse cx="86" cy="124" rx="15" ry="12" fill="#fff" opacity=".18"/><circle cx="100" cy="72" r="40" fill="url(#ml2)"/><ellipse cx="88" cy="58" rx="21" ry="14" fill="#fff" opacity=".18"/><path d="M64 58q-12-20 0-32 10 14 12 30z" fill="url(#ml1)"/><path d="M136 58q12-20 0-32-10 14-12 30z" fill="url(#ml1)"/><path d="M100 30q-14 4-12 16 12-6 24 0 2-12-12-16z" fill="url(#ml3)"/> <ellipse cx="82" cy="68" rx="9.5" ry="10.260000000000002" fill="#14415A"/> <ellipse cx="118" cy="68" rx="9.5" ry="10.260000000000002" fill="#14415A"/> <circle cx="85.23" cy="64.39" r="3.2300000000000004" fill="#fff"/> <circle cx="121.23" cy="64.39" r="3.2300000000000004" fill="#fff"/> <ellipse cx="67" cy="86" rx="10" ry="6" fill="#FFA8C0" opacity=".72"/> <ellipse cx="133" cy="86" rx="10" ry="6" fill="#FFA8C0" opacity=".72"/><path d="M93 94q7 7 14 0" fill="none" stroke="#14415A" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  barbegazi: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Barbegazi of the Alps"><defs><linearGradient id="bz1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7FBFF"/><stop offset="1" stop-color="#C4D6EA"/></linearGradient><linearGradient id="bz2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A7FB8"/><stop offset="1" stop-color="#22497A"/></linearGradient><linearGradient id="bz3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6FA8D8"/><stop offset="1" stop-color="#2E5E96"/></linearGradient><linearGradient id="bz4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E0A84A"/><stop offset="1" stop-color="#B07A22"/></linearGradient><radialGradient id="bzs"><stop offset="0" stop-color="#3A5F8C" stop-opacity=".30"/><stop offset="1" stop-color="#3A5F8C" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="188" rx="58" ry="10" fill="url(#bzs)"/><path d="M76 124q-24 4 -24 16" fill="none" stroke="url(#bz2)" stroke-width="18" stroke-linecap="round"/> <path d="M124 124q24 4 24 16" fill="none" stroke="url(#bz2)" stroke-width="18" stroke-linecap="round"/><path d="M70 102a30 30 0 0 1 60 0 L138 155.1a38 29.64 0 0 1 -76 0z" fill="url(#bz2)"/><path d="M70 150q30 10 60 0-4 18-30 18-26 0-30-18z" fill="url(#bz3)"/><path d="M100 92q-32 0-34 28 0 30 34 32 34-2 34-32-2-28-34-28z" fill="url(#bz1)"/><g fill="none" stroke="#B4CBE2" stroke-width="3" stroke-linecap="round"><path d="M84 116v26M100 120v28M116 116v26"/></g><path d="M28 184q6-12 18-12h50q8 0 8 6t-8 6z" fill="url(#bz4)"/><path d="M172 184q-6-12-18-12h-50q-8 0-8 6t8 6z" fill="url(#bz4)"/><g fill="none" stroke="#8A5E14" stroke-width="2.4"><path d="M40 178h52M160 178h-52"/></g><circle cx="100" cy="66" r="33" fill="url(#bz1)"/><ellipse cx="88" cy="56" rx="16" ry="11" fill="#fff" opacity=".5"/><path d="M100 24q-32 2-34 22 34 10 68 0-2-20-34-22z" fill="url(#bz2)"/><ellipse cx="100" cy="30" rx="16" ry="7" fill="url(#bz3)"/><ellipse cx="100" cy="78" rx="6" ry="4.4" fill="#5A7FA8"/> <ellipse cx="84" cy="64" rx="8.5" ry="9.18" fill="#1B3A5E"/> <ellipse cx="116" cy="64" rx="8.5" ry="9.18" fill="#1B3A5E"/> <circle cx="86.89" cy="60.77" r="2.89" fill="#fff"/> <circle cx="118.89" cy="60.77" r="2.89" fill="#fff"/> <ellipse cx="71" cy="78" rx="10" ry="6" fill="#FFA8B8" opacity=".65"/> <ellipse cx="129" cy="78" rx="10" ry="6" fill="#FFA8B8" opacity=".65"/></svg>`,
+  peluda: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Peluda the shaggy beast"><defs><linearGradient id="pl1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6FAE5C"/><stop offset="1" stop-color="#2F6B38"/></linearGradient><linearGradient id="pl2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93CC7A"/><stop offset="1" stop-color="#4A8C4E"/></linearGradient><linearGradient id="pl3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C5A34"/><stop offset="1" stop-color="#17381F"/></linearGradient><radialGradient id="pls"><stop offset="0" stop-color="#2F6B38" stop-opacity=".30"/><stop offset="1" stop-color="#2F6B38" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="182" rx="50" ry="12" fill="url(#pls)"/><path d="M150 138q34 14 30 44-16-14-24 2-14-22-6-46z" fill="url(#pl1)"/><path d="M68 134q-26 5 -26 20" fill="none" stroke="url(#pl1)" stroke-width="18" stroke-linecap="round"/> <path d="M132 134q26 5 26 20" fill="none" stroke="url(#pl1)" stroke-width="18" stroke-linecap="round"/><path d="M66 108.8a34 34 0 0 1 68 0 L146 150.7a46 35.88 0 0 1 -92 0z" fill="url(#pl2)"/><g fill="url(#pl3)"><path d="M72 104l-8-24 20 16z"/><path d="M92 94l-4-28 16 24z"/><path d="M112 94l4-28-16 24z"/><path d="M130 104l8-24-20 16z"/></g><path d="M56 162q10 14 20 2 10 14 22 2 10 14 22 2 10 14 20-2l-4 18H60z" fill="url(#pl1)"/><ellipse cx="84" cy="124" rx="15" ry="12" fill="#fff" opacity=".18"/><ellipse cx="76" cy="178" rx="15" ry="8" fill="url(#pl3)"/> <ellipse cx="124" cy="178" rx="15" ry="8" fill="url(#pl3)"/><circle cx="100" cy="76" r="38" fill="url(#pl2)"/><ellipse cx="88" cy="64" rx="19" ry="13" fill="#fff" opacity=".18"/><g fill="url(#pl1)"><path d="M66 56q-16 6-14 22 12-12 22-10z"/><path d="M134 56q16 6 14 22-12-12-22-10z"/></g><ellipse cx="100" cy="92" rx="18" ry="12" fill="url(#pl1)"/><ellipse cx="100" cy="88" rx="5.6" ry="4.2" fill="#1D4426"/> <ellipse cx="83" cy="72" rx="9" ry="9.72" fill="#1D4426"/> <ellipse cx="117" cy="72" rx="9" ry="9.72" fill="#1D4426"/> <circle cx="86.06" cy="68.58" r="3.06" fill="#fff"/> <circle cx="120.06" cy="68.58" r="3.06" fill="#fff"/> <ellipse cx="69" cy="90" rx="10" ry="6" fill="#FFA8A0" opacity=".72"/> <ellipse cx="131" cy="90" rx="10" ry="6" fill="#FFA8A0" opacity=".72"/><path d="M94 100q6 6 12 0" fill="none" stroke="#1D4426" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  kon: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kon the kitsune"><defs><linearGradient id="kn1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DCC9D8"/></linearGradient><linearGradient id="kn2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6FA"/><stop offset="1" stop-color="#E8CFDE"/></linearGradient><linearGradient id="kn3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8E7C"/><stop offset="1" stop-color="#D8412F"/></linearGradient><radialGradient id="kns"><stop offset="0" stop-color="#B08AA8" stop-opacity=".30"/><stop offset="1" stop-color="#B08AA8" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="180" rx="46" ry="13" fill="url(#kns)"/><path d="M140 134q38 10 34 44-16-14-26 0-14-22-8-44z" fill="url(#kn2)"/><path d="M158 166q12 6 12 22-10-6-16 2-2-14 4-24z" fill="url(#kn3)"/><path d="M70 132q-28 5 -28 20" fill="none" stroke="url(#kn2)" stroke-width="18" stroke-linecap="round"/> <path d="M130 132q28 5 28 20" fill="none" stroke="url(#kn2)" stroke-width="18" stroke-linecap="round"/><path d="M67 110.6a33 33 0 0 1 66 0 L145 151.25a45 35.1 0 0 1 -90 0z" fill="url(#kn1)"/><ellipse cx="78" cy="173" rx="16" ry="10" fill="url(#kn2)"/> <ellipse cx="122" cy="173" rx="16" ry="10" fill="url(#kn2)"/><ellipse cx="86" cy="126" rx="16" ry="12" fill="#fff" opacity=".5"/><path d="M60 72 48 26l40 26z" fill="url(#kn2)"/><path d="M140 72l12-46-40 26z" fill="url(#kn2)"/><path d="M64 64 57 38l22 14z" fill="#F4A9B8"/><path d="M136 64l7-26-22 14z" fill="#F4A9B8"/><circle cx="100" cy="72" r="40" fill="url(#kn1)"/><ellipse cx="87" cy="58" rx="21" ry="14" fill="#fff" opacity=".55"/><path d="M74 62q10-10 20 0-10 8-20 0z" fill="url(#kn3)" opacity=".85"/><path d="M106 62q10-10 20 0-10 8-20 0z" fill="url(#kn3)" opacity=".85"/><ellipse cx="100" cy="88" rx="6" ry="4.6" fill="#8A4A5E"/> <ellipse cx="81" cy="66" rx="9.5" ry="10.260000000000002" fill="#5A2E42"/> <ellipse cx="119" cy="66" rx="9.5" ry="10.260000000000002" fill="#5A2E42"/> <circle cx="84.23" cy="62.39" r="3.2300000000000004" fill="#fff"/> <circle cx="122.23" cy="62.39" r="3.2300000000000004" fill="#fff"/> <ellipse cx="66" cy="84" rx="10" ry="6" fill="#FF9FAE" opacity=".72"/> <ellipse cx="134" cy="84" rx="10" ry="6" fill="#FF9FAE" opacity=".72"/><path d="M94 96q6 6 12 0" fill="none" stroke="#5A2E42" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  gama: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gama the toad"><defs><linearGradient id="gm1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FD96E"/><stop offset="1" stop-color="#3E8A44"/></linearGradient><linearGradient id="gm2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B4EE92"/><stop offset="1" stop-color="#5AAE5E"/></linearGradient><linearGradient id="gm3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2E6C4"/><stop offset="1" stop-color="#CBBA8E"/></linearGradient><radialGradient id="gms"><stop offset="0" stop-color="#2F6B38" stop-opacity=".30"/><stop offset="1" stop-color="#2F6B38" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="190" rx="54" ry="11" fill="url(#gms)"/><path d="M44 150q-14 16-4 30 16 4 26-8z" fill="url(#gm1)"/><path d="M156 150q14 16 4 30-16 4-26-8z" fill="url(#gm1)"/><path d="M66 138q-26 6.5 -26 26" fill="none" stroke="url(#gm1)" stroke-width="18" stroke-linecap="round"/> <path d="M134 138q26 6.5 26 26" fill="none" stroke="url(#gm1)" stroke-width="18" stroke-linecap="round"/><path d="M62 103.6a38 38 0 0 1 76 0 L150 148.5a50 39 0 0 1 -100 0z" fill="url(#gm2)"/><ellipse cx="100" cy="150" rx="30" ry="25" fill="url(#gm3)"/><ellipse cx="80" cy="118" rx="16" ry="12" fill="#fff" opacity=".18"/><g fill="url(#gm1)"><ellipse cx="56" cy="182" rx="22" ry="10"/><ellipse cx="144" cy="182" rx="22" ry="10"/></g><g fill="none" stroke="#2F6B38" stroke-width="2.6" opacity=".65"><path d="M44 182h24M48 176h16M48 188h16M156 182h-24M152 176h-16M152 188h-16"/></g><ellipse cx="100" cy="86" rx="44" ry="34" fill="url(#gm2)"/><circle cx="74" cy="58" r="19" fill="url(#gm2)"/><circle cx="126" cy="58" r="19" fill="url(#gm2)"/><circle cx="74" cy="56" r="11.5" fill="#F7F2D8"/><circle cx="126" cy="56" r="11.5" fill="#F7F2D8"/><ellipse cx="74" cy="56" rx="7" ry="9" fill="#23512C"/><ellipse cx="126" cy="56" rx="7" ry="9" fill="#23512C"/><circle cx="76.5" cy="52.5" r="3" fill="#fff"/><circle cx="128.5" cy="52.5" r="3" fill="#fff"/><path d="M66 92q34 22 68 0" fill="none" stroke="#3E8A44" stroke-width="5" stroke-linecap="round"/> <ellipse cx="62" cy="96" rx="10" ry="6" fill="#FF9EA8" opacity=".6"/> <ellipse cx="138" cy="96" rx="10" ry="6" fill="#FF9EA8" opacity=".6"/></svg>`,
+  fuku: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fuku the owl"><defs><linearGradient id="fk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9A86E"/><stop offset="1" stop-color="#8A5E32"/></linearGradient><linearGradient id="fk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0CFA0"/><stop offset="1" stop-color="#B4874F"/></linearGradient><linearGradient id="fk3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF2E2"/><stop offset="1" stop-color="#D8C4A4"/></linearGradient><radialGradient id="fks"><stop offset="0" stop-color="#6E4526" stop-opacity=".30"/><stop offset="1" stop-color="#6E4526" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="190" rx="48" ry="11" fill="url(#fks)"/><path d="M52 104q-16 30-6 58 14-6 22-24-10-18-16-34z" fill="url(#fk1)"/><path d="M148 104q16 30 6 58-14-6-22-24 10-18 16-34z" fill="url(#fk1)"/><path d="M64 103.2a36 36 0 0 1 72 0 L146 150.7a46 35.88 0 0 1 -92 0z" fill="url(#fk2)"/><g fill="url(#fk1)" opacity=".5"><path d="M82 132q9-8 18 0-9 8-18 0z"/><path d="M100 132q9-8 18 0-9 8-18 0z"/><path d="M74 150q9-8 18 0-9 8-18 0z"/><path d="M108 150q9-8 18 0-9 8-18 0z"/></g><ellipse cx="82" cy="116" rx="15" ry="11" fill="#fff" opacity=".18"/><g fill="#E0B24A"><path d="M80 178q-13 0-17 6 4 6 17 6 13 0 17-6-4-6-17-6z"/><path d="M120 178q-13 0-17 6 4 6 17 6 13 0 17-6-4-6-17-6z"/></g><g fill="none" stroke="#B98A28" stroke-width="2.2"><path d="M80 178v12M72 182l16 4M120 178v12M112 182l16 4"/></g><circle cx="100" cy="72" r="43" fill="url(#fk2)"/><path d="M68 38q-6-22 6-26 10 8 6 28z" fill="url(#fk1)"/><path d="M132 38q6-22-6-26-10 8-6 28z" fill="url(#fk1)"/><circle cx="80" cy="70" r="23" fill="url(#fk3)"/><circle cx="120" cy="70" r="23" fill="url(#fk3)"/><circle cx="80" cy="70" r="13" fill="#3A2A18"/><circle cx="120" cy="70" r="13" fill="#3A2A18"/><circle cx="80" cy="70" r="8" fill="#F5B93C"/><circle cx="120" cy="70" r="8" fill="#F5B93C"/><circle cx="80" cy="70" r="4.4" fill="#231708"/><circle cx="120" cy="70" r="4.4" fill="#231708"/><circle cx="82.5" cy="66.5" r="2.6" fill="#fff"/><circle cx="122.5" cy="66.5" r="2.6" fill="#fff"/><path d="M100 78l9 12-9 8-9-8z" fill="#E0B24A"/> <ellipse cx="60" cy="92" rx="10" ry="6" fill="#FFA8A8" opacity=".5"/> <ellipse cx="140" cy="92" rx="10" ry="6" fill="#FFA8A8" opacity=".5"/></svg>`,
+  amabi: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amabi of the sea"><defs><linearGradient id="am1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FD8E8"/><stop offset="1" stop-color="#2A8AA8"/></linearGradient><linearGradient id="am2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8ECF5"/><stop offset="1" stop-color="#4FB2C8"/></linearGradient><linearGradient id="am3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD766"/><stop offset="1" stop-color="#D89E1E"/></linearGradient><linearGradient id="am4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5E6A8"/><stop offset="1" stop-color="#C9AE5A"/></linearGradient><radialGradient id="ams"><stop offset="0" stop-color="#2A8AA8" stop-opacity=".30"/><stop offset="1" stop-color="#2A8AA8" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="184" rx="46" ry="12" fill="url(#ams)"/><path d="M56 62q-22 46-14 104 16 6 24-10-12-46-4-90z" fill="url(#am4)"/><path d="M144 62q22 46 14 104-16 6-24-10 12-46 4-90z" fill="url(#am4)"/><path d="M72 130q-24 4.5 -24 18" fill="none" stroke="url(#am1)" stroke-width="18" stroke-linecap="round"/> <path d="M128 130q24 4.5 24 18" fill="none" stroke="url(#am1)" stroke-width="18" stroke-linecap="round"/><path d="M70 106a30 30 0 0 1 60 0 L142 152.9a42 32.76 0 0 1 -84 0z" fill="url(#am2)"/><g fill="url(#am1)" opacity=".7"><path d="M86 128q8-8 16 0-8 8-16 0z"/><path d="M104 128q8-8 16 0-8 8-16 0z"/><path d="M78 146q8-8 16 0-8 8-16 0z"/><path d="M96 146q8-8 16 0-8 8-16 0z"/><path d="M114 146q8-8 16 0-8 8-16 0z"/></g><ellipse cx="84" cy="122" rx="14" ry="11" fill="#fff" opacity=".18"/><g fill="url(#am1)"><ellipse cx="74" cy="178" rx="12" ry="8"/><ellipse cx="100" cy="182" rx="12" ry="8"/><ellipse cx="126" cy="178" rx="12" ry="8"/></g><circle cx="100" cy="66" r="36" fill="url(#am2)"/><ellipse cx="88" cy="54" rx="18" ry="12" fill="#fff" opacity=".18"/><path d="M100 22q-30 4-32 26 32 10 64 0-2-22-32-26z" fill="url(#am4)"/><path d="M90 80h20l-10 16z" fill="url(#am3)"/> <ellipse cx="84" cy="62" rx="9" ry="9.72" fill="#14415A"/> <ellipse cx="116" cy="62" rx="9" ry="9.72" fill="#14415A"/> <circle cx="87.06" cy="58.58" r="3.06" fill="#fff"/> <circle cx="119.06" cy="58.58" r="3.06" fill="#fff"/> <ellipse cx="70" cy="80" rx="10" ry="6" fill="#FFA8C0" opacity=".72"/> <ellipse cx="130" cy="80" rx="10" ry="6" fill="#FFA8C0" opacity=".72"/></svg>`,
+};
+
 const NEUTRAL_CAST = BRAND.cast === 'neutral';
-const MASCOTS = NEUTRAL_CAST ? MASCOTS_NEUTRAL : MASCOTS_CUTE;
-const MASCOT_NAMES = NEUTRAL_CAST ? MASCOT_NAMES_NEUTRAL : MASCOT_NAMES_CUTE;
+const MASCOTS = NEUTRAL_CAST ? MASCOTS_MYTHIC : MASCOTS_CUTE;
+const MASCOT_NAMES = NEUTRAL_CAST ? MASCOT_NAMES_MYTHIC : MASCOT_NAMES_CUTE;
 
 function mascot(name, size, cls) { return `<span class="mascot ${cls || ''}" style="width:${size}px;height:${size}px">${MASCOTS[name] || ''}</span>`; }
 /* part9-rewards.js
@@ -4088,11 +4116,121 @@ const CHARS_NEUTRAL = [
     stages: ['Cerro', 'Vapor', 'Humo', 'Chispa', 'Fuego del Valle'],
     anchor: { head: [100, 52, .9], face: [100, 120, 1], neck: [100, 160, .9], held: [158, 150, 1] } },
 ];
-const CHARS = NEUTRAL_CAST ? CHARS_NEUTRAL : CHARS_CUTE;
-const CHAR_BY_ID = Object.fromEntries(CHARS.map(c => [c.id, c]));
+
+/* ═══════════════ THE MYTHIC CASTS (v30) ═══════════════
+   Four companions per language, two of each, drawn from that language's own legends rather than
+   its wildlife — so the culture is in the creature itself, not in a costume on a generic animal.
+
+   Each language keeps its own four. The four you have raised in Spanish are still raised when you
+   come back to Spanish; they simply are not in the room while you are studying French. XP, coins,
+   streak and the casita itself stay shared, because those are yours and not the cast's.
+
+   The unlock ladder (0 / 300 / 800 / 1600) is the same in every language and reads the SHARED XP
+   total, so arriving in a new language does not send you back to one companion. */
+const CASTS_MYTHIC = {
+  es: [
+    { id: 'tuk', name: 'Tuk', kind: 'quetzal', gender: 'f', unlock: 0,
+      blurb: 'A quetzal. Loud, quick, and better at listening than she looks.',
+      stages: ['Pluma', 'Brinco', 'Vuelo', 'Cola Larga', 'Tuk del Cielo'],
+      anchor: { head: [100, 30, 1], face: [100, 68, 1], neck: [100, 106, .95], held: [158, 148, 1] } },
+    { id: 'alux', name: 'Alux', kind: 'guardián', gender: 'm', unlock: 300,
+      blurb: 'A guardian of the milpa. Leave him an offering and the field does well.',
+      stages: ['Semilla', 'Brote', 'Milpero', 'Guardián', 'Alux del Maíz'],
+      anchor: { head: [100, 22, .9], face: [100, 74, 1], neck: [100, 104, .9], held: [150, 140, 1] } },
+    { id: 'carbunco', name: 'Carbunco', kind: 'brasa', gender: 'm', unlock: 800,
+      blurb: 'Carries a mirror-bright stone on its brow, and is never seen twice by the same person.',
+      stages: ['Chispa', 'Rescoldo', 'Destello', 'Lumbre', 'Carbunco de la Noche'],
+      anchor: { head: [100, 34, 1], face: [100, 72, 1], neck: [100, 108, .95], held: [156, 146, 1] } },
+    { id: 'alicanto', name: 'Alicanto', kind: 'ave', gender: 'f', unlock: 1600,
+      blurb: 'A bird that eats ore, so her wings shine with whatever she last found.',
+      stages: ['Polvo', 'Veta', 'Plata', 'Oro', 'Alicanto del Cerro'],
+      anchor: { head: [100, 30, .95], face: [100, 70, 1], neck: [100, 104, .9], held: [152, 150, 1] } },
+  ],
+  fr: [
+    { id: 'gargo', name: 'Gargo', kind: 'gargouille', gender: 'm', unlock: 0,
+      blurb: 'The gargouille of Rouen. Stone most days, and friendlier than the teeth suggest.',
+      stages: ['Galet', 'Pierre', 'Chimère', 'Veilleur', 'Gargo de la Tour'],
+      anchor: { head: [100, 34, 1], face: [100, 76, 1], neck: [100, 110, .95], held: [158, 148, 1] } },
+    { id: 'meli', name: 'Méli', kind: 'mélusine', gender: 'f', unlock: 300,
+      blurb: 'River, woman and serpent, depending on the day of the week.',
+      stages: ['Source', 'Ruisseau', 'Rivière', 'Fontaine', 'Méli des Eaux'],
+      anchor: { head: [100, 32, 1], face: [100, 72, 1], neck: [100, 108, .95], held: [156, 148, 1] } },
+    { id: 'barbegazi', name: 'Barbegazi', kind: 'nain', gender: 'm', unlock: 800,
+      blurb: 'An Alpine dwarf whose feet are so big he uses them as skis.',
+      stages: ['Flocon', 'Givre', 'Congère', 'Avalanche', 'Barbegazi des Cimes'],
+      anchor: { head: [100, 30, .9], face: [100, 66, 1], neck: [100, 100, .9], held: [150, 140, 1] } },
+    { id: 'peluda', name: 'Peluda', kind: 'bête', gender: 'f', unlock: 1600,
+      blurb: 'The shaggy quilled beast of the Huisne. Mostly misunderstood.',
+      stages: ['Duvet', 'Touffe', 'Broussaille', 'Hérissée', 'Peluda du Huisne'],
+      anchor: { head: [100, 36, .95], face: [100, 76, 1], neck: [100, 110, .95], held: [156, 150, 1] } },
+  ],
+  ja: [
+    { id: 'kon', name: 'Kon', kind: 'kitsune', gender: 'f', unlock: 0,
+      blurb: 'A fox spirit. One tail so far — they arrive slowly, and she is counting.',
+      stages: ['こぎつね · kogitsune', 'ひとつ尾 · hitotsuo', 'ふたつ尾 · futatsuo', 'みつ尾 · mitsuo', '九尾のコン · kyūbi no Kon'],
+      anchor: { head: [100, 30, 1], face: [100, 72, 1], neck: [100, 108, .95], held: [156, 148, 1] } },
+    { id: 'gama', name: 'Gama', kind: 'がま', gender: 'm', unlock: 300,
+      blurb: 'The toad of the Jiraiya tales. Big enough to ride, and in no hurry.',
+      stages: ['おたま · otama', 'こがえる · kogaeru', 'あまがえる · amagaeru', 'おおがま · ōgama', '仙がまのガマ · sengama no Gama'],
+      anchor: { head: [100, 42, 1], face: [100, 86, 1], neck: [100, 118, .95], held: [160, 156, 1] } },
+    { id: 'fuku', name: 'Fuku', kind: 'ふくろう', gender: 'm', unlock: 800,
+      blurb: 'An owl. Written with characters that read "no hardship", which he takes seriously.',
+      stages: ['ひな · hina', 'わたげ · watage', 'よばね · yobane', 'しずか · shizuka', '福のフク · fuku no Fuku'],
+      anchor: { head: [100, 26, .95], face: [100, 72, 1], neck: [100, 106, .9], held: [154, 150, 1] } },
+    { id: 'amabi', name: 'Amabi', kind: 'あまび', gender: 'f', unlock: 1600,
+      blurb: 'She rose out of the sea, and leaves good harvests behind her.',
+      stages: ['しずく · shizuku', 'なみ · nami', 'うしお · ushio', 'みちしお · michishio', '海のアマビ · umi no Amabi'],
+      anchor: { head: [100, 24, .9], face: [100, 66, 1], neck: [100, 102, .9], held: [150, 146, 1] } },
+  ],
+};
+/* every companion in every language — what state init and the migration walk over */
+const ALL_MYTHIC = [].concat(CASTS_MYTHIC.es, CASTS_MYTHIC.fr, CASTS_MYTHIC.ja);
+
+/* Before v30 the Vamos cast was four animals with these ids, and learners have care and outfits
+   saved against them. The Spanish four inherit those slots in order, so a person who raised the
+   jaguar to stage four finds Tuk at stage four: the creature changed, the work did not. */
+const CAST_MIGRATE = { lola: 'tuk', mota: 'alux', nopalito: 'carbunco', nube: 'alicanto' };
+function migrateCast() {
+  if (!NEUTRAL_CAST || !S.chars) return;
+  Object.keys(CAST_MIGRATE).forEach((old) => {
+    const to = CAST_MIGRATE[old];
+    if (S.chars[old] && !S.chars[to]) { S.chars[to] = S.chars[old]; S.chars[to].id = to; }
+    delete S.chars[old];
+  });
+  if (S.buddy && CAST_MIGRATE[S.buddy]) S.buddy = CAST_MIGRATE[S.buddy];
+}
+
+/* These three are re-bound by setCourse() when the language changes — hence let, not const. */
+let CHARS = NEUTRAL_CAST ? CASTS_MYTHIC.es : CHARS_CUTE;
+let CHAR_BY_ID = Object.fromEntries(CHARS.map(c => [c.id, c]));
 /* the companion every build leans on for its own copy: the one you start with */
-const CAST_LEAD = CHARS[0].id;
+let CAST_LEAD = CHARS[0].id;
 const leadName = () => CHARS[0].name;
+/* every companion this build knows about, across all its languages */
+const ALL_CHARS = NEUTRAL_CAST ? ALL_MYTHIC : CHARS_CUTE;
+
+/* Called from bindCourse(). The chosen companion is remembered per language, so coming back to
+   Spanish puts you back with whoever you were raising in Spanish rather than resetting you. */
+/* Which cast is on screen right now. setCourse() has already moved S.lang on to the NEW language
+   by the time bindCast runs, so S.lang cannot tell us which language we are leaving — and filing
+   the Spanish companion under 'ja' is exactly the bug that produces. */
+let CAST_LANG = 'es';
+function bindCast(lang) {
+  if (!NEUTRAL_CAST) return;
+  /* A save from before v30 still names one of the old four, and bindCast runs before ensureChars
+     has had a chance to migrate. Without this the person's pick falls back to the lead — their
+     care survives, but the companion they actually chose does not. */
+  if (S.buddy && CAST_MIGRATE[S.buddy]) S.buddy = CAST_MIGRATE[S.buddy];
+  /* remember who we were with in the language we are leaving, before the map is rebuilt */
+  if (S.buddy && CHAR_BY_ID[S.buddy]) { S.buddyBy = S.buddyBy || {}; S.buddyBy[CAST_LANG] = S.buddy; }
+  CAST_LANG = lang;
+  CHARS = CASTS_MYTHIC[lang] || CASTS_MYTHIC.es;
+  CHAR_BY_ID = Object.fromEntries(CHARS.map(c => [c.id, c]));
+  CAST_LEAD = CHARS[0].id;
+  const remembered = (S.buddyBy || {})[lang];
+  if (remembered && CHAR_BY_ID[remembered]) S.buddy = remembered;
+  else if (!S.buddy || !CHAR_BY_ID[S.buddy]) S.buddy = CAST_LEAD;   /* keep a still-valid pick */
+}
 /* care XP needed to reach each stage (index = stage - 1) */
 const STAGE_AT = [0, 120, 400, 900, 1800];
 const STAGE_SCALE = [0.66, 0.8, 0.9, 1, 1.1];   /* v14: babies are small, legends are tall */
@@ -4358,9 +4496,12 @@ const CHESTS = {
 function blankChar(id) { return { care: 0, worn: { head: null, face: null, neck: null, held: null, aura: null } }; }
 function initRewards() {
   if (typeof S.coins !== 'number') S.coins = 0;
-  if (!S.buddy) S.buddy = 'lola';
+  /* migrate FIRST. The validity check below does not know the old ids, so running it first throws
+     away a pre-v30 learner's chosen companion a moment before the migration could have saved it. */
+  migrateCast();
+  if (!S.buddy || !CHAR_BY_ID[S.buddy]) S.buddy = CAST_LEAD;
   if (!S.chars) S.chars = {};
-  CHARS.forEach(c => { if (!S.chars[c.id]) S.chars[c.id] = blankChar(c.id); });
+  ALL_CHARS.forEach(c => { if (!S.chars[c.id]) S.chars[c.id] = blankChar(c.id); });
   if (!S.items) S.items = {};
   if (!S.decor) S.decor = {};
   if (!S.room) S.room = { bg: 'casita', on: {} };
@@ -4439,6 +4580,7 @@ function rewardXP(n) {
   const news = [];
   if (after > before) news.push({ kind: 'stage', char: b.id, stage: after });
   CHARS.forEach(c => { if (c.unlock > 0 && (S.xp || 0) >= c.unlock && !S.rewardSeen['char.' + c.id]) { S.rewardSeen['char.' + c.id] = true; news.push({ kind: 'char', char: c.id }); } });
+  /* a companion unlocked in another language is not announced here — it is announced when you go there */
   return news;
 }
 
@@ -4547,7 +4689,60 @@ const GROWTH_NEUTRAL = {
     5: { tf: 'translate(100 176) scale(.98 1.06) translate(-100 -176)', back: fuegoSmoke(16, '.55') + `<g fill="none" stroke-width="6" stroke-linecap="round" opacity=".45"><path d="M26 150a74 74 0 0 1 148 0" stroke="#E0762F"/><path d="M38 150a62 62 0 0 1 124 0" stroke="#F0A83C"/></g>`, front: `<path d="M84 64q7 22 0 36M116 64q-7 22 0 36M100 62q0 24 0 40" stroke="#E0762F" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>` },
   },
 };
-const GROWTH = NEUTRAL_CAST ? GROWTH_NEUTRAL : GROWTH_CUTE;
+
+/* ───────── growing up, for twelve companions ─────────
+   The old cast had five hand-drawn stages each, which does not scale to twelve. Instead there are
+   three primitives — a plume behind, a soft ring, a scatter of motes — and each companion says
+   which colours it grows in and where its eyes are. That keeps the twelve consistent with each
+   other, which hand-drawing sixty frames would not have.
+   Stage 1 is squashed with bigger eyes (a baby), stages 2-4 add the plume, stage 5 stretches tall
+   and gains the ring. STAGE_SCALE on top of this is what actually makes them bigger. */
+const gPlume = (c, k) => `<g transform="translate(150 152) scale(${k}) translate(-150 -152)"><path d="M150 132q32 12 28 44-15-13-23 2-11-21-5-46z" fill="${c}" opacity=".92"/></g>`;
+const gRing = (c, k) => `<g opacity=".28"><circle cx="100" cy="112" r="${74 * k}" fill="none" stroke="${c}" stroke-width="${7 * k}"/><circle cx="100" cy="112" r="${60 * k}" fill="none" stroke="${c}" stroke-width="${3 * k}" opacity=".6"/></g>`;
+const gMotes = (c, k, n) => {
+  const at = [[44, 58], [158, 66], [36, 118], [166, 126], [58, 34], [142, 30]];
+  return `<g fill="${c}">` + at.slice(0, n).map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="${(4.2 - i * 0.3) * k}" opacity="${0.85 - i * 0.08}"/>`).join('') + `</g>`;
+};
+function growth5(s) {
+  const sig = (k) => gPlume(s.c, k);
+  return {
+    1: { tf: 'translate(100 176) scale(1.10 .88) translate(-100 -176)', front: bigEyes(s.eyes, s.er || 3.4) },
+    2: { tf: 'translate(100 176) scale(1.04 .96) translate(-100 -176)', back: sig(.55) },
+    3: { back: sig(.8) },
+    4: { back: sig(1) + gMotes(s.c2, .85, 3) },
+    5: { tf: 'translate(100 176) scale(.98 1.07) translate(-100 -176)', back: gRing(s.c, 1) + sig(1.25), front: gMotes(s.c2, 1, 5) },
+  };
+}
+const MYTHIC_GROW = {
+  tuk:       { eyes: [[83, 62], [117, 62]], c: '#2E9276', c2: '#FFC94D' },
+  alux:      { eyes: [[85, 76], [115, 76]], c: '#C9A03C', c2: '#7FC96E' },
+  carbunco:  { eyes: [[82, 74], [118, 74]], c: '#C42440', c2: '#FF8E9E' },
+  alicanto:  { eyes: [[83, 64], [117, 64]], c: '#D89E1E', c2: '#F2F6FC' },
+  gargo:     { eyes: [[81, 70], [119, 70]], c: '#4A5A74', c2: '#C8CFD9' },
+  meli:      { eyes: [[82, 68], [118, 68]], c: '#2A7FA8', c2: '#FFD766' },
+  barbegazi: { eyes: [[84, 64], [116, 64]], c: '#22497A', c2: '#F7FBFF' },
+  peluda:    { eyes: [[83, 72], [117, 72]], c: '#2F6B38', c2: '#93CC7A' },
+  kon:       { eyes: [[81, 66], [119, 66]], c: '#D8412F', c2: '#FFF6FA' },
+  gama:      { eyes: [[74, 56], [126, 56]], c: '#3E8A44', c2: '#B4EE92', er: 4 },
+  fuku:      { eyes: [[80, 70], [120, 70]], c: '#8A5E32', c2: '#F5B93C' },
+  amabi:     { eyes: [[84, 62], [116, 62]], c: '#2A8AA8', c2: '#FFD766' },
+};
+const GROWTH_MYTHIC = Object.fromEntries(Object.keys(MYTHIC_GROW).map(k => [k, growth5(MYTHIC_GROW[k])]));
+const EVO_MYTHIC = {
+  tuk:       { motif: 'bubble', c: '#4FB394', c2: '#D8F5EC', anim: 'bubble' },
+  alux:      { motif: 'leaf',   c: '#C9A03C', c2: '#F2E6C4', anim: 'flower' },
+  carbunco:  { motif: 'spark',  c: '#C42440', c2: '#FFB8C4', anim: 'star' },
+  alicanto:  { motif: 'star',   c: '#D89E1E', c2: '#FFEBAE', anim: 'star' },
+  gargo:     { motif: 'spark',  c: '#5A626E', c2: '#D6DCE6', anim: 'star' },
+  meli:      { motif: 'bubble', c: '#2A7FA8', c2: '#BDEBF7', anim: 'bubble' },
+  barbegazi: { motif: 'star',   c: '#4A7FB8', c2: '#EAF4FF', anim: 'star' },
+  peluda:    { motif: 'leaf',   c: '#3E8A44', c2: '#CFEBBC', anim: 'flower' },
+  kon:       { motif: 'spark',  c: '#D8412F', c2: '#FFE2EC', anim: 'star' },
+  gama:      { motif: 'leaf',   c: '#3E8A44', c2: '#D6F3C4', anim: 'flower' },
+  fuku:      { motif: 'star',   c: '#8A5E32', c2: '#F5DFB4', anim: 'star' },
+  amabi:     { motif: 'bubble', c: '#2A8AA8', c2: '#C4EEF7', anim: 'bubble' },
+};
+const GROWTH = NEUTRAL_CAST ? GROWTH_MYTHIC : GROWTH_CUTE;
 function growth(id, stage) { const g = (GROWTH[id] || GROWTH[CHARS[0].id])[Math.max(1, Math.min(5, stage))] || {}; return { back: g.back || '', front: g.front || '', tf: g.tf || '' }; }
 
 /* ----- evolution (v13): every stage is a visibly different look, not just a bigger one -----
@@ -4567,7 +4762,7 @@ const EVO_NEUTRAL = {
   nopalito: { motif: 'leaf',   c: '#A8BF75', c2: '#E6EDD3', anim: 'flower' },
   nube:     { motif: 'spark',  c: '#E0762F', c2: '#F0C674', anim: 'star' },
 };
-const EVO = NEUTRAL_CAST ? EVO_NEUTRAL : EVO_CUTE;
+const EVO = NEUTRAL_CAST ? EVO_MYTHIC : EVO_CUTE;
 function motifSVG(kind, c, c2) {
   if (kind === 'bubble') return `<circle r="9" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="-3" cy="-3" r="2.2" fill="${c2}"/>`;
   if (kind === 'star') return `<path d="M0-11l3.2 6.9 7.6.9-5.6 5.3 1.4 7.5L0 6.1l-6.6 3.5 1.4-7.5-5.6-5.3 7.6-.9z" fill="${c}" stroke="${c2}" stroke-width="1"/>`;
@@ -5647,6 +5842,7 @@ const levelUnlocked = () => true;
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v30', 'A new cast, and a different one for every language. Four companions each \u2014 two and two \u2014 drawn from that language\u2019s own legends rather than its wildlife: a quetzal and a guardian of the milpa in Spanish, the gargouille of Rouen and an Alpine dwarf who skis on his own feet in French, a kitsune and the toad of the Jiraiya tales in Japanese. They change when you change language, and whoever you were raising in each one is waiting when you come back. Everything you had already raised carries straight over.'],
   ['v29.1', 'The tab icon sat on a white square. The rounded tile was drawn on a white page and kept its corners, which showed as a box behind it on any tab that was not white \u2014 the corners are clear now.'],
   ['v29', 'The link looks like the app again. Sharing it used to unfurl a small pink square \u2014 the mascot this build stopped using in September \u2014 because every chat app had cached that picture against an address that never changed. The card is now a wide one at its own new address, with the wordmark on it, so nothing can serve the old one. There is a proper tab icon too, and on Android the address bar finally takes this app\u2019s colour rather than another build\u2019s.'],
   ['v28', 'The app opens straight into itself. There is no sign-up at the door any more, and no padlocks: every level of every language is open from the first second, so you can try level 5 Japanese before you decide whether any of this is for you. At <b>100 XP</b> \u2014 counted across everything you do, in every language \u2014 an account is asked for, and everything earned up to that point comes with you into it. Accounts now use a real password of eight characters or more instead of a four-digit PIN; an older PIN still signs in the account it made.'],
@@ -7284,6 +7480,8 @@ function bindCourse(c) {
   TENSE_BY_K = Object.fromEntries(TENSES.map(t => [t.k, t]));
   DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));
   VOICE = null;            /* the voice is picked again for the new language */
+  /* the four companions change with the course; who you were raising in each is remembered */
+  if (typeof bindCast === 'function') bindCast(c.id);
 }
 
 /* setCourse('fr') — the only way the active language changes.
@@ -10662,7 +10860,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v29.1', date: '17 September 2026' };
+const BUILD = { v: 'v30', date: '17 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
