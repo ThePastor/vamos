@@ -5647,6 +5647,7 @@ const levelUnlocked = () => true;
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v29.1', 'The tab icon sat on a white square. The rounded tile was drawn on a white page and kept its corners, which showed as a box behind it on any tab that was not white \u2014 the corners are clear now.'],
   ['v29', 'The link looks like the app again. Sharing it used to unfurl a small pink square \u2014 the mascot this build stopped using in September \u2014 because every chat app had cached that picture against an address that never changed. The card is now a wide one at its own new address, with the wordmark on it, so nothing can serve the old one. There is a proper tab icon too, and on Android the address bar finally takes this app\u2019s colour rather than another build\u2019s.'],
   ['v28', 'The app opens straight into itself. There is no sign-up at the door any more, and no padlocks: every level of every language is open from the first second, so you can try level 5 Japanese before you decide whether any of this is for you. At <b>100 XP</b> \u2014 counted across everything you do, in every language \u2014 an account is asked for, and everything earned up to that point comes with you into it. Accounts now use a real password of eight characters or more instead of a four-digit PIN; an older PIN still signs in the account it made.'],
   ['v27', 'The shared link stops breaking. Publishing a new version used to leave the app showing a \u201cpage not found\u201d - the copy on your phone took the host\u2019s brief mid-upload 404 for the real page and kept it. It no longer does: the last good copy is held on to until a real one arrives, so an update is invisible to anyone following the link. And an address that has been cut short or mistyped now lands on a page with a way back instead of a dead end.'],
@@ -10661,7 +10662,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v29', date: '17 September 2026' };
+const BUILD = { v: 'v29.1', date: '17 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
