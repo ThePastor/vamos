@@ -575,6 +575,25 @@ html.standalone .dedication { display: block; }
 .lcard .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .lcard.t-pink { background: var(--pink-1); } .lcard.t-pink2 { background: var(--pink-2); } .lcard.t-sage { background: var(--sage-soft); } .lcard.t-pink3 { background: var(--tile-3); } .lcard.t-sand { background: var(--sand); }
 .lcard.t-pink2, .lcard.t-pink2 p, .lcard.t-pink2 .foot { color: var(--pink-ink); }
+
+/* ---- the six home cards (v32) ----------------------------------------------------------------
+   These used to be tinted from the palette's own accent ramp — pink-1, pink-2, tile-3, sand — so
+   whatever the palette was, all six cards were one hue with one odd green. Monochrome by
+   construction, which is exactly why they looked dull.
+   They get their own six hues instead: a category system rather than brand chrome, so the six
+   sections of the app are told apart by colour at a glance. Each carries three tokens — the tint,
+   the ink drawn on it, and the big glyph — and the dark set redefines all three, because a pale
+   tint that works on paper is a glare on a dark screen. */
+.lcard.tint { background: var(--cb); }
+.lcard.tint h3 { color: var(--ci); }
+.lcard.tint p, .lcard.tint .foot { color: var(--ci); opacity: .82; }
+.lcard.tint .glyph { color: var(--cg); opacity: .5; }
+.lcard.c1 { --cb: #EBE6FF; --ci: #40308F; --cg: #6E56CF; }   /* grammar  · violet  */
+.lcard.c2 { --cb: #FFE7DE; --ci: #9A3714; --cg: #F2683C; }   /* speaking · coral   */
+.lcard.c3 { --cb: #DEF4F0; --ci: #0A564E; --cg: #0E9A8A; }   /* reading  · teal    */
+.lcard.c4 { --cb: #FCEFD1; --ci: #7E5405; --cg: #E8A21C; }   /* play     · amber   */
+.lcard.c5 { --cb: #FFE2EF; --ci: #8C1D53; --cg: #D6357F; }   /* practice · magenta */
+.lcard.c6 { --cb: #E8F5D8; --ci: #375F17; --cg: #5CA82E; }   /* casita   · lime    */
 .home-hero .copy h1 .mos { background: var(--pink-4); color: #3A2230; padding: 0 .08em; border-radius: .06em; display: inline-block; line-height: .78; padding-top: .04em; }
 .home-hero .copy .why a { white-space: nowrap; }
 .today select { font: inherit; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 5px 10px; border-radius: 999px; }
@@ -1937,6 +1956,34 @@ html.standalone #testbar { top: calc(64px + max(env(safe-area-inset-top, 0px), 6
     --ok: #7BD1A6; --ok-soft: #1E3A2C; --bad: #E08C88; --bad-soft: #3E2322;
   }
 }
+
+/* The six home-card hues, dark. Same six colours, rebuilt for a dark ground: the tint becomes a
+   deep hue-shifted surface and the ink becomes the light end of that hue, so the cards stay told
+   apart by colour without any of them glowing. Applies to every palette. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c1: #241E3E; --c1i: #C4B6FF; --c1g: #8E79E8;
+    --c2: #33201A; --c2i: #FFB093; --c2g: #E8764A;
+    --c3: #12302D; --c3i: #6FDCCB; --c3g: #2FB8A6;
+    --c4: #332818; --c4i: #F5CB6B; --c4g: #D69A2E;
+    --c5: #331A28; --c5i: #FF9BC5; --c5g: #E05A93;
+    --c6: #21301A; --c6i: #ADDC80; --c6g: #77BF44;
+  }
+}
+:root[data-theme="dark"] {
+  --c1: #241E3E; --c1i: #C4B6FF; --c1g: #8E79E8;
+  --c2: #33201A; --c2i: #FFB093; --c2g: #E8764A;
+  --c3: #12302D; --c3i: #6FDCCB; --c3g: #2FB8A6;
+  --c4: #332818; --c4i: #F5CB6B; --c4g: #D69A2E;
+  --c5: #331A28; --c5i: #FF9BC5; --c5g: #E05A93;
+  --c6: #21301A; --c6i: #ADDC80; --c6g: #77BF44;
+}
+:root[data-theme="dark"] .lcard.c1, :root:not([data-theme="light"]) .lcard.c1 { --cb: var(--c1, #EBE6FF); --ci: var(--c1i, #40308F); --cg: var(--c1g, #6E56CF); }
+:root[data-theme="dark"] .lcard.c2, :root:not([data-theme="light"]) .lcard.c2 { --cb: var(--c2, #FFE7DE); --ci: var(--c2i, #9A3714); --cg: var(--c2g, #F2683C); }
+:root[data-theme="dark"] .lcard.c3, :root:not([data-theme="light"]) .lcard.c3 { --cb: var(--c3, #DEF4F0); --ci: var(--c3i, #0A564E); --cg: var(--c3g, #0E9A8A); }
+:root[data-theme="dark"] .lcard.c4, :root:not([data-theme="light"]) .lcard.c4 { --cb: var(--c4, #FCEFD1); --ci: var(--c4i, #7E5405); --cg: var(--c4g, #E8A21C); }
+:root[data-theme="dark"] .lcard.c5, :root:not([data-theme="light"]) .lcard.c5 { --cb: var(--c5, #FFE2EF); --ci: var(--c5i, #8C1D53); --cg: var(--c5g, #D6357F); }
+:root[data-theme="dark"] .lcard.c6, :root:not([data-theme="light"]) .lcard.c6 { --cb: var(--c6, #E8F5D8); --ci: var(--c6i, #375F17); --cg: var(--c6g, #5CA82E); }
 </style>
 
 <header class="topbar">
@@ -5849,6 +5896,7 @@ const levelUnlocked = () => true;
    whenever BUILD is bumped, and trim the tail past a dozen — nobody reads further back than that.
    Written for whichever build this is, so nothing here names one app's cast or one app's country. */
 const WHATS_NEW = [
+  ['v32', 'The six cards on the home screen each have their own colour. They were five shades of the same one before, which made them hard to tell apart at a glance — now Grammar is violet, Speaking coral, Reading teal, Play amber, Practice magenta and Casita green, in both the light and the dark theme. Whichever palette you are on, the cards look the same.'],
   ['v31', 'New colours. The green has gone \u2014 the app is blue now, and the dark theme is a proper neutral slate rather than a dark green, which is easier on the eyes at night. Everything is a little more saturated than it was, so buttons and the level you are on actually stand out. If you had picked Teal in Settings you are on the new Cobalt; Rosa and Indigo are untouched.'],
   ['v30', 'A new cast, and a different one for every language. Four companions each \u2014 two and two \u2014 drawn from that language\u2019s own legends rather than its wildlife: a quetzal and a guardian of the milpa in Spanish, the gargouille of Rouen and an Alpine dwarf who skis on his own feet in French, a kitsune and the toad of the Jiraiya tales in Japanese. They change when you change language, and whoever you were raising in each one is waiting when you come back. Everything you had already raised carries straight over.'],
   ['v29.1', 'The tab icon sat on a white square. The rounded tile was drawn on a white page and kept its corners, which showed as a box behind it on any tab that was not white \u2014 the corners are clear now.'],
@@ -10868,7 +10916,7 @@ const norm = (s) => stripAccents(String(s).toLowerCase()).replace(/[^a-z0-9\u00f
 const gridForm = (w) => stripAccents(String(w).toUpperCase()).replace(/[^A-Z\u00d1]/g, '');
 const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 let DICT_BY_ES = Object.fromEntries(DICT.map(d => [d.es, d]));   /* rebuilt whenever the course changes */
-const BUILD = { v: 'v31', date: '17 September 2026' };
+const BUILD = { v: 'v32', date: '17 September 2026' };
 const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return todayStr(d); };
 const XP = { lesson: 15, perfect: 5, phrase: 5, passage: 15, huntWord: 2, hunt: 10, card: 1, mistake: 3, dialogue: 10, listen: 3 };
@@ -11536,12 +11584,12 @@ function renderHome() {
       <div class="levelrow">${LEVELS.map(l => `<button type="button" class="${l.id === lv.id ? 'on' : ''} ${levelUnlocked(l.id) ? '' : 'locked'}" data-level="${l.id}" title="${esc(l.grade)}"><i class="${levelPassed(l.id) || levelProgress(l.id) >= 100 ? 'full' : ''}"></i>${levelUnlocked(l.id) ? '' : '○ '}${l.id} · ${esc(l.name)}</button>`).join('')}</div>
     </div>
     <div class="hbody cards5">
-      <a class="lcard t-pink" href="#grammar"><span class="glyph">¿?</span>${mascot('nopalito', 72)}<h3>Grammar</h3><p>Short rules, then a few exercises.</p><span class="foot"><span>${(GRAMMAR[lv.id] || []).filter(l => S.done[l.id]).length}/${(GRAMMAR[lv.id] || []).length} done</span><span>→</span></span></a>
-      <a class="lcard t-pink2" href="#speaking"><span class="glyph">¡!</span>${mascot('lola', 72)}<h3>Speaking</h3><p>Phrases, dialogues, listen &amp; type.</p><span class="foot"><span>${(SPEAKING[lv.id] || []).length} phrases</span><span>→</span></span></a>
-      <a class="lcard t-sage" href="#reading"><span class="glyph">Aa</span>${mascot('nube', 72)}<h3>Reading</h3><p>Passages read aloud, tap any word.</p><span class="foot"><span>${(READING[lv.id] || []).filter(r => r.qs.length).length} passages</span><span>→</span></span></a>
-      <a class="lcard t-pink3" href="#games"><span class="glyph">ñ</span>${mascot('mota', 72)}<h3>Play</h3><p>Word Hunt, Mercado, dictation ladder.</p><span class="foot"><span>${(HUNTS[lv.id] || []).length} puzzles</span><span>→</span></span></a>
-      <a class="lcard t-sand" href="#review"><span class="glyph">♥</span>${mascot('nube', 72)}<h3>Practice</h3><p>Words, grammar, verbs and translation.</p><span class="foot"><span>${due + dueConcepts().length} due</span><span>→</span></span></a>
-      <a class="lcard t-pink2" href="#casita"><span class="glyph">⌂</span>${companion(buddy().id, 72)}<h3>Casita</h3><p>Your friends, their outfits and the shop.</p><span class="foot"><span>${COIN} ${S.coins || 0}${chestReady('daily') || chestReady('weekly') ? ' · chest ready' : ''}</span><span>→</span></span></a>
+      <a class="lcard tint c1" href="#grammar"><span class="glyph">¿?</span>${mascot('nopalito', 72)}<h3>Grammar</h3><p>Short rules, then a few exercises.</p><span class="foot"><span>${(GRAMMAR[lv.id] || []).filter(l => S.done[l.id]).length}/${(GRAMMAR[lv.id] || []).length} done</span><span>→</span></span></a>
+      <a class="lcard tint c2" href="#speaking"><span class="glyph">¡!</span>${mascot('lola', 72)}<h3>Speaking</h3><p>Phrases, dialogues, listen &amp; type.</p><span class="foot"><span>${(SPEAKING[lv.id] || []).length} phrases</span><span>→</span></span></a>
+      <a class="lcard tint c3" href="#reading"><span class="glyph">Aa</span>${mascot('nube', 72)}<h3>Reading</h3><p>Passages read aloud, tap any word.</p><span class="foot"><span>${(READING[lv.id] || []).filter(r => r.qs.length).length} passages</span><span>→</span></span></a>
+      <a class="lcard tint c4" href="#games"><span class="glyph">ñ</span>${mascot('mota', 72)}<h3>Play</h3><p>Word Hunt, Mercado, dictation ladder.</p><span class="foot"><span>${(HUNTS[lv.id] || []).length} puzzles</span><span>→</span></span></a>
+      <a class="lcard tint c5" href="#review"><span class="glyph">♥</span>${mascot('nube', 72)}<h3>Practice</h3><p>Words, grammar, verbs and translation.</p><span class="foot"><span>${due + dueConcepts().length} due</span><span>→</span></span></a>
+      <a class="lcard tint c6" href="#casita"><span class="glyph">⌂</span>${companion(buddy().id, 72)}<h3>Casita</h3><p>Your friends, their outfits and the shop.</p><span class="foot"><span>${COIN} ${S.coins || 0}${chestReady('daily') || chestReady('weekly') ? ' · chest ready' : ''}</span><span>→</span></span></a>
     </div>
   </section>
 
