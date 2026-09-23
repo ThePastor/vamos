@@ -80,7 +80,7 @@ app and clearing its site data. To have a synced account deleted, ask.
 
 ## Contact and law
 
-johnsonandy242@gmail.com
+johnsonxcorp@outlook.com
 
 Governed by the laws of British Columbia and the federal laws of Canada applicable
 therein.
